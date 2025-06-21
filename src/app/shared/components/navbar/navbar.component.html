@@ -1,0 +1,53 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container">
+    <a class="navbar-brand ms-2" [routerLink]="['/']"
+      ><i class="bi bi-archive-fill me-1"></i>SGIVU</a
+      >
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarTogglerDemo02"
+        aria-controls="navbarTogglerDemo02"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+        >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar collapse -->
+      <div class="collapse navbar-collapse gap-4" id="navbarTogglerDemo02">
+        <div class="ms-auto">
+          @if (!isAuthenticated) {
+            <button class="btn btn-outline-primary" (click)="login()">
+              Iniciar Sesión
+            </button>
+          }
+        </div>
+        @if (isAuthenticated) {
+          <div class="dropdown me-5">
+            <a
+              href="#"
+              class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              >
+              <p>{{ authService.sub }}</p>
+            </a>
+            <ul class="dropdown-menu text-small shadow text-center">
+              <li><a class="dropdown-item" href="#">Perfil</a></li>
+              <li><a class="dropdown-item" href="#">Ajustes</a></li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item" (click)="logout()" type="button"
+                  >Cerrar sesión</a
+                  >
+                </li>
+              </ul>
+            </div>
+          }
+        </div>
+      </div>
+    </nav>

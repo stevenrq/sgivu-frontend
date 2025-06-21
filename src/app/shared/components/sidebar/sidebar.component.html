@@ -1,0 +1,116 @@
+<div class="wrapper">
+  <aside id="sidebar" class="expand">
+    <div class="d-flex">
+      <button class="toggle-btn" type="button" (click)="toggleSidebar()">
+        <i class="bi bi-grid"></i>
+      </button>
+      <div class="sidebar-logo">
+        <span class="fw-bolder text-light">Panel</span>
+      </div>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li class="sidebar-item">
+        <a href="#" class="sidebar-link">
+          <i class="bi bi-person-gear"></i>
+          <span>Perfil</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a
+          href="#"
+          class="sidebar-link collapsed has-dropdown"
+          data-bs-toggle="collapse"
+          data-bs-target="#users"
+          aria-expanded="false"
+          aria-controls="users"
+        >
+          <i class="bi bi-people"></i>
+          <span>Usuarios</span>
+        </a>
+        <ul
+          id="users"
+          class="sidebar-dropdown list-unstyled collapse"
+          data-bs-parent="#sidebar"
+        >
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link ms-4">
+              <i class="bi bi-person-add"></i>Registrar</a
+            >
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link ms-4">
+              <i class="bi bi-person-lines-fill"></i>Lista</a
+            >
+          </li>
+        </ul>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="#" class="sidebar-link">
+          <i class="bi bi-person-check"></i>
+          <span>Clientes</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a
+          href="#"
+          class="sidebar-link collapsed has-dropdown"
+          data-bs-toggle="collapse"
+          data-bs-target="#multi"
+          aria-expanded="false"
+          aria-controls="multi"
+        >
+          <i class="bi bi-layout-text-window-reverse"></i>
+          <span>Multi Level</span>
+        </a>
+        <ul
+          id="multi"
+          class="sidebar-dropdown list-unstyled collapse"
+          data-bs-parent="#sidebar"
+        >
+          <li class="sidebar-item">
+            <a
+              href="#"
+              class="sidebar-link collapsed ms-4"
+              data-bs-toggle="collapse"
+              data-bs-target="#multi-two"
+              aria-expanded="false"
+              aria-controls="multi-two"
+            >
+              <i class="bi bi-link"></i>Two Links
+            </a>
+            <ul id="multi-two" class="sidebar-dropdown list-unstyled collapse">
+              <li class="sidebar-item">
+                <a href="#" class="sidebar-link ms-5"
+                  ><i class="bi bi-link"></i>Link 1</a
+                >
+              </li>
+              <li class="sidebar-item ms-5">
+                <a href="#" class="sidebar-link"
+                  ><i class="bi bi-link"></i>Link 2</a
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="#" class="sidebar-link">
+          <i class="bi bi-app-indicator"></i>
+          <span>Notificaciónes</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="#" class="sidebar-link">
+          <i class="bi bi-gear"></i>
+          <span>Ajustes</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+</div>
