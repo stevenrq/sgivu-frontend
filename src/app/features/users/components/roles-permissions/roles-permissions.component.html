@@ -1,0 +1,320 @@
+<div class="container-fluid p-4">
+  <header class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1 fw-bold">Gestión de Roles y Permisos</h1>
+      <p class="text-muted mb-0">
+        Administra los roles del sistema y los permisos asociados a cada uno.
+      </p>
+    </div>
+    <div>
+      <button class="btn btn-primary" (click)="openCreateRoleModal()">
+        <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Rol
+      </button>
+    </div>
+  </header>
+
+  <div class="card">
+    <div
+      class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between"
+    >
+      <h5 class="card-title mb-0">Roles del Sistema</h5>
+      <div class="ms-auto d-flex align-items-center">
+        <div class="input-group">
+          <input
+            type="search"
+            class="form-control form-control-sm"
+            placeholder="Buscar rol..."
+          />
+          <button class="btn btn-outline-secondary" type="button">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Rol</th>
+              <th>Descripción</th>
+              <th class="text-center">Usuarios</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (role of roles; track role.id) {
+              <tr>
+                <td>
+                  <span class="fw-bold">{{ role.name }}</span>
+                </td>
+                <td>{{ role.description }}</td>
+                <td class="text-center">
+                  <span class="badge bg-secondary rounded-pill">{{
+                    role.userCount
+                  }}</span>
+                </td>
+                <td class="text-center">
+                  <div ngbDropdown container="body">
+                    <button
+                      class="btn btn-outline-secondary btn-sm btn-icon"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <button
+                          type="button"
+                          class="dropdown-item"
+                          (click)="openEditRoleModal(role)"
+                        >
+                          <i class="bi bi-pencil-square me-2"></i>Editar Rol
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          class="dropdown-item"
+                          (click)="openPermissionsModal(role)"
+                        >
+                          <i class="bi bi-shield-check me-2"></i>Gestionar
+                          Permisos
+                        </button>
+                      </li>
+                      <li>
+                        <hr class="dropdown-divider" />
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          class="dropdown-item text-danger"
+                          (click)="openDeleteModal(role)"
+                        >
+                          <i class="bi bi-trash3 me-2"></i>Eliminar Rol
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center text-muted py-5">
+                  <i class="bi bi-exclamation-circle fs-3 d-block mb-2"></i>
+                  <h5 class="mb-0">No se encontraron roles</h5>
+                  <p class="text-muted">
+                    No hay roles registrados en el sistema.
+                  </p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="roleModal"
+  tabindex="-1"
+  aria-labelledby="roleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="roleModalLabel">{{ roleModalTitle }}</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form #roleForm="ngForm">
+          <div class="mb-3">
+            <label for="roleName" class="form-label">Nombre del Rol</label>
+            <input
+              type="text"
+              class="form-control"
+              id="roleName"
+              name="roleName"
+              [(ngModel)]="roleToCreateOrEdit.name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="roleDescription" class="form-label">Descripción</label>
+            <textarea
+              class="form-control"
+              id="roleDescription"
+              name="roleDescription"
+              rows="3"
+              [(ngModel)]="roleToCreateOrEdit.description"
+              required
+            ></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveRole()"
+          [disabled]="roleForm.invalid"
+        >
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="permissionsModal"
+  tabindex="-1"
+  aria-labelledby="permissionsModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    @if (selectedRole) {
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="permissionsModalLabel">
+            Gestionar Permisos para:
+            <span class="fw-bold">{{ selectedRole.name }}</span>
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted">
+            Selecciona los permisos que deseas asignar a este rol.
+          </p>
+          <div class="accordion" id="permissionsAccordion">
+            @for (group of permissionGroups; track group.groupName) {
+              <div class="accordion-item">
+                <h2 class="accordion-header" [id]="'heading-' + $index">
+                  <button
+                    class="accordion-button"
+                    [class.collapsed]="$index !== 0"
+                    type="button"
+                    [attr.data-bs-toggle]="'collapse'"
+                    [attr.data-bs-target]="'#collapse-' + $index"
+                    [attr.aria-expanded]="$index === 0"
+                  >
+                    {{ group.groupName }}
+                  </button>
+                </h2>
+                <div
+                  [id]="'collapse-' + $index"
+                  class="accordion-collapse collapse"
+                  [class.show]="$index === 0"
+                  [attr.aria-labelledby]="'heading-' + $index"
+                  data-bs-parent="#permissionsAccordion"
+                >
+                  <div class="accordion-body">
+                    @for (
+                      permission of group.permissions;
+                      track permission.key
+                    ) {
+                      <div class="form-check form-switch mb-2">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [id]="permission.key"
+                          [checked]="hasPermission(permission.key)"
+                          (change)="togglePermission($event, permission.key)"
+                        />
+                        <label class="form-check-label" [for]="permission.key">
+                          {{ permission.label }}
+                        </label>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cerrar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="savePermissions()"
+          >
+            Guardar Permisos
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="deleteConfirmationModal"
+  tabindex="-1"
+  aria-labelledby="deleteConfirmationModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    @if (roleToDelete) {
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteConfirmationModalLabel">
+            Confirmar Eliminación
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas eliminar el rol
+          <strong>{{ roleToDelete.name }}</strong
+          >? Esta acción no se puede deshacer.
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="confirmDelete()"
+          >
+            Eliminar Rol
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

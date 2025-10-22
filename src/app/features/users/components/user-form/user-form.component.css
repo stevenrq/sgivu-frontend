@@ -1,0 +1,14 @@
+.input-group > .form-floating {
+  flex: 1 1 auto;
+  width: 1%;
+}
+
+.input-group > .form-floating:not(:last-child) .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+fieldset legend {
+  font-size: 0.9rem;
+  font-weight: 600;
+}

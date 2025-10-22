@@ -1,0 +1,7 @@
+.main-content-wrapper {
+  overflow: hidden;
+}
+
+main {
+  overflow-y: auto;
+}

@@ -1,0 +1,61 @@
+<header class="d-flex justify-content-center align-items-center mb mt-4 mx-5">
+  <div class="d-flex align-items-center w-100 justify-content-between">
+    <p class="h3 mb-0">SGIVU</p>
+    <form class="d-none d-md-inline-block w-25">
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar vehículo..."
+        />
+        <button class="btn btn-outline-secondary" type="button">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </form>
+
+    @if (isAuthenticated$ | async) {
+      @if (user$ | async; as user) {
+        <div class="dropdown">
+          <a
+            href="#"
+            class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <img
+              src="https://placehold.co/120x120/EFEFEF/333333?text={{
+                user.firstName.charAt(0)
+              }}{{ user.lastName.charAt(0) }}"
+              alt="Avatar del usuario"
+              width="32"
+              height="32"
+              class="rounded-circle me-2"
+            />
+            <strong>{{ user.username }}</strong>
+          </a>
+          <ul class="dropdown-menu text-small shadow">
+            <li>
+              <a class="dropdown-item" routerLink="/users/profile">Mi Perfil</a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/settings">Configuración</a>
+            </li>
+            <li>
+              <hr class="dropdown-divider" />
+            </li>
+            <li>
+              <a class="dropdown-item" type="button" (click)="logout()"
+                >Cerrar Sesión</a
+              >
+            </li>
+          </ul>
+        </div>
+      }
+    } @else {
+      <div class="spinner-border">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    }
+  </div>
+</header>

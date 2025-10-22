@@ -1,0 +1,57 @@
+@if (pager && pager.totalPages > 1) {
+  <nav
+    class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+  >
+    <div class="text-muted small">
+      Mostrando <strong>{{ pager.number + 1 }}</strong> de
+      <strong>{{ pager.totalPages }}</strong>
+    </div>
+    <ul class="pagination mb-0">
+      <li class="page-item" [class.disabled]="pager.first">
+        <a
+          class="page-link"
+          [routerLink]="[url, firstPageIndex]"
+          aria-label="Primera"
+        >
+          <span aria-hidden="true">&laquo;&laquo;</span>
+        </a>
+      </li>
+
+      <li class="page-item" [class.disabled]="pager.first">
+        <a
+          class="page-link"
+          [routerLink]="[url, pager.number - 1]"
+          aria-label="Anterior"
+        >
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+
+      @for (page of pages; track page) {
+        <li class="page-item" [class.active]="page === pager.number + 1">
+          <a class="page-link" [routerLink]="[url, page - 1]">{{ page }}</a>
+        </li>
+      }
+
+      <li class="page-item" [class.disabled]="pager.last">
+        <a
+          class="page-link"
+          [routerLink]="[url, pager.number + 1]"
+          aria-label="Siguiente"
+        >
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+
+      <li class="page-item" [class.disabled]="pager.last">
+        <a
+          class="page-link"
+          [routerLink]="[url, lastPageIndex]"
+          aria-label="Última"
+        >
+          <span aria-hidden="true">&raquo;&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+}

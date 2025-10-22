@@ -1,0 +1,47 @@
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Estilo para las tarjetas de configuración */
+.config-card {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease-in-out;
+}
+
+.config-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Estilo para el menú de navegación lateral */
+.nav-pills .nav-link {
+  color: #495057;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #0d6efd;
+  box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.4);
+}
+
+.nav-pills .nav-link i {
+  margin-right: 0.75rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* Estilos para los interruptores (toggles) */
+.form-switch .form-check-input {
+  cursor: pointer;
+  width: 3.5em;
+  height: 1.75em;
+}
+
+.form-switch .form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}

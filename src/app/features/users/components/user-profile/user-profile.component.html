@@ -1,0 +1,187 @@
+@if (user) {
+  <div class="container mt-5 mb-5">
+    <div class="profile-header text-center">
+      <img
+        src="https://placehold.co/120x120/EFEFEF/333333?text={{
+          user.firstName.charAt(0)
+        }}{{ user.lastName.charAt(0) }}"
+        alt="Foto de Perfil"
+        class="profile-picture mb-3"
+      />
+      <h1 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h1>
+      <p class="profile-username">&#64;{{ user.username }}</p>
+      <div class="mt-3">
+        @if (user.enabled) {
+          <span class="badge rounded-pill bg-light text-dark">Activo</span>
+        } @else {
+          <span class="badge rounded-pill bg-danger">Inactivo</span>
+        }
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-header">
+            <i class="bi bi-person-circle me-2"></i>Información Personal
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p class="info-label">Nombre Completo</p>
+                <p class="info-value">
+                  {{ user.firstName }} {{ user.lastName }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="info-label">Cédula de Ciudadanía</p>
+                <p class="info-value">{{ user.nationalId }}</p>
+              </div>
+              <div class="col-md-6">
+                <p class="info-label">Correo Electrónico</p>
+                <p class="info-value">
+                  <i class="bi bi-envelope-fill"></i>{{ user.email }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="info-label">Número de Teléfono</p>
+                <p class="info-value">
+                  <i class="bi bi-telephone-fill"></i>{{ user.phoneNumber }}
+                </p>
+              </div>
+              <div class="col-md-12">
+                <p class="info-label">Dirección</p>
+                <p class="info-value mb-0">
+                  <i class="bi bi-geo-alt-fill"></i>{{ user.address.street }},
+                  #{{ user.address.number }}, {{ user.address.city }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <i class="bi bi-clock-history me-2"></i>Actividad Reciente
+          </div>
+          <div class="card-body activity-log">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex align-items-center">
+                <span class="activity-icon text-success"
+                  ><i class="bi bi-plus-circle-fill fs-4"></i
+                ></span>
+                <div>
+                  <strong>Registró un nuevo vehículo:</strong> Mazda 3 (Placa:
+                  XYZ-123)
+                  <small class="d-block text-muted">Hace 2 horas</small>
+                </div>
+              </li>
+              <li class="list-group-item d-flex align-items-center">
+                <span class="activity-icon text-primary"
+                  ><i class="bi bi-currency-dollar fs-4"></i
+                ></span>
+                <div>
+                  <strong>Completó una venta:</strong> Yamaha NMAX (Cliente:
+                  Juan Pérez)
+                  <small class="d-block text-muted">Ayer a las 3:45 PM</small>
+                </div>
+              </li>
+              <li class="list-group-item d-flex align-items-center">
+                <span class="activity-icon text-info"
+                  ><i class="bi bi-person-fill-gear fs-4"></i
+                ></span>
+                <div>
+                  <strong>Actualizó el perfil del cliente:</strong> Ana García
+                  <small class="d-block text-muted">Hace 3 días</small>
+                </div>
+              </li>
+              <li class="list-group-item d-flex align-items-center">
+                <span class="activity-icon text-secondary"
+                  ><i class="bi bi-box-arrow-in-right fs-4"></i
+                ></span>
+                <div>
+                  <strong>Inició sesión</strong> desde una nueva ubicación.
+                  <small class="d-block text-muted">La semana pasada</small>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <a class="text-decoration-none" routerLink="/roles-permissions">
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="bi bi-shield-lock-fill me-2"></i>Roles y Permisos
+            </div>
+            <div class="card-body">
+              <p class="info-label">Roles Asignados</p>
+              <div class="mb-3">
+                @for (role of user.roles; track role.id) {
+                  <span class="badge bg-primary role-badge me-1">{{
+                    role.name
+                  }}</span>
+                }
+              </div>
+              <p class="info-label mt-4">Permisos Clave</p>
+              <ul class="list-unstyled">
+                @for (
+                  permissionName of userPermissionNames;
+                  track permissionName
+                ) {
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    {{ permissionMap[permissionName] }}
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        </a>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <i class="bi bi-gear-fill me-2"></i>Acciones
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              @if (canEdit) {
+                <a
+                  class="btn btn-primary"
+                  [routerLink]="
+                    isOwnProfile ? ['/users/profile/edit'] : ['/users', user.id]
+                  "
+                  title="Editar Perfil"
+                >
+                  <i class="bi bi-pencil-square me-2"></i>Editar Perfil
+                </a>
+              }
+              <button
+                [ngClass]="user.enabled ? 'btn-danger' : 'btn-success'"
+                class="btn mt-3"
+                (click)="updateStatus(user.id, !user.enabled)"
+                *appHasPermission="'user:update'"
+              >
+                <i
+                  class="bi me-2"
+                  [ngClass]="
+                    user.enabled ? 'bi-trash-fill' : 'bi-check-circle-fill'
+                  "
+                ></i
+                >{{ user.enabled ? "Desactivar Cuenta" : "Activar Cuenta" }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Cargando perfil de usuario...</p>
+  </div>
+}
