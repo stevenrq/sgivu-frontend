@@ -35,6 +35,14 @@ export class UserProfileComponent implements OnInit {
     'permission:read': 'Leer Permisos',
     'permission:update': 'Actualizar Permisos',
     'permission:delete': 'Eliminar Permisos',
+    'person:create': 'Crear Personas',
+    'person:read': 'Leer Personas',
+    'person:update': 'Actualizar Personas',
+    'person:delete': 'Eliminar Personas',
+    'company:create': 'Crear Compañías',
+    'company:read': 'Leer Compañías',
+    'company:update': 'Actualizar Compañías',
+    'company:delete': 'Eliminar Compañías',
   };
 
   constructor(
