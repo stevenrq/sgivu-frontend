@@ -8,13 +8,13 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
-  startWith,
+  forkJoin,
   Subscription,
 } from 'rxjs';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule } from '@angular/forms';
-import { switchMap } from 'rxjs/operators';
+import { finalize, switchMap, tap } from 'rxjs/operators';
 import { UserUiHelperService } from '../../../../shared/services/user-ui-helper.service';
 
 @Component({
@@ -50,18 +50,19 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
-      const page: string | null = params.get('page');
-      this.isLoading = true;
-      this.loadUsers(+(page || '0'));
-      this.isLoading = false;
+      const pageParam = params.get('page');
+      const parsedPage = Number(pageParam);
+      this.loadUsers(Number.isNaN(parsedPage) ? 0 : parsedPage);
     });
 
     this.searchControl.valueChanges
       .pipe(
-        startWith(''),
         debounceTime(300),
         filter((term): term is string => term !== null),
         distinctUntilChanged(),
+        tap(() => {
+          this.isLoading = true;
+        }),
         switchMap((term: string) => {
           this.error = null;
 
@@ -75,10 +76,12 @@ export class UserListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (users) => {
           this.users = users;
+          this.isLoading = false;
         },
         error: (err) => {
           console.error(err);
           this.error = 'Error al cargar usuarios';
+          this.isLoading = false;
         },
       });
   }
@@ -88,44 +91,58 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   private loadUsers(page: number): void {
-    this.userService.getUserCount().subscribe((userCount) => {
-      this.activeUsers = userCount.activeUsers;
-      this.inactiveUsers = userCount.inactiveUsers;
-    });
+    this.isLoading = true;
 
-    this.userService.getAllPaginated(page).subscribe({
-      next: (pager) => {
-        this.users = pager.content;
-        this.pager = pager;
-        this.totalUsers = pager.totalElements ?? 0;
-      },
-    });
+    forkJoin({
+      userCount: this.userService.getUserCount(),
+      pager: this.userService.getAllPaginated(page),
+    })
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
+        next: ({ userCount, pager }) => {
+          this.activeUsers = userCount.activeUsers;
+          this.inactiveUsers = userCount.inactiveUsers;
+          this.totalUsers = pager.totalElements ?? 0;
+          this.users = pager.content;
+          this.pager = pager;
+        },
+        error: (err) => {
+          console.error(err);
+          this.error = 'Error al cargar usuarios';
+          this.users = [];
+          this.pager = undefined;
+        },
+      });
   }
 
   protected search(): void {
-    if (!this.searchTerm.trim()) {
-      this.userService.getAll().subscribe({
+    const trimmedTerm = this.searchTerm.trim();
+    this.isLoading = true;
+
+    const request$ = trimmedTerm
+      ? this.userService.searchUsersByName(trimmedTerm)
+      : this.userService.getAll();
+
+    request$
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe({
         next: (users) => {
+          this.error = null;
           this.users = users;
         },
         error: (err) => {
-          console.log(err);
+          console.error(err);
           this.error = 'Error al buscar usuarios.';
         },
       });
-      return;
-    }
-    this.error = null;
-
-    this.userService.searchUsersByName(this.searchTerm).subscribe({
-      next: (users) => {
-        this.users = users;
-      },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Error al buscar usuarios.';
-      },
-    });
   }
 
   public updateStatus(id: number, status: boolean): void {
