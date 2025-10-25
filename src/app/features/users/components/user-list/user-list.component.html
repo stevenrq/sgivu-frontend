@@ -84,7 +84,12 @@
       </div>
     </div>
     <div class="card-body p-0">
-      <div class="table-responsive">
+      <div class="table-responsive position-relative">
+        <div *ngIf="isLoading" class="loading-overlay">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
@@ -215,13 +220,13 @@
                 </td>
               </tr>
             } @empty {
-              <tr>
-                <td colspan="6" class="text-center text-muted py-5">
-                  <div class="spinner-border">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                </td>
-              </tr>
+              @if (!isLoading) {
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-5">
+                    No hay usuarios para mostrar.
+                  </td>
+                </tr>
+              }
             }
           </tbody>
         </table>
