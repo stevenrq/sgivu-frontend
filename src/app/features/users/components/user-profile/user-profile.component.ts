@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { User } from '../../../../shared/models/user.model';
+import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import Swal from 'sweetalert2';

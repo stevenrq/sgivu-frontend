@@ -5,7 +5,7 @@ import { BehaviorSubject, combineLatest, map, Observable, tap } from 'rxjs';
 import { authCodeFlowConfig } from '../config/auth-config';
 import { AccessTokenPayload } from '../../../shared/interfaces/access-token-payload.interface';
 import { IdTokenPayload } from '../../../shared/interfaces/id-token-payload.interface';
-import { User } from '../../../shared/models/user.model';
+import { User } from '../../users/models/user.model';
 import { UserService } from '../../users/services/user.service';
 
 enum OAuthEventType {

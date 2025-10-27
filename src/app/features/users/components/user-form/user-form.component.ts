@@ -1,23 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
-  FormControl,
 } from '@angular/forms';
 import { NgClass } from '@angular/common';
-import { User } from '../../../../shared/models/user.model';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, Subscription, finalize } from 'rxjs';
+import Swal from 'sweetalert2';
 import {
   lengthValidator,
   noSpecialCharactersValidator,
   passwordStrengthValidator,
 } from '../../../../shared/validators/form.validator';
-import { UserService } from '../../services/user.service';
-import Swal from 'sweetalert2';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
 import { Address } from '../../../../shared/models/address.model';
+import { User } from '../../models/user.model';
+import { UserService } from '../../services/user.service';
+import { AuthService } from '../../../auth/services/auth.service';
 
 interface AddressFormControls {
   street: FormControl<string | null>;
@@ -26,27 +27,90 @@ interface AddressFormControls {
 }
 
 interface UserFormControls {
-  nationalId: FormControl<number | null>;
+  nationalId: FormControl<string | null>;
   firstName: FormControl<string | null>;
   lastName: FormControl<string | null>;
-  phoneNumber: FormControl<number | null>;
+  phoneNumber: FormControl<string | null>;
   email: FormControl<string | null>;
   address: FormGroup<AddressFormControls>;
   username: FormControl<string | null>;
   password: FormControl<string | null>;
 }
 
+interface SubmitConfig {
+  request$: Observable<unknown>;
+  successMessage: string;
+  errorMessage: string;
+  redirectCommand: Array<string | number>;
+}
+
+interface SubmitCopy {
+  createSuccess: string;
+  updateSuccess: string;
+  createError: string;
+  updateError: string;
+  redirectCommand: Array<string | number>;
+}
+
+interface ViewCopy {
+  createTitle: string;
+  editTitle: string;
+  createSubtitle: string;
+  editSubtitle: string;
+}
+
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, NgClass, RouterLink],
+  imports: [ReactiveFormsModule, NgClass],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css',
 })
-export class UserFormComponent implements OnInit {
+export class UserFormComponent implements OnInit, OnDestroy {
   formGroup: FormGroup<UserFormControls>;
-  showPassword: boolean;
-  isEditMode: boolean = false;
+  showPassword = false;
+  isEditMode = false;
+  isSubmitting = false;
+
   private currentUserId: number | null = null;
+  private currentAddressId: number | null = null;
+
+  private readonly loadingSignal = signal<boolean>(false);
+  readonly isLoading = computed(() => this.loadingSignal());
+
+  private readonly submitCopy: SubmitCopy = {
+    createSuccess: 'El usuario fue registrado exitosamente.',
+    updateSuccess: 'La información del usuario fue actualizada exitosamente.',
+    createError:
+      'No se pudo registrar el usuario. Intenta nuevamente en unos momentos.',
+    updateError:
+      'No se pudo actualizar el usuario. Intenta nuevamente en unos momentos.',
+    redirectCommand: ['/users/page', 0],
+  };
+
+  private readonly viewCopy: ViewCopy = {
+    createTitle: 'Crear Nuevo Usuario',
+    editTitle: 'Editar Usuario',
+    createSubtitle:
+      'Completa el formulario para registrar un nuevo usuario en el sistema.',
+    editSubtitle: 'Modifica los datos del usuario seleccionado.',
+  };
+
+  private readonly initialValue = {
+    nationalId: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    email: '',
+    address: {
+      street: '',
+      number: '',
+      city: '',
+    },
+    username: '',
+    password: '',
+  };
+
+  private readonly subscriptions: Subscription[] = [];
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -55,61 +119,144 @@ export class UserFormComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly authService: AuthService,
   ) {
-    this.formGroup = this.formBuilder.group({} as UserFormControls);
-    this.showPassword = false;
+    this.formGroup = this.buildForm();
   }
 
   ngOnInit(): void {
-    this.initializeForm();
-    this.managePasswordValidators();
+    this.configurePasswordWatcher();
+    const isSelfEdit = this.route.snapshot.data?.['selfEdit'] === true;
 
-    const isSelfEdit = this.route.snapshot.data['selfEdit'] === true;
-
-    this.route.paramMap.subscribe((params) => {
-      const idString = params.get('id');
-      if (idString) {
-        const id = Number(idString);
-        if (!isNaN(id)) {
-          this.setupEditMode(id);
-        } else {
-          this.showErrorAlert('El ID de usuario proporcionado no es válido.');
-          this.router.navigateByUrl('/users');
+    const paramsSub = this.route.paramMap.subscribe((params) => {
+      const idParam = params.get('id');
+      if (idParam) {
+        const id = Number(idParam);
+        if (Number.isNaN(id)) {
+          this.showErrorAlert('El identificador proporcionado no es válido.');
+          void this.router.navigate(['/users/page', 0]);
+          return;
         }
-      } else if (isSelfEdit) {
+
+        this.activateEditMode(id);
+        return;
+      }
+
+      if (isSelfEdit) {
         const currentUserId = this.authService.getUserId();
-        if (currentUserId) {
-          this.setupEditMode(currentUserId);
-        } else {
-          this.showErrorAlert('No se pudo identificar al usuario actual.');
-          this.router.navigateByUrl('/login');
+        if (currentUserId != null) {
+          this.activateEditMode(currentUserId);
+          return;
         }
+
+        this.showErrorAlert('No se pudo identificar al usuario actual.');
+        void this.router.navigate(['/login']);
+        return;
       }
+
+      this.resetToCreateMode();
+    });
+
+    this.subscriptions.push(paramsSub);
+  }
+
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
+  get nationalId() {
+    return this.formGroup.get('nationalId');
+  }
+
+  get firstName() {
+    return this.formGroup.get('firstName');
+  }
+
+  get lastName() {
+    return this.formGroup.get('lastName');
+  }
+
+  get phoneNumber() {
+    return this.formGroup.get('phoneNumber');
+  }
+
+  get email() {
+    return this.formGroup.get('email');
+  }
+
+  get username() {
+    return this.formGroup.get('username');
+  }
+
+  get password() {
+    return this.formGroup.get('password');
+  }
+
+  get addressGroup(): FormGroup<AddressFormControls> | null {
+    return this.formGroup.get('address') as FormGroup<AddressFormControls>;
+  }
+
+  get street() {
+    return this.addressGroup?.get('street');
+  }
+
+  get number() {
+    return this.addressGroup?.get('number');
+  }
+
+  get city() {
+    return this.addressGroup?.get('city');
+  }
+
+  get headerIcon(): string {
+    return this.isEditMode ? 'bi-pencil-square' : 'bi-person-plus-fill';
+  }
+
+  get titleText(): string {
+    return this.isEditMode
+      ? this.viewCopy.editTitle
+      : this.viewCopy.createTitle;
+  }
+
+  get subtitleText(): string {
+    return this.isEditMode
+      ? this.viewCopy.editSubtitle
+      : this.viewCopy.createSubtitle;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  protected onSubmit(): void {
+    if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
+      return;
+    }
+
+    const { request$, successMessage, errorMessage, redirectCommand } =
+      this.buildSubmitConfig();
+
+    this.isSubmitting = true;
+
+    request$.pipe(finalize(() => (this.isSubmitting = false))).subscribe({
+      next: () => {
+        this.showSuccessAlert(successMessage);
+        void this.router.navigate(redirectCommand);
+      },
+      error: () => {
+        this.showErrorAlert(errorMessage);
+      },
     });
   }
 
-  private managePasswordValidators(): void {
-    const passwordControl = this.formGroup.get('password');
-    if (!passwordControl) return;
-
-    passwordControl.valueChanges.subscribe((value) => {
-      if (this.isEditMode) {
-        if (value) {
-          passwordControl.setValidators([
-            Validators.required,
-            lengthValidator(6, 20),
-            passwordStrengthValidator(),
-          ]);
-        } else {
-          passwordControl.clearValidators();
-        }
-        passwordControl.updateValueAndValidity({ emitEvent: false });
-      }
-    });
+  protected onCancel(): void {
+    void this.router.navigate(this.submitCopy.redirectCommand);
   }
 
-  private initializeForm(): void {
-    this.formGroup = this.formBuilder.group({
-      nationalId: new FormControl<number | null>(null, [
+  private buildForm(): FormGroup<UserFormControls> {
+    return this.formBuilder.group({
+      nationalId: new FormControl<string | null>('', [
         Validators.required,
         Validators.pattern(/^\d+$/),
         lengthValidator(7, 10),
@@ -122,7 +269,7 @@ export class UserFormComponent implements OnInit {
         Validators.required,
         lengthValidator(3, 20),
       ]),
-      phoneNumber: new FormControl<number | null>(null, [
+      phoneNumber: new FormControl<string | null>('', [
         Validators.required,
         Validators.pattern(/^\d+$/),
         lengthValidator(10, 10),
@@ -159,134 +306,192 @@ export class UserFormComponent implements OnInit {
     });
   }
 
-  private setupEditMode(id: number): void {
+  private configurePasswordWatcher(): void {
+    const passwordControl = this.password;
+    if (!passwordControl) {
+      return;
+    }
+
+    const sub = passwordControl.valueChanges.subscribe((value) => {
+      if (!this.isEditMode) {
+        return;
+      }
+
+      if (value) {
+        passwordControl.setValidators([
+          lengthValidator(6, 20),
+          passwordStrengthValidator(),
+        ]);
+      } else {
+        passwordControl.clearValidators();
+      }
+
+      passwordControl.updateValueAndValidity({ emitEvent: false });
+    });
+
+    this.subscriptions.push(sub);
+  }
+
+  private activateEditMode(id: number): void {
+    if (this.currentUserId === id && this.isEditMode) {
+      return;
+    }
+
     this.isEditMode = true;
     this.currentUserId = id;
+    this.applyEditPasswordBehaviour();
+    this.loadUserForEdit(id);
+  }
+
+  private loadUserForEdit(id: number): void {
+    this.loadingSignal.set(true);
+
+    const sub = this.userService
+      .getById(id)
+      .pipe(finalize(() => this.loadingSignal.set(false)))
+      .subscribe({
+        next: (user) => {
+          this.currentAddressId = user.address?.id ?? null;
+          this.formGroup.patchValue({
+            nationalId: user.nationalId?.toString() ?? '',
+            firstName: user.firstName ?? '',
+            lastName: user.lastName ?? '',
+            phoneNumber: user.phoneNumber?.toString() ?? '',
+            email: user.email ?? '',
+            address: {
+              street: user.address?.street ?? '',
+              number: user.address?.number ?? '',
+              city: user.address?.city ?? '',
+            },
+            username: user.username ?? '',
+            password: '',
+          });
+          this.formGroup.markAsPristine();
+          this.formGroup.markAsUntouched();
+        },
+        error: () => {
+          this.showErrorAlert(
+            'No se pudo cargar la información del usuario solicitado.',
+          );
+          void this.router.navigate(this.submitCopy.redirectCommand);
+        },
+      });
+
+    this.subscriptions.push(sub);
+  }
+
+  private resetToCreateMode(): void {
+    this.isEditMode = false;
+    this.currentUserId = null;
+    this.currentAddressId = null;
+    this.formGroup.reset(this.initialValue);
+    this.applyCreatePasswordBehaviour();
+    this.formGroup.markAsPristine();
+    this.formGroup.markAsUntouched();
+  }
+
+  private applyEditPasswordBehaviour(): void {
+    this.password?.setValue('', { emitEvent: false });
     this.password?.clearValidators();
     this.password?.updateValueAndValidity({ emitEvent: false });
-    this.loadUserData(id);
   }
 
-  private loadUserData(id: number): void {
-    this.userService.getById(id).subscribe({
-      next: (user) => {
-        this.formGroup.patchValue({
-          ...user,
-          password: null,
-        });
-      },
-      error: () => {
-        this.showErrorAlert('No se pudo cargar la información del usuario.');
-        this.router.navigateByUrl('/users');
-      },
-    });
+  private applyCreatePasswordBehaviour(): void {
+    this.password?.setValidators([
+      Validators.required,
+      lengthValidator(6, 20),
+      passwordStrengthValidator(),
+    ]);
+    this.password?.updateValueAndValidity({ emitEvent: false });
   }
 
-  get nationalId() {
-    return this.formGroup.get('nationalId');
-  }
-  get firstName() {
-    return this.formGroup.get('firstName');
-  }
-  get lastName() {
-    return this.formGroup.get('lastName');
-  }
-  get phoneNumber() {
-    return this.formGroup.get('phoneNumber');
-  }
-  get email() {
-    return this.formGroup.get('email');
-  }
-  get username() {
-    return this.formGroup.get('username');
-  }
-  get password() {
-    return this.formGroup.get('password');
+  private buildSubmitConfig(): SubmitConfig {
+    const payload = this.buildUserPayload();
+
+    const request$ =
+      this.isEditMode && this.currentUserId != null
+        ? this.userService.update(this.currentUserId, payload as User)
+        : this.userService.create(payload as User);
+
+    return {
+      request$,
+      successMessage: this.isEditMode
+        ? this.submitCopy.updateSuccess
+        : this.submitCopy.createSuccess,
+      errorMessage: this.isEditMode
+        ? this.submitCopy.updateError
+        : this.submitCopy.createError,
+      redirectCommand: [...this.submitCopy.redirectCommand],
+    };
   }
 
-  get street() {
-    return this.formGroup.get('address.street');
-  }
-  get number() {
-    return this.formGroup.get('address.number');
-  }
-  get city() {
-    return this.formGroup.get('address.city');
-  }
-
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
-  }
-
-  onSubmit() {
-    if (this.formGroup.invalid) return;
-
-    const userFormData = this.formGroup.getRawValue();
-
-    const user: Partial<User> = {
-      nationalId: userFormData.nationalId ?? undefined,
-      firstName: userFormData.firstName ?? undefined,
-      lastName: userFormData.lastName ?? undefined,
-      phoneNumber: userFormData.phoneNumber ?? undefined,
-      email: userFormData.email ?? undefined,
-      address: userFormData.address as Address,
-      username: userFormData.username?.toLowerCase() ?? undefined,
-      password: userFormData.password ?? undefined,
+  private buildUserPayload(): Partial<User> {
+    const raw = this.formGroup.getRawValue();
+    const payload: Partial<User> = {
+      nationalId: this.toNumber(raw.nationalId),
+      firstName: raw.firstName?.trim() ?? '',
+      lastName: raw.lastName?.trim() ?? '',
+      phoneNumber: this.toNumber(raw.phoneNumber),
+      email: raw.email?.trim() ?? '',
+      username: raw.username?.trim().toLowerCase() ?? '',
+      password: raw.password?.trim() || undefined,
+      address: this.normalizeAddress(),
     };
 
-    if (this.isEditMode) {
-      if (!user.password) {
-        delete user.password;
-      }
-      this.updateUser(this.currentUserId as number, user as User);
-    } else {
-      this.createUser(user as User);
+    if (!payload.password) {
+      delete payload.password;
     }
+
+    if (this.isEditMode && this.currentUserId != null) {
+      payload.id = this.currentUserId;
+    }
+
+    return payload;
   }
 
-  private createUser(user: User): void {
-    this.userService.create(user).subscribe({
-      next: () => {
-        this.showSuccessAlert(
-          'Usuario creado',
-          'El usuario fue registrado exitosamente.',
-        );
-        this.formGroup.reset();
-        this.router.navigateByUrl('/users');
-      },
-      error: () =>
-        this.showErrorAlert(
-          'No se pudo registrar el usuario. Intenta nuevamente.',
-        ),
+  private normalizeAddress(): Address {
+    const addressGroup = this.addressGroup?.getRawValue() ?? {
+      street: '',
+      number: '',
+      city: '',
+    };
+
+    const address: Address = {
+      street: addressGroup.street?.trim() ?? '',
+      number: addressGroup.number?.trim() ?? '',
+      city: addressGroup.city?.trim() ?? '',
+    };
+
+    if (this.isEditMode && this.currentAddressId != null) {
+      address.id = this.currentAddressId;
+    }
+
+    return address;
+  }
+
+  private toNumber(value: string | null | undefined): number | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  private showSuccessAlert(message: string): void {
+    void Swal.fire({
+      icon: 'success',
+      title: 'Operación exitosa',
+      text: message,
+      confirmButtonColor: '#0d6efd',
     });
   }
 
-  private updateUser(id: number, user: User): void {
-    this.userService.update(id, user).subscribe({
-      next: () => {
-        this.showSuccessAlert(
-          'Usuario actualizado',
-          'La información del usuario fue actualizada exitosamente.',
-        );
-        this.formGroup.reset();
-        this.router.navigateByUrl('/users');
-      },
-      error: () =>
-        this.showErrorAlert(
-          'No se pudo actualizar el usuario. Intenta nuevamente.',
-        ),
-    });
-  }
-
-  private showSuccessAlert(title: string, text: string): void {
-    Swal.fire({ icon: 'success', title, text, confirmButtonColor: '#3085d6' });
-  }
-
-  private showErrorAlert(text: string): void {
-    Swal.fire({
+  private showErrorAlert(message: string): void {
+    void Swal.fire({
       icon: 'error',
-      title: 'Error',
-      text,
+      title: 'Ha ocurrido un error',
+      text: message,
       confirmButtonColor: '#d33',
     });
   }

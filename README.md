@@ -66,7 +66,7 @@ El archivo `src/app/features/auth/config/auth-config.ts` consume estos valores p
 
 ## 🧩 Estructura del Proyecto
 
-```
+```text
 ├── src/
 │   ├── app/
 │   │   ├── app.config.ts
