@@ -1,5 +1,5 @@
 import { Person } from './person.model';
-import { Role } from './role.model';
+import { Role } from '../../../shared/models/role.model';
 
 export class User extends Person {
   username!: string;

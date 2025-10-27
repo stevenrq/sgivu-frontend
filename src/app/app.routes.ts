@@ -10,6 +10,7 @@ import { RolesPermissionsComponent } from './features/users/components/roles-per
 import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 import { SettingsComponent } from './shared/components/settings/settings.component';
 import { PermissionService } from './features/auth/services/permission.service';
+import { clientRoutes } from './features/clients/client.routes';
 
 export const routes: Routes = [
   {
@@ -36,6 +37,10 @@ export const routes: Routes = [
   {
     path: 'users',
     children: userRoutes,
+  },
+  {
+    path: 'clients',
+    children: clientRoutes,
   },
   {
     path: 'settings',

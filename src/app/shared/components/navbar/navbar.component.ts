@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { UserService } from '../../../features/users/services/user.service';
-import { User } from '../../models/user.model';
+import { User } from '../../../features/users/models/user.model';
 import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AsyncPipe } from '@angular/common';

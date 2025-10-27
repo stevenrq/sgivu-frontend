@@ -11,7 +11,7 @@ import {
   take,
   tap,
 } from 'rxjs';
-import { User } from '../../../shared/models/user.model';
+import { User } from '../../users/models/user.model';
 import { environment } from '../../../../environments/environment';
 import { Permission } from '../../../shared/models/permission.model';
 import { HttpClient } from '@angular/common/http';
