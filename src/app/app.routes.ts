@@ -11,6 +11,7 @@ import { NotFoundComponent } from './shared/components/not-found/not-found.compo
 import { SettingsComponent } from './shared/components/settings/settings.component';
 import { PermissionService } from './features/auth/services/permission.service';
 import { clientRoutes } from './features/clients/client.routes';
+import { vehicleRoutes } from './features/vehicles/vehicle.routes';
 
 export const routes: Routes = [
   {
@@ -41,6 +42,10 @@ export const routes: Routes = [
   {
     path: 'clients',
     children: clientRoutes,
+  },
+  {
+    path: 'vehicles',
+    children: vehicleRoutes,
   },
   {
     path: 'settings',

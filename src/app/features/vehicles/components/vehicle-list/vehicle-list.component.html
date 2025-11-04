@@ -1,0 +1,511 @@
+<div class="container-fluid">
+  <header
+    class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3"
+  >
+    <div>
+      <h1 class="h3 mb-2 fw-bold">Gestión de Vehículos</h1>
+      <p class="text-muted mb-0">
+        Administra el inventario de automóviles y motocicletas registrados en
+        SGIVU.
+      </p>
+    </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+      <div class="btn-group toggle-group" aria-label="Tipo de vehículo">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [class.active]="activeTab === 'car'"
+          (click)="switchTab('car')"
+          *appHasPermission="'car:read'"
+        >
+          <i class="bi bi-car-front-fill me-2"></i>Automóviles
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [class.active]="activeTab === 'motorcycle'"
+          (click)="switchTab('motorcycle')"
+          *appHasPermission="'motorcycle:read'"
+        >
+          <i class="bi bi-bicycle me-2"></i>Motocicletas
+        </button>
+      </div>
+      <button
+        class="btn btn-primary"
+        type="button"
+        [routerLink]="createLink"
+        *appHasPermission="createPermission"
+      >
+        <i class="bi bi-plus-circle me-2"></i>{{ createLabel }}
+      </button>
+    </div>
+  </header>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card kpi-card">
+        <div class="card-body">
+          <div class="icon-circle icon-primary">
+            <i
+              class="bi"
+              [ngClass]="
+                activeTab === 'car' ? 'bi-car-front-fill' : 'bi-bicycle'
+              "
+            ></i>
+          </div>
+          <div>
+            <h6 class="card-subtitle text-muted mb-1">Inventario total</h6>
+            <h4 class="card-title fw-bold mb-0">{{ totalCount }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card kpi-card">
+        <div class="card-body">
+          <div class="icon-circle icon-success">
+            <i class="bi bi-check-circle-fill"></i>
+          </div>
+          <div>
+            <h6 class="card-subtitle text-muted mb-1">Disponibles</h6>
+            <h4 class="card-title fw-bold mb-0">{{ availableCount }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card kpi-card">
+        <div class="card-body">
+          <div class="icon-circle icon-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <div>
+            <h6 class="card-subtitle text-muted mb-1">No disponibles</h6>
+            <h4 class="card-title fw-bold mb-0">{{ unavailableCount }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div
+      class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between gap-3"
+    >
+      <div>
+        <h5 class="card-title mb-1">
+          {{
+            activeTab === "car"
+              ? "Automóviles registrados"
+              : "Motocicletas registradas"
+          }}
+        </h5>
+        <p class="text-muted small mb-0">
+          Consulta, filtra y administra el estado de los vehículos registrados
+          en el inventario.
+        </p>
+      </div>
+
+      <div class="filters-panel" aria-label="Filtros">
+        @if (activeTab === "car") {
+          <div class="row g-2 g-md-3 align-items-end">
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carPlate" class="form-label filter-label"
+                >Placa</label
+              >
+              <input
+                id="carPlate"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.plate"
+                placeholder="Ej: ABC123"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carBrand" class="form-label filter-label"
+                >Marca</label
+              >
+              <input
+                id="carBrand"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.brand"
+                placeholder="Toyota"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carLine" class="form-label filter-label">Línea</label>
+              <input
+                id="carLine"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.line"
+                placeholder="XEI"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carModel" class="form-label filter-label"
+                >Modelo</label
+              >
+              <input
+                id="carModel"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.model"
+                placeholder="2019"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carFuel" class="form-label filter-label"
+                >Combustible</label
+              >
+              <input
+                id="carFuel"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.fuelType"
+                placeholder="Gasolina"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carBody" class="form-label filter-label"
+                >Carrocería</label
+              >
+              <input
+                id="carBody"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.bodyType"
+                placeholder="Sedán"
+              />
+            </div>
+            <div
+              class="col-12 col-md-auto d-flex gap-2 justify-content-end mt-2 mt-md-0"
+            >
+              <button
+                class="btn btn-primary btn-sm px-3"
+                type="button"
+                (click)="onCarSearch()"
+              >
+                <i class="bi bi-search me-1"></i>Filtrar
+              </button>
+              <button
+                class="btn btn-outline-secondary btn-sm px-3"
+                type="button"
+                (click)="clearFilters('car')"
+              >
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="row g-2 g-md-3 align-items-end">
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="motoPlate" class="form-label filter-label"
+                >Placa</label
+              >
+              <input
+                id="motoPlate"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="motorcycleFilters.plate"
+                placeholder="Ej: ABC12D"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="motoBrand" class="form-label filter-label"
+                >Marca</label
+              >
+              <input
+                id="motoBrand"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="motorcycleFilters.brand"
+                placeholder="Honda"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="motoLine" class="form-label filter-label"
+                >Línea</label
+              >
+              <input
+                id="motoLine"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="motorcycleFilters.line"
+                placeholder="CB"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="motoModel" class="form-label filter-label"
+                >Modelo</label
+              >
+              <input
+                id="motoModel"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="motorcycleFilters.model"
+                placeholder="2023"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="motoType" class="form-label filter-label">Tipo</label>
+              <input
+                id="motoType"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="motorcycleFilters.motorcycleType"
+                placeholder="Sport"
+              />
+            </div>
+            <div
+              class="col-12 col-md-auto d-flex gap-2 justify-content-end mt-2 mt-md-0"
+            >
+              <button
+                class="btn btn-primary btn-sm px-3"
+                type="button"
+                (click)="onMotorcycleSearch()"
+              >
+                <i class="bi bi-search me-1"></i>Filtrar
+              </button>
+              <button
+                class="btn btn-outline-secondary btn-sm px-3"
+                type="button"
+                (click)="clearFilters('motorcycle')"
+              >
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (activeState.error) {
+      <div class="alert alert-danger rounded-0 mb-0">
+        {{ activeState.error }}
+      </div>
+    }
+
+    <div class="card-body p-0">
+      <div class="table-responsive position-relative">
+        @if (activeState.loading) {
+          <div class="loading-overlay">
+            <div class="spinner-border text-primary">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        }
+
+        <table class="table table-hover align-middle mb-0">
+          @if (activeTab === "car") {
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Placa</th>
+                <th scope="col">Marca / Línea</th>
+                <th scope="col">Modelo</th>
+                <th scope="col">Capacidad</th>
+                <th scope="col">Transmisión</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Disponible</th>
+                <th scope="col" class="text-end">Precio venta</th>
+                <th
+                  scope="col"
+                  class="text-center"
+                  *appHasPermission="
+                    ['car:update', 'car:delete'];
+                    appHasPermissionLogic: 'OR'
+                  "
+                >
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (!activeState.loading && carState.items.length === 0) {
+                <tr>
+                  <td class="text-center text-muted py-4" colspan="9">
+                    No hay automóviles registrados para los filtros actuales.
+                  </td>
+                </tr>
+              }
+              @for (car of carState.items; track car.id) {
+                <tr>
+                  <td class="fw-semibold">{{ car.plate }}</td>
+                  <td>
+                    <div class="fw-semibold">{{ car.brand }}</div>
+                    <small class="text-muted">{{ car.line }}</small>
+                  </td>
+                  <td>{{ car.model }}</td>
+                  <td>{{ car.capacity }} pasajeros</td>
+                  <td>{{ car.transmission }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="badgeClass(car.status)">
+                      {{ statusLabel(car.status) }}
+                    </span>
+                    <div class="mt-2" *appHasPermission="'car:update'">
+                      <select
+                        class="form-select form-select-sm"
+                        [ngModel]="car.status"
+                        (ngModelChange)="changeCarStatus(car, $event)"
+                      >
+                        @for (status of vehicleStatuses; track status) {
+                          <option [value]="status">
+                            {{ statusLabel(status) }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [checked]="car.available"
+                        (change)="onCarAvailabilityToggle(car, $event)"
+                        *appHasPermission="'car:update'"
+                      />
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    {{
+                      car.salePrice
+                        | currency: "COP" : "symbol-narrow" : "1.0-0"
+                    }}
+                  </td>
+                  <td class="text-center">
+                    <div class="d-flex justify-content-center gap-2">
+                      <a
+                        class="btn btn-outline-secondary btn-icon"
+                        [routerLink]="['/vehicles/cars', car.id]"
+                        *appHasPermission="'car:update'"
+                        ><i class="bi bi-pencil-square"></i
+                      ></a>
+                      <button
+                        class="btn btn-outline-danger btn-icon"
+                        type="button"
+                        (click)="deleteCar(car)"
+                        *appHasPermission="'car:delete'"
+                      >
+                        <i class="bi bi-trash3-fill"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          } @else {
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Placa</th>
+                <th scope="col">Marca / Línea</th>
+                <th scope="col">Modelo</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Disponible</th>
+                <th scope="col" class="text-end">Precio venta</th>
+                <th
+                  scope="col"
+                  class="text-center"
+                  *appHasPermission="
+                    ['motorcycle:update', 'motorcycle:delete'];
+                    appHasPermissionLogic: 'OR'
+                  "
+                >
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (!activeState.loading && motorcycleState.items.length === 0) {
+                <tr>
+                  <td class="text-center text-muted py-4" colspan="8">
+                    No hay motocicletas registradas para los filtros actuales.
+                  </td>
+                </tr>
+              }
+              @for (motorcycle of motorcycleState.items; track motorcycle.id) {
+                <tr>
+                  <td class="fw-semibold">{{ motorcycle.plate }}</td>
+                  <td>
+                    <div class="fw-semibold">{{ motorcycle.brand }}</div>
+                    <small class="text-muted">{{ motorcycle.line }}</small>
+                  </td>
+                  <td>{{ motorcycle.model }}</td>
+                  <td>{{ motorcycle.motorcycleType }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="badgeClass(motorcycle.status)"
+                    >
+                      {{ statusLabel(motorcycle.status) }}
+                    </span>
+                    <div class="mt-2" *appHasPermission="'motorcycle:update'">
+                      <select
+                        class="form-select form-select-sm"
+                        [ngModel]="motorcycle.status"
+                        (ngModelChange)="
+                          changeMotorcycleStatus(motorcycle, $event)
+                        "
+                      >
+                        @for (status of vehicleStatuses; track status) {
+                          <option [value]="status">
+                            {{ statusLabel(status) }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [checked]="motorcycle.available"
+                        (change)="
+                          onMotorcycleAvailabilityToggle(motorcycle, $event)
+                        "
+                        *appHasPermission="'motorcycle:update'"
+                      />
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    {{
+                      motorcycle.salePrice
+                        | currency: "COP" : "symbol-narrow" : "1.0-0"
+                    }}
+                  </td>
+                  <td class="text-center">
+                    <div class="d-flex justify-content-center gap-2">
+                      <a
+                        class="btn btn-outline-secondary btn-icon"
+                        [routerLink]="['/vehicles/motorcycles', motorcycle.id]"
+                        *appHasPermission="'motorcycle:update'"
+                        ><i class="bi bi-pencil-square"></i
+                      ></a>
+                      <button
+                        class="btn btn-outline-danger btn-icon"
+                        type="button"
+                        (click)="deleteMotorcycle(motorcycle)"
+                        *appHasPermission="'motorcycle:delete'"
+                      >
+                        <i class="bi bi-trash3-fill"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          }
+        </table>
+      </div>
+    </div>
+
+    @if (activeState.pager) {
+      <div class="card-footer d-flex justify-content-end">
+        <app-pager [pager]="activeState.pager!" [url]="pagerUrl"></app-pager>
+      </div>
+    }
+  </div>
+</div>
