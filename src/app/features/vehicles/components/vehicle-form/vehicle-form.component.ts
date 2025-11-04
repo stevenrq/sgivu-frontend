@@ -221,8 +221,8 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       transmission: (this.formGroup.get('transmission')!.value ?? '').trim(),
       purchasePrice: Number(this.formGroup.get('purchasePrice')!.value ?? 0),
       salePrice: Number(this.formGroup.get('salePrice')!.value ?? 0),
-      status: (this.formGroup.get('status')!.value ?? VehicleStatus.AVAILABLE) as VehicleStatus,
-      available: Boolean(this.formGroup.get('available')!.value),
+      status: (this.formGroup.get('status')!.value ??
+        VehicleStatus.AVAILABLE) as VehicleStatus,
       photoUrl: this.formGroup.get('photoUrl')!.value ?? undefined,
     };
   }
@@ -254,7 +254,6 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   private patchVehicleForm(vehicle: Car | Motorcycle): void {
     this.formGroup.patchValue({
       ...vehicle,
-      available: vehicle.available,
     });
   }
 
@@ -322,7 +321,6 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       purchasePrice: [null, [Validators.required, Validators.min(0)]],
       salePrice: [null, [Validators.required, Validators.min(0)]],
       status: [VehicleStatus.AVAILABLE, Validators.required],
-      available: [true],
       photoUrl: [''],
       bodyType: [''],
       fuelType: [''],

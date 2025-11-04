@@ -99,22 +99,6 @@ export class CarService {
     );
   }
 
-  changeAvailability(id: number, available: boolean): Observable<boolean> {
-    return this.http
-      .patch<boolean>(
-        `${this.apiUrl}/${id}/availability`,
-        JSON.stringify(available),
-        { headers: this.jsonHeaders },
-      )
-      .pipe(
-        tap(() => {
-          this.carsState.update((cars) =>
-            cars.map((car) => (car.id === id ? { ...car, available } : car)),
-          );
-        }),
-      );
-  }
-
   changeStatus(id: number, status: VehicleStatus): Observable<VehicleStatus> {
     return this.http
       .patch<{ status: string }>(

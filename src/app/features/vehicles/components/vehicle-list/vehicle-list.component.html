@@ -307,7 +307,6 @@
                 <th scope="col">Capacidad</th>
                 <th scope="col">Transmisión</th>
                 <th scope="col">Estado</th>
-                <th scope="col">Disponible</th>
                 <th scope="col" class="text-end">Precio venta</th>
                 <th
                   scope="col"
@@ -357,17 +356,6 @@
                       </select>
                     </div>
                   </td>
-                  <td>
-                    <div class="form-check form-switch">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        [checked]="car.available"
-                        (change)="onCarAvailabilityToggle(car, $event)"
-                        *appHasPermission="'car:update'"
-                      />
-                    </div>
-                  </td>
                   <td class="text-end">
                     {{
                       car.salePrice
@@ -403,7 +391,6 @@
                 <th scope="col">Modelo</th>
                 <th scope="col">Tipo</th>
                 <th scope="col">Estado</th>
-                <th scope="col">Disponible</th>
                 <th scope="col" class="text-end">Precio venta</th>
                 <th
                   scope="col"
@@ -455,19 +442,6 @@
                           </option>
                         }
                       </select>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-check form-switch">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        [checked]="motorcycle.available"
-                        (change)="
-                          onMotorcycleAvailabilityToggle(motorcycle, $event)
-                        "
-                        *appHasPermission="'motorcycle:update'"
-                      />
                     </div>
                   </td>
                   <td class="text-end">

@@ -19,8 +19,6 @@ export class Vehicle {
   purchasePrice!: number;
   salePrice!: number;
   photoUrl?: string;
-  available: boolean = true;
   createdAt?: string;
   updatedAt?: string;
 }
-

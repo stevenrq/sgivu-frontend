@@ -107,27 +107,6 @@ export class MotorcycleService {
     );
   }
 
-  changeAvailability(
-    id: number,
-    available: boolean,
-  ): Observable<boolean> {
-    return this.http
-      .patch<boolean>(
-        `${this.apiUrl}/${id}/availability`,
-        JSON.stringify(available),
-        { headers: this.jsonHeaders },
-      )
-      .pipe(
-        tap(() => {
-          this.motorcyclesState.update((motorcycles) =>
-            motorcycles.map((motorcycle) =>
-              motorcycle.id === id ? { ...motorcycle, available } : motorcycle,
-            ),
-          );
-        }),
-      );
-  }
-
   changeStatus(
     id: number,
     status: VehicleStatus,

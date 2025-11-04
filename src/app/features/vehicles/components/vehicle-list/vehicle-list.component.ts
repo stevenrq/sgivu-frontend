@@ -195,68 +195,12 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     this.reloadTab(tab);
   }
 
-  onCarAvailabilityToggle(car: Car, event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    if (!input) {
-      return;
-    }
-    this.changeCarAvailability(car, input.checked);
-  }
-
-  onMotorcycleAvailabilityToggle(motorcycle: Motorcycle, event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    if (!input) {
-      return;
-    }
-    this.changeMotorcycleAvailability(motorcycle, input.checked);
-  }
-
-  private changeCarAvailability(car: Car, available: boolean): void {
-    const previous = car.available;
-    car.available = available;
-    const sub = this.carService
-      .changeAvailability(car.id, available)
-      .subscribe({
-        next: () => this.refreshCountsFromState('car'),
-        error: () => {
-          car.available = previous;
-          void Swal.fire({
-            icon: 'error',
-            title: 'Error al actualizar la disponibilidad',
-            text: 'No se pudo actualizar la disponibilidad del vehículo.',
-          });
-        },
-      });
-    this.subscriptions.push(sub);
-  }
-
-  private changeMotorcycleAvailability(
-    motorcycle: Motorcycle,
-    available: boolean,
-  ): void {
-    const previous = motorcycle.available;
-    motorcycle.available = available;
-    const sub = this.motorcycleService
-      .changeAvailability(motorcycle.id, available)
-      .subscribe({
-        next: () => this.refreshCountsFromState('motorcycle'),
-        error: () => {
-          motorcycle.available = previous;
-          void Swal.fire({
-            icon: 'error',
-            title: 'Error al actualizar la disponibilidad',
-            text: 'No se pudo actualizar la disponibilidad del vehículo.',
-          });
-        },
-      });
-    this.subscriptions.push(sub);
-  }
-
   changeCarStatus(car: Car, status: VehicleStatus): void {
     const previous = car.status;
     car.status = status;
     const sub = this.carService.changeStatus(car.id, status).subscribe({
       next: () => {
+        this.refreshCountsFromState('car');
         void Swal.fire({
           icon: 'success',
           title: 'Estado actualizado',
@@ -284,6 +228,7 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       .changeStatus(motorcycle.id, status)
       .subscribe({
         next: () => {
+          this.refreshCountsFromState('motorcycle');
           void Swal.fire({
             icon: 'success',
             title: 'Estado actualizado',
@@ -679,7 +624,9 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     available: number;
     unavailable: number;
   } {
-    const available = items.filter((item) => item.available).length;
+    const available = items.filter(
+      (item) => item.status === VehicleStatus.AVAILABLE,
+    ).length;
     return {
       available,
       unavailable: items.length - available,
