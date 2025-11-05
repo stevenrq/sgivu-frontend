@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ResolveFn, Router } from '@angular/router';
 import { EMPTY, of } from 'rxjs';
-import { User } from '../../../shared/models/user.model';
+import { User } from '../models/user.model';
 import { AuthService } from '../../auth/services/auth.service';
 
 /**

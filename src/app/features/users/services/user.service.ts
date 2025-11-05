@@ -1,10 +1,10 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { User } from '../../../shared/models/user.model';
+import { User } from '../models/user.model';
 import { Observable, tap } from 'rxjs';
 import { PaginatedResponse } from '../../../shared/models/paginated-response';
-import { UserCount } from '../../../shared/interfaces/user-count.interface';
+import { UserCount } from '../interfaces/user-count.interface';
 
 @Injectable({
   providedIn: 'root',

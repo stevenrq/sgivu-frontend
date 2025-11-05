@@ -1,18 +1,18 @@
 <div class="container-fluid">
-  <header class="d-flex justify-content-between align-items-center mb-4">
+  <header
+    class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
+  >
     <div>
-      <h1 class="h3 mb-1 fw-bold">Gestión de Usuarios</h1>
-      <p class="text-muted mb-0">
-        Administra las cuentas de usuario, roles y permisos del sistema.
-      </p>
+      <h1 class="h3 mb-1 fw-bold">{{ title }}</h1>
+      <p class="text-muted mb-0">{{ subtitle }}</p>
     </div>
     <div>
       <button
         class="btn btn-primary"
-        routerLink="/users/create"
-        *appHasPermission="'user:create'"
+        [routerLink]="createLink"
+        *appHasPermission="createPermission"
       >
-        <i class="bi bi-plus-circle me-2"></i>Crear Usuario
+        <i class="bi bi-plus-circle me-2"></i>{{ createLabel }}
       </button>
     </div>
   </header>
@@ -65,12 +65,12 @@
     >
       <h5 class="card-title mb-0">Lista de Usuarios Registrados</h5>
       <div class="ms-auto d-flex align-items-center">
-        <div class="input-group">
+        <div class="input-group input-group-sm">
           <input
             type="search"
             [(ngModel)]="searchTerm"
             class="form-control form-control-sm"
-            placeholder="Buscar usuarios..."
+            [placeholder]="searchPlaceholder"
             (keyup)="search()"
           />
           <button
@@ -80,11 +80,35 @@
           >
             <i class="bi bi-search"></i>
           </button>
+          @if (searchTerm) {
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="reset()"
+            >
+              <i class="bi bi-x-circle"></i>
+            </button>
+          }
         </div>
       </div>
     </div>
+
+    @if (error) {
+      <div class="alert alert-danger rounded-0 mb-0">
+        {{ error }}
+      </div>
+    }
+
     <div class="card-body p-0">
-      <div class="table-responsive">
+      <div class="table-responsive position-relative">
+        @if (isLoading) {
+          <div class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        }
+
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
@@ -205,37 +229,35 @@
                             [ngClass]="
                               user.enabled ? 'bi-toggle-on' : 'bi-toggle-off'
                             "
-                          >
-                          </i>
-                          {{ user.enabled ? "Desactivar" : "Activar" }}
+                          ></i>
+                          {{ user.enabled ? 'Desactivar' : 'Activar' }}
                         </button>
                       </li>
                     </ul>
                   </div>
                 </td>
               </tr>
-            } @empty {
-              <tr>
-                <td colspan="6" class="text-center text-muted py-5">
-                  <div class="spinner-border">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                </td>
-              </tr>
             }
           </tbody>
         </table>
+
+        @if (!users.length && !isLoading && !error) {
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-people-slash display-6 d-block mb-2"></i>
+            {{ emptyMessage }}
+          </div>
+        }
       </div>
     </div>
-    @if (pager && pager.totalPages && pager.totalPages > 0) {
+    @if (pager) {
       <div
-        class="card-footer bg-white d-flex justify-content-between align-items-center"
+        class="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2"
       >
         <span class="text-muted"
           >Mostrando {{ pager.numberOfElements }} de
           {{ pager.totalElements }} usuarios</span
         >
-        <app-pager [pager]="pager" [url]="url"></app-pager>
+        <app-pager [pager]="pager" [url]="pagerUrl"></app-pager>
       </div>
     }
   </div>

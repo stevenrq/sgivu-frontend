@@ -1,0 +1,173 @@
+.container-fluid {
+  background-color: var(--bs-body-bg);
+  min-height: 100%;
+}
+
+.card {
+  background-color: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  background-color: var(--bs-tertiary-bg);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.card-footer {
+  background-color: var(--bs-tertiary-bg);
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.toggle-group .btn {
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+}
+
+.toggle-group .btn.active {
+  color: #ffffff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  box-shadow: 0 0.35rem 1rem rgba(13, 110, 253, 0.2);
+}
+
+.toggle-group .btn:not(.active):hover {
+  background-color: rgba(13, 110, 253, 0.08);
+}
+
+.kpi-card .card-body {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.kpi-card .icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.icon-primary {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.icon-success {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.icon-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.filters-panel {
+  width: 100%;
+  background-color: var(--bs-body-bg);
+  border: 1px solid rgba(13, 110, 253, 0.05);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  box-shadow: inset 0 1px 2px rgba(13, 110, 253, 0.05);
+  margin-top: 0.5rem;
+}
+
+.filters-panel .form-control,
+.filters-panel .form-select {
+  border-radius: 0.65rem;
+  border-color: rgba(13, 110, 253, 0.2);
+  transition: box-shadow 0.2s ease;
+}
+
+.filters-panel .form-control:focus,
+.filters-panel .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+}
+
+.filter-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.4rem;
+}
+
+.filters-panel .btn {
+  height: 38px;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  font-weight: 600;
+  color: var(--bs-body-color);
+  font-size: 0.9rem;
+  padding: 1rem 1.25rem;
+}
+
+.table td {
+  padding: 1rem 1.25rem;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+.table-responsive {
+  min-height: 280px;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.85);
+  z-index: 5;
+}
+
+.form-select-sm {
+  padding-right: 1.75rem;
+}
+
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+@media (max-width: 992px) {
+  .filter-group .form-control {
+    min-width: 140px;
+  }
+}

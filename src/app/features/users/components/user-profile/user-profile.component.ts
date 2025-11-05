@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { User } from '../../../../shared/models/user.model';
+import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import Swal from 'sweetalert2';
@@ -35,6 +35,26 @@ export class UserProfileComponent implements OnInit {
     'permission:read': 'Leer Permisos',
     'permission:update': 'Actualizar Permisos',
     'permission:delete': 'Eliminar Permisos',
+    'person:create': 'Crear Personas',
+    'person:read': 'Leer Personas',
+    'person:update': 'Actualizar Personas',
+    'person:delete': 'Eliminar Personas',
+    'company:create': 'Crear Compañías',
+    'company:read': 'Leer Compañías',
+    'company:update': 'Actualizar Compañías',
+    'company:delete': 'Eliminar Compañías',
+    'car:create': 'Crear Vehículos',
+    'car:read': 'Leer Vehículos',
+    'car:update': 'Actualizar Vehículos',
+    'car:delete': 'Eliminar Vehículos',
+    'motorcycle:create': 'Crear Motocicletas',
+    'motorcycle:read': 'Leer Motocicletas',
+    'motorcycle:update': 'Actualizar Motocicletas',
+    'motorcycle:delete': 'Eliminar Motocicletas',
+    'purchase_sale:create': 'Crear Compras/Ventas',
+    'purchase_sale:read': 'Leer Compras/Ventas',
+    'purchase_sale:update': 'Actualizar Compras/Ventas',
+    'purchase_sale:delete': 'Eliminar Compras/Ventas',
   };
 
   constructor(

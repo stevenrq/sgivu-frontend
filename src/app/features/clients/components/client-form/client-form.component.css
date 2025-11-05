@@ -1,0 +1,51 @@
+form {
+  position: relative;
+}
+
+.client-type-toggle {
+  background-color: #f1f3f5;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.client-type-toggle .btn-group {
+  gap: 0.5rem;
+}
+
+.client-type-toggle .btn {
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.5rem 1.5rem;
+}
+
+.client-type-toggle .btn.active {
+  background-color: #0d6efd;
+  color: #ffffff;
+  border-color: #0d6efd;
+  box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.2);
+}
+
+.client-type-toggle .btn:not(.active):hover {
+  background-color: rgba(13, 110, 253, 0.08);
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  border-radius: 0.75rem;
+}
+
+fieldset legend {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
