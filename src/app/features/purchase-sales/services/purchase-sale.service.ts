@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PurchaseSale } from '../models/purchase-sale.model';
@@ -41,5 +41,32 @@ export class PurchaseSaleService {
 
   getByVehicleId(vehicleId: number): Observable<PurchaseSale[]> {
     return this.http.get<PurchaseSale[]>(`${this.apiUrl}/vehicle/${vehicleId}`);
+  }
+
+  downloadPdf(startDate?: string | null, endDate?: string | null): Observable<Blob> {
+    const params = this.buildReportParams(startDate, endDate);
+    return this.http.get<Blob>(`${this.apiUrl}/report/pdf`, {
+      params,
+      responseType: 'blob' as 'json',
+    });
+  }
+
+  downloadExcel(startDate?: string | null, endDate?: string | null): Observable<Blob> {
+    const params = this.buildReportParams(startDate, endDate);
+    return this.http.get<Blob>(`${this.apiUrl}/report/excel`, {
+      params,
+      responseType: 'blob' as 'json',
+    });
+  }
+
+  private buildReportParams(startDate?: string | null, endDate?: string | null): HttpParams {
+    let params = new HttpParams();
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    return params;
   }
 }

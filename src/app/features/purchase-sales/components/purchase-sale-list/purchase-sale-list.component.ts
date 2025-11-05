@@ -134,6 +134,13 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   filterStatus: ContractStatusFilter = 'ALL';
   searchTerm = '';
 
+  reportStartDate: string | null = null;
+  reportEndDate: string | null = null;
+  exportLoading: Record<'pdf' | 'excel', boolean> = {
+    pdf: false,
+    excel: false,
+  };
+
   purchaseLoading = false;
   saleLoading = false;
   listState: PurchaseSaleListState = {
@@ -295,6 +302,62 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     this.filterType = 'ALL';
     this.filterStatus = 'ALL';
     this.searchTerm = '';
+  }
+
+  resetReportDates(): void {
+    this.reportStartDate = null;
+    this.reportEndDate = null;
+  }
+
+  downloadReport(format: 'pdf' | 'excel'): void {
+    if (this.reportStartDate && this.reportEndDate) {
+      if (this.reportStartDate > this.reportEndDate) {
+        void Swal.fire({
+          icon: 'warning',
+          title: 'Rango inválido',
+          text: 'La fecha inicial no puede ser posterior a la fecha final.',
+        });
+        return;
+      }
+    }
+
+    this.exportLoading[format] = true;
+    const start = this.reportStartDate ?? undefined;
+    const end = this.reportEndDate ?? undefined;
+    const request$ =
+      format === 'pdf'
+        ? this.purchaseSaleService.downloadPdf(start, end)
+        : this.purchaseSaleService.downloadExcel(start, end);
+
+    request$
+      .pipe(finalize(() => (this.exportLoading[format] = false)))
+      .subscribe({
+        next: (blob) => {
+          const extension = format === 'pdf' ? 'pdf' : 'xlsx';
+          const fileName = this.buildReportFileName(extension);
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          this.showSuccessMessage(
+            `Reporte ${extension.toUpperCase()} generado correctamente.`,
+          );
+        },
+        error: (error) => this.handleError(error, 'generar el reporte'),
+      });
+  }
+
+  private buildReportFileName(extension: 'pdf' | 'xlsx'): string {
+    const today = new Date().toISOString().split('T')[0];
+    const rangeLabel =
+      this.reportStartDate || this.reportEndDate
+        ? `${this.reportStartDate ?? 'inicio'}-a-${this.reportEndDate ?? 'fin'}`
+        : 'completo';
+    return `reporte-compras-ventas-${rangeLabel}-${today}.${extension}`;
   }
 
   createPurchase(purchaseFormRef: NgForm): void {
@@ -612,6 +675,8 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       this.getClientLabel(contract.clientId).toLowerCase(),
       this.getUserLabel(contract.userId).toLowerCase(),
       this.getVehicleLabel(contract.vehicleId).toLowerCase(),
+      this.getContractTypeLabel(contract.contractType).toLowerCase(),
+      this.getStatusLabel(contract.contractStatus).toLowerCase(),
       contract.paymentMethod.toLowerCase(),
       this.getPaymentMethodLabel(contract.paymentMethod).toLowerCase(),
       contract.paymentTerms.toLowerCase(),

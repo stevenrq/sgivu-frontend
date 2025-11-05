@@ -471,6 +471,56 @@
           </select>
         </div>
         <div class="input-group input-group-sm w-auto">
+          <span class="input-group-text">Desde</span>
+          <input
+            type="date"
+            class="form-control"
+            name="reportStartDate"
+            [(ngModel)]="reportStartDate"
+          />
+        </div>
+        <div class="input-group input-group-sm w-auto">
+          <span class="input-group-text">Hasta</span>
+          <input
+            type="date"
+            class="form-control"
+            name="reportEndDate"
+            [(ngModel)]="reportEndDate"
+          />
+        </div>
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          type="button"
+          (click)="resetReportDates()"
+          [disabled]="exportLoading.pdf || exportLoading.excel"
+        >
+          <i class="bi bi-eraser"></i>
+        </button>
+        <button
+          class="btn btn-outline-primary btn-sm"
+          type="button"
+          (click)="downloadReport('pdf')"
+          [disabled]="exportLoading.pdf"
+        >
+          @if (exportLoading.pdf) {
+            <span class="spinner-border spinner-border-sm"></span>
+          } @else {
+            <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+          }
+        </button>
+        <button
+          class="btn btn-outline-success btn-sm"
+          type="button"
+          (click)="downloadReport('excel')"
+          [disabled]="exportLoading.excel"
+        >
+          @if (exportLoading.excel) {
+            <span class="spinner-border spinner-border-sm"></span>
+          } @else {
+            <i class="bi bi-file-earmark-excel me-1"></i>Excel
+          }
+        </button>
+        <div class="input-group input-group-sm w-auto">
           <input
             type="search"
             class="form-control"
