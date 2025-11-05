@@ -283,19 +283,44 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     return this.paymentMethodLabels[method] ?? method;
   }
 
-  getClientLabel(clientId: number): string {
-    const client = this.clientMap().get(clientId);
-    return client ? client.label : `Cliente #${clientId}`;
+  getClientLabel(contract: PurchaseSale): string {
+    const summary = contract.clientSummary;
+    if (summary) {
+      const pieces = [summary.name ?? `Cliente #${summary.id}`];
+      if (summary.identifier) {
+        pieces.push(summary.identifier);
+      }
+      return pieces.join(' - ');
+    }
+
+    const fallback = this.clientMap().get(contract.clientId);
+    return fallback ? fallback.label : `Cliente #${contract.clientId}`;
   }
 
-  getUserLabel(userId: number): string {
-    const user = this.userMap().get(userId);
-    return user ? user.label : `Usuario #${userId}`;
+  getUserLabel(contract: PurchaseSale): string {
+    const summary = contract.userSummary;
+    if (summary) {
+      const username = summary.username ? `@${summary.username}` : null;
+      return [summary.fullName ?? `Usuario #${summary.id}`, username]
+          .filter(Boolean)
+          .join(' ');
+    }
+
+    const fallback = this.userMap().get(contract.userId);
+    return fallback ? fallback.label : `Usuario #${contract.userId}`;
   }
 
-  getVehicleLabel(vehicleId: number): string {
-    const vehicle = this.vehicleMap().get(vehicleId);
-    return vehicle ? vehicle.label : `Vehículo #${vehicleId}`;
+  getVehicleLabel(contract: PurchaseSale): string {
+    const summary = contract.vehicleSummary;
+    if (summary) {
+      const brand = summary.brand ?? 'Vehículo';
+      const model = summary.model ?? 'N/D';
+      const plate = summary.plate ?? 'N/D';
+      return `${brand} ${model} (${plate})`;
+    }
+
+    const fallback = this.vehicleMap().get(contract.vehicleId);
+    return fallback ? fallback.label : `Vehículo #${contract.vehicleId}`;
   }
 
   resetFilters(): void {
@@ -672,9 +697,9 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     const term = this.searchTerm.toLowerCase();
     const entries = [
       contract.id?.toString() ?? '',
-      this.getClientLabel(contract.clientId).toLowerCase(),
-      this.getUserLabel(contract.userId).toLowerCase(),
-      this.getVehicleLabel(contract.vehicleId).toLowerCase(),
+      this.getClientLabel(contract).toLowerCase(),
+      this.getUserLabel(contract).toLowerCase(),
+      this.getVehicleLabel(contract).toLowerCase(),
       this.getContractTypeLabel(contract.contractType).toLowerCase(),
       this.getStatusLabel(contract.contractStatus).toLowerCase(),
       contract.paymentMethod.toLowerCase(),

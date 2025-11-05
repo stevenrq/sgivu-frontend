@@ -22,12 +22,12 @@ export class PurchaseSaleService {
   }
 
   getAll(): Observable<PurchaseSale[]> {
-    return this.http.get<PurchaseSale[]>(this.apiUrl);
+    return this.http.get<PurchaseSale[]>(`${this.apiUrl}/detailed`);
   }
 
   getAllPaginated(page: number): Observable<PaginatedResponse<PurchaseSale>> {
     return this.http.get<PaginatedResponse<PurchaseSale>>(
-      `${this.apiUrl}/page/${page}`,
+      `${this.apiUrl}/page/${page}/detailed`,
     );
   }
 

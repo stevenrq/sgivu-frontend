@@ -17,4 +17,32 @@ export interface PurchaseSale {
   observations?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  clientSummary?: ClientSummary;
+  userSummary?: UserSummary;
+  vehicleSummary?: VehicleSummary;
+}
+
+export interface ClientSummary {
+  id: number;
+  type: string;
+  name: string;
+  identifier?: string;
+  email?: string;
+  phoneNumber?: number;
+}
+
+export interface UserSummary {
+  id: number;
+  fullName: string;
+  email?: string;
+  username?: string;
+}
+
+export interface VehicleSummary {
+  id: number;
+  type: string;
+  brand?: string;
+  model?: string;
+  plate?: string;
+  status?: string;
 }
