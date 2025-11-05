@@ -320,11 +320,11 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   statusLabel(status: VehicleStatus): string {
     const labels: Record<VehicleStatus, string> = {
       [VehicleStatus.AVAILABLE]: 'Disponible',
-      [VehicleStatus.SOLD]: 'Vendida',
+      [VehicleStatus.SOLD]: 'Vendido',
       [VehicleStatus.IN_MAINTENANCE]: 'En mantenimiento',
       [VehicleStatus.IN_REPAIR]: 'En reparación',
       [VehicleStatus.IN_USE]: 'En uso',
-      [VehicleStatus.INACTIVE]: 'Inactiva',
+      [VehicleStatus.INACTIVE]: 'Inactivo',
     };
     return labels[status] ?? status;
   }
