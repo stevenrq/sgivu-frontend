@@ -1,0 +1,26 @@
+import { Routes } from '@angular/router';
+import { PurchaseSaleListComponent } from './components/purchase-sale-list/purchase-sale-list.component';
+import { authGuard } from '../auth/guards/auth.guard';
+import { permissionGuard } from '../auth/guards/permission.guard';
+import { PermissionService } from '../auth/services/permission.service';
+
+export const purchaseSalesRoutes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'page/0',
+  },
+  {
+    path: 'page/:page',
+    component: PurchaseSaleListComponent,
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      canActivateFn: (ps: PermissionService) =>
+        ps.hasPermission('purchase_sale:read'),
+    },
+  },
+  {
+    path: '**',
+    redirectTo: 'page/0',
+  },
+];

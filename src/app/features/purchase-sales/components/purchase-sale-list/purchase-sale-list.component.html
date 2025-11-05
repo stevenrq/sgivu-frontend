@@ -1,0 +1,646 @@
+<div class="container-fluid">
+  <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="h3 mb-1 fw-bold">Gestión de compras y ventas</h1>
+      <p class="text-muted mb-0">
+        Registra las operaciones de compra y venta de vehículos y monitorea su estado en tiempo real.
+      </p>
+    </div>
+  </header>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card kpi-card">
+        <div class="card-body">
+          <div class="icon-circle icon-primary">
+            <i class="bi bi-file-earmark-text-fill"></i>
+          </div>
+          <div>
+            <h6 class="card-subtitle text-muted mb-1">Contratos Totales</h6>
+            <h4 class="card-title fw-bold mb-0">{{ totalContracts }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card kpi-card">
+        <div class="card-body">
+          <div class="icon-circle icon-success">
+            <i class="bi bi-cart-plus-fill"></i>
+          </div>
+          <div>
+            <h6 class="card-subtitle text-muted mb-1">Compras Registradas</h6>
+            <h4 class="card-title fw-bold mb-0">{{ totalPurchases }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card kpi-card">
+        <div class="card-body">
+          <div class="icon-circle icon-warning">
+            <i class="bi bi-cart-check-fill"></i>
+          </div>
+          <div>
+            <h6 class="card-subtitle text-muted mb-1">Ventas Registradas</h6>
+            <h4 class="card-title fw-bold mb-0">{{ totalSales }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="row g-4 mb-4">
+    <div class="col-12 col-xl-6">
+      <div class="card h-100">
+        <div class="card-header bg-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-0">Registrar compra</h5>
+              <small class="text-muted"
+                >Crea un nuevo contrato de compra para ingresar inventario.</small
+              >
+            </div>
+            <span class="badge text-bg-primary">Compra</span>
+          </div>
+        </div>
+        <div class="card-body">
+          @if (isLoadingLookups()) {
+            <div class="alert alert-info mb-0">
+              <div class="d-flex align-items-center gap-2">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>Cargando información auxiliar...</span>
+              </div>
+            </div>
+          } @else if (hasLookupError()) {
+            <div class="alert alert-danger mb-0">
+              Ocurrió un problema al cargar la información auxiliar. Intenta recargar la página.
+            </div>
+          } @else {
+            <form
+              #purchaseFormRef="ngForm"
+              (ngSubmit)="createPurchase(purchaseFormRef)"
+              novalidate
+            >
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Cliente</label>
+                  <select
+                    class="form-select"
+                    name="purchaseClientId"
+                    [(ngModel)]="purchaseForm.clientId"
+                    required
+                  >
+                    <option [ngValue]="null">Selecciona un cliente</option>
+                    @for (client of clients(); track client.id) {
+                      <option [ngValue]="client.id">
+                        {{ client.label }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Usuario responsable</label>
+                  <select
+                    class="form-select"
+                    name="purchaseUserId"
+                    [(ngModel)]="purchaseForm.userId"
+                    required
+                  >
+                    <option [ngValue]="null">Selecciona un usuario</option>
+                    @for (user of users(); track user.id) {
+                      <option [ngValue]="user.id">{{ user.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Vehículo</label>
+                  <select
+                    class="form-select"
+                    name="purchaseVehicleId"
+                    [(ngModel)]="purchaseForm.vehicleId"
+                    required
+                  >
+                    <option [ngValue]="null">Selecciona un vehículo</option>
+                    @for (vehicle of vehicles(); track vehicle.id) {
+                      <option [ngValue]="vehicle.id">
+                        {{ vehicle.label }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Estado del contrato</label>
+                  <select
+                    class="form-select"
+                    name="purchaseContractStatus"
+                    [(ngModel)]="purchaseForm.contractStatus"
+                    required
+                  >
+                    @for (status of contractStatuses; track status) {
+                      <option [ngValue]="status">
+                        {{ status | titlecase }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Precio de compra</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      class="form-control"
+                      name="purchasePrice"
+                      [(ngModel)]="purchaseForm.purchasePrice"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Método de pago</label>
+                  <select
+                    class="form-select"
+                    name="purchasePaymentMethod"
+                    [(ngModel)]="purchaseForm.paymentMethod"
+                    required
+                  >
+                    @for (method of paymentMethods; track method) {
+                      <option [ngValue]="method">
+                        {{ method.replace('_', ' ') | titlecase }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Limitaciones de pago</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="purchasePaymentLimitations"
+                    maxlength="200"
+                    [(ngModel)]="purchaseForm.paymentLimitations"
+                    required
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Términos de pago</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="purchasePaymentTerms"
+                    maxlength="200"
+                    [(ngModel)]="purchaseForm.paymentTerms"
+                    required
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Observaciones (opcional)</label>
+                  <textarea
+                    class="form-control"
+                    name="purchaseObservations"
+                    rows="2"
+                    maxlength="500"
+                    [(ngModel)]="purchaseForm.observations"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  (click)="resetPurchaseForm(purchaseFormRef)"
+                  [disabled]="purchaseLoading"
+                >
+                  Limpiar
+                </button>
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                  [disabled]="purchaseLoading"
+                  *appHasPermission="'purchase_sale:create'"
+                >
+                  <span
+                    class="spinner-border spinner-border-sm me-2"
+                    *ngIf="purchaseLoading"
+                  ></span>
+                  Registrar compra
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="card-title mb-0">Registrar venta</h5>
+            <small class="text-muted"
+              >Genera un contrato de venta para liberar inventario disponible.</small
+            >
+          </div>
+          <span class="badge text-bg-success">Venta</span>
+        </div>
+        <div class="card-body">
+          @if (isLoadingLookups()) {
+            <div class="alert alert-info mb-0">
+              <div class="d-flex align-items-center gap-2">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>Cargando información auxiliar...</span>
+              </div>
+            </div>
+          } @else if (hasLookupError()) {
+            <div class="alert alert-danger mb-0">
+              No ha sido posible cargar la información auxiliar. Intenta recargar la página.
+            </div>
+          } @else {
+            <form
+              #saleFormRef="ngForm"
+              (ngSubmit)="createSale(saleFormRef)"
+              novalidate
+            >
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Cliente</label>
+                  <select
+                    class="form-select"
+                    name="saleClientId"
+                    [(ngModel)]="saleForm.clientId"
+                    required
+                  >
+                    <option [ngValue]="null">Selecciona un cliente</option>
+                    @for (client of clients(); track client.id) {
+                      <option [ngValue]="client.id">
+                        {{ client.label }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Usuario responsable</label>
+                  <select
+                    class="form-select"
+                    name="saleUserId"
+                    [(ngModel)]="saleForm.userId"
+                    required
+                  >
+                    <option [ngValue]="null">Selecciona un usuario</option>
+                    @for (user of users(); track user.id) {
+                      <option [ngValue]="user.id">{{ user.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Vehículo</label>
+                  <select
+                    class="form-select"
+                    name="saleVehicleId"
+                    [(ngModel)]="saleForm.vehicleId"
+                    required
+                  >
+                    <option [ngValue]="null">Selecciona un vehículo</option>
+                    @for (vehicle of vehicles(); track vehicle.id) {
+                      <option [ngValue]="vehicle.id">
+                        {{ vehicle.label }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Estado del contrato</label>
+                  <select
+                    class="form-select"
+                    name="saleContractStatus"
+                    [(ngModel)]="saleForm.contractStatus"
+                    required
+                  >
+                    @for (status of contractStatuses; track status) {
+                      <option [ngValue]="status">
+                        {{ status | titlecase }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Precio de compra</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      class="form-control"
+                      name="salePurchasePrice"
+                      [(ngModel)]="saleForm.purchasePrice"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Precio de venta</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      class="form-control"
+                      name="salePrice"
+                      [(ngModel)]="saleForm.salePrice"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Método de pago</label>
+                  <select
+                    class="form-select"
+                    name="salePaymentMethod"
+                    [(ngModel)]="saleForm.paymentMethod"
+                    required
+                  >
+                    @for (method of paymentMethods; track method) {
+                      <option [ngValue]="method">
+                        {{ method.replace('_', ' ') | titlecase }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Limitaciones de pago</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="salePaymentLimitations"
+                    maxlength="200"
+                    [(ngModel)]="saleForm.paymentLimitations"
+                    required
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Términos de pago</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="salePaymentTerms"
+                    maxlength="200"
+                    [(ngModel)]="saleForm.paymentTerms"
+                    required
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Observaciones (opcional)</label>
+                  <textarea
+                    class="form-control"
+                    name="saleObservations"
+                    rows="2"
+                    maxlength="500"
+                    [(ngModel)]="saleForm.observations"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  (click)="resetSaleForm(saleFormRef)"
+                  [disabled]="saleLoading"
+                >
+                  Limpiar
+                </button>
+                <button
+                  class="btn btn-success"
+                  type="submit"
+                  [disabled]="saleLoading"
+                  *appHasPermission="'purchase_sale:create'"
+                >
+                  <span
+                    class="spinner-border spinner-border-sm me-2"
+                    *ngIf="saleLoading"
+                  ></span>
+                  Registrar venta
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div
+      class="card-header bg-white py-3 d-flex flex-wrap align-items-center gap-3 justify-content-between"
+    >
+      <div>
+        <h5 class="card-title mb-0">Contratos registrados</h5>
+        <small class="text-muted"
+          >Visualiza el historial de compras y ventas para todos los vehículos.</small
+        >
+      </div>
+      <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+        <div class="input-group input-group-sm w-auto">
+          <span class="input-group-text">Tipo</span>
+          <select
+            class="form-select"
+            [(ngModel)]="filterType"
+            name="filterType"
+          >
+            <option ngValue="ALL">Todos</option>
+            @for (type of contractTypes; track type) {
+              <option [ngValue]="type">{{ type | titlecase }}</option>
+            }
+          </select>
+        </div>
+        <div class="input-group input-group-sm w-auto">
+          <span class="input-group-text">Estado</span>
+          <select
+            class="form-select"
+            [(ngModel)]="filterStatus"
+            name="filterStatus"
+          >
+            <option ngValue="ALL">Todos</option>
+            @for (status of contractStatuses; track status) {
+              <option [ngValue]="status">{{ status | titlecase }}</option>
+            }
+          </select>
+        </div>
+        <div class="input-group input-group-sm w-auto">
+          <input
+            type="search"
+            class="form-control"
+            placeholder="Buscar..."
+            [(ngModel)]="searchTerm"
+          />
+          <button class="btn btn-outline-secondary" type="button">
+            <i class="bi bi-search"></i>
+          </button>
+          @if (searchTerm) {
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="resetFilters()"
+            >
+              <i class="bi bi-x-circle"></i>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (listError) {
+      <div class="alert alert-danger rounded-0 mb-0">
+        {{ listError }}
+      </div>
+    }
+
+    <div class="card-body p-0">
+      <div class="table-responsive position-relative">
+        @if (isListLoading) {
+          <div class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        }
+
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Vehículo</th>
+              <th scope="col">Precio compra</th>
+              <th scope="col">Precio venta</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Actualizado</th>
+              <th scope="col" class="text-center" *appHasPermission="'purchase_sale:update'">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (!contracts.length && !isListLoading) {
+              <tr>
+                <td colspan="10" class="text-center py-4 text-muted">
+                  No hay contratos que coincidan con los filtros seleccionados.
+                </td>
+              </tr>
+            }
+
+            @for (contract of contracts; track contract.id) {
+              <tr>
+                <td>
+                  <span class="fw-semibold">#{{ contract.id }}</span>
+                  <div class="text-muted small">
+                    {{ contract.createdAt | date: 'short' }}
+                  </div>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [ngClass]="getVehicleBadgeClass(contract)">
+                    {{ contract.contractType | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <div>{{ getClientLabel(contract.clientId) }}</div>
+                  <div class="text-muted small">ID: {{ contract.clientId }}</div>
+                </td>
+                <td>
+                  <div>{{ getUserLabel(contract.userId) }}</div>
+                  <div class="text-muted small">ID: {{ contract.userId }}</div>
+                </td>
+                <td>
+                  <div>{{ getVehicleLabel(contract.vehicleId) }}</div>
+                  <div class="text-muted small">ID: {{ contract.vehicleId }}</div>
+                </td>
+                <td>
+                  {{ contract.purchasePrice | currency: 'COP':'symbol':'1.0-0' }}
+                </td>
+                <td>
+                  @if (contract.salePrice > 0) {
+                    {{ contract.salePrice | currency: 'COP':'symbol':'1.0-0' }}
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(contract.contractStatus)">
+                    {{ contract.contractStatus | titlecase }}
+                  </span>
+                </td>
+                <td>{{ contract.updatedAt | date: 'short' }}</td>
+                <td class="text-center" *appHasPermission="'purchase_sale:update'">
+                  <div class="btn-group">
+                    <button
+                      class="btn btn-outline-secondary btn-sm btn-icon"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <button
+                          class="dropdown-item"
+                          type="button"
+                          (click)="updateStatus(contract, ContractStatus.PENDING)"
+                        >
+                          <i class="bi bi-hourglass-split me-2 text-warning"></i>
+                          Marcar como pendiente
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          class="dropdown-item"
+                          type="button"
+                          (click)="updateStatus(contract, ContractStatus.ACTIVE)"
+                        >
+                          <i class="bi bi-lightning-charge-fill me-2 text-primary"></i>
+                          Marcar como activa
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          class="dropdown-item"
+                          type="button"
+                          (click)="updateStatus(contract, ContractStatus.COMPLETED)"
+                        >
+                          <i class="bi bi-check-circle-fill me-2 text-success"></i>
+                          Marcar como completada
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          class="dropdown-item text-danger"
+                          type="button"
+                          (click)="updateStatus(contract, ContractStatus.CANCELED)"
+                        >
+                          <i class="bi bi-x-circle-fill me-2"></i>
+                          Cancelar contrato
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (pager) {
+      <div class="card-footer bg-white">
+        <app-pager [pager]="pager" [url]="pagerUrl"></app-pager>
+      </div>
+    }
+  </section>
+</div>
