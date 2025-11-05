@@ -43,6 +43,18 @@ export class UserProfileComponent implements OnInit {
     'company:read': 'Leer Compañías',
     'company:update': 'Actualizar Compañías',
     'company:delete': 'Eliminar Compañías',
+    'car:create': 'Crear Vehículos',
+    'car:read': 'Leer Vehículos',
+    'car:update': 'Actualizar Vehículos',
+    'car:delete': 'Eliminar Vehículos',
+    'motorcycle:create': 'Crear Motocicletas',
+    'motorcycle:read': 'Leer Motocicletas',
+    'motorcycle:update': 'Actualizar Motocicletas',
+    'motorcycle:delete': 'Eliminar Motocicletas',
+    'purchase_sale:create': 'Crear Compras/Ventas',
+    'purchase_sale:read': 'Leer Compras/Ventas',
+    'purchase_sale:update': 'Actualizar Compras/Ventas',
+    'purchase_sale:delete': 'Eliminar Compras/Ventas',
   };
 
   constructor(
