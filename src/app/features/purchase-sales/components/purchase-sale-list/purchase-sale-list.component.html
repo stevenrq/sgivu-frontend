@@ -139,7 +139,7 @@
                   >
                     @for (status of contractStatuses; track status) {
                       <option [ngValue]="status">
-                        {{ status | titlecase }}
+                        {{ getStatusLabel(status) }}
                       </option>
                     }
                   </select>
@@ -169,7 +169,7 @@
                   >
                     @for (method of paymentMethods; track method) {
                       <option [ngValue]="method">
-                        {{ method.replace('_', ' ') | titlecase }}
+                        {{ getPaymentMethodLabel(method) }}
                       </option>
                     }
                   </select>
@@ -321,7 +321,7 @@
                   >
                     @for (status of contractStatuses; track status) {
                       <option [ngValue]="status">
-                        {{ status | titlecase }}
+                        {{ getStatusLabel(status) }}
                       </option>
                     }
                   </select>
@@ -366,7 +366,7 @@
                   >
                     @for (method of paymentMethods; track method) {
                       <option [ngValue]="method">
-                        {{ method.replace('_', ' ') | titlecase }}
+                        {{ getPaymentMethodLabel(method) }}
                       </option>
                     }
                   </select>
@@ -453,7 +453,7 @@
           >
             <option ngValue="ALL">Todos</option>
             @for (type of contractTypes; track type) {
-              <option [ngValue]="type">{{ type | titlecase }}</option>
+              <option [ngValue]="type">{{ getContractTypeLabel(type) }}</option>
             }
           </select>
         </div>
@@ -466,7 +466,7 @@
           >
             <option ngValue="ALL">Todos</option>
             @for (status of contractStatuses; track status) {
-              <option [ngValue]="status">{{ status | titlecase }}</option>
+              <option [ngValue]="status">{{ getStatusLabel(status) }}</option>
             }
           </select>
         </div>
@@ -545,7 +545,7 @@
                 </td>
                 <td>
                   <span class="badge rounded-pill" [ngClass]="getVehicleBadgeClass(contract)">
-                    {{ contract.contractType | titlecase }}
+                    {{ getContractTypeLabel(contract.contractType) }}
                   </span>
                 </td>
                 <td>
@@ -572,7 +572,7 @@
                 </td>
                 <td>
                   <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(contract.contractStatus)">
-                    {{ contract.contractStatus | titlecase }}
+                    {{ getStatusLabel(contract.contractStatus) }}
                   </span>
                 </td>
                 <td>{{ contract.updatedAt | date: 'short' }}</td>

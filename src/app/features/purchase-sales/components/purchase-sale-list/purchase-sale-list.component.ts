@@ -144,6 +144,29 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
   private currentPage = 0;
   private readonly subscriptions: Subscription[] = [];
+  private readonly statusLabels: Record<ContractStatus, string> = {
+    [ContractStatus.PENDING]: 'Pendiente',
+    [ContractStatus.ACTIVE]: 'Activa',
+    [ContractStatus.COMPLETED]: 'Completada',
+    [ContractStatus.CANCELED]: 'Cancelada',
+  };
+
+  private readonly typeLabels: Record<ContractType, string> = {
+    [ContractType.PURCHASE]: 'Compra',
+    [ContractType.SALE]: 'Venta',
+  };
+
+  private readonly paymentMethodLabels: Record<PaymentMethod, string> = {
+    [PaymentMethod.CASH]: 'Efectivo',
+    [PaymentMethod.BANK_TRANSFER]: 'Transferencia bancaria',
+    [PaymentMethod.BANK_DEPOSIT]: 'Consignación bancaria',
+    [PaymentMethod.CASHIERS_CHECK]: 'Cheque de gerencia',
+    [PaymentMethod.MIXED]: 'Pago combinado',
+    [PaymentMethod.FINANCING]: 'Financiación',
+    [PaymentMethod.DIGITAL_WALLET]: 'Billetera digital',
+    [PaymentMethod.TRADE_IN]: 'Permuta',
+    [PaymentMethod.INSTALLMENT_PAYMENT]: 'Pago a plazos',
+  };
 
   constructor(
     private readonly purchaseSaleService: PurchaseSaleService,
@@ -239,6 +262,18 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       default:
         return 'bg-warning-subtle text-warning-emphasis';
     }
+  }
+
+  getStatusLabel(status: ContractStatus): string {
+    return this.statusLabels[status] ?? status;
+  }
+
+  getContractTypeLabel(type: ContractType): string {
+    return this.typeLabels[type] ?? type;
+  }
+
+  getPaymentMethodLabel(method: PaymentMethod): string {
+    return this.paymentMethodLabels[method] ?? method;
   }
 
   getClientLabel(clientId: number): string {
@@ -578,6 +613,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       this.getUserLabel(contract.userId).toLowerCase(),
       this.getVehicleLabel(contract.vehicleId).toLowerCase(),
       contract.paymentMethod.toLowerCase(),
+      this.getPaymentMethodLabel(contract.paymentMethod).toLowerCase(),
       contract.paymentTerms.toLowerCase(),
       contract.paymentLimitations.toLowerCase(),
       contract.observations?.toLowerCase() ?? '',
