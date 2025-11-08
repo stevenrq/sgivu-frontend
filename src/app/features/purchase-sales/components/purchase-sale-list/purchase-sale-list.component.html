@@ -235,11 +235,11 @@
                   <div class="text-muted small">ID: {{ contract.vehicleId }}</div>
                 </td>
                 <td>
-                  {{ contract.purchasePrice | currency: 'COP':'symbol':'1.0-0' }}
+                  {{ contract.purchasePrice | currency: 'COP':'symbol-narrow':'1.0-0' }}
                 </td>
                 <td>
                   @if (contract.salePrice > 0) {
-                    {{ contract.salePrice | currency: 'COP':'symbol':'1.0-0' }}
+                    {{ contract.salePrice | currency: 'COP':'symbol-narrow':'1.0-0' }}
                   } @else {
                     <span class="text-muted">—</span>
                   }
