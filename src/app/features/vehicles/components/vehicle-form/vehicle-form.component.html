@@ -410,7 +410,7 @@
                   formControlName="status"
                 >
                   @for (status of statuses; track status) {
-                    <option [value]="status">{{ status }}</option>
+                    <option [value]="status">{{ getStatusLabel(status) }}</option>
                   }
                 </select>
                 <label for="status"

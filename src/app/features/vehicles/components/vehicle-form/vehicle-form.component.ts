@@ -42,6 +42,14 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   formGroup: FormGroup;
   isEditMode = false;
   readonly statuses = Object.values(VehicleStatus);
+  private readonly statusLabels: Record<VehicleStatus, string> = {
+    [VehicleStatus.AVAILABLE]: 'Disponible',
+    [VehicleStatus.SOLD]: 'Vendido',
+    [VehicleStatus.IN_MAINTENANCE]: 'En mantenimiento',
+    [VehicleStatus.IN_REPAIR]: 'En reparación',
+    [VehicleStatus.IN_USE]: 'En uso',
+    [VehicleStatus.INACTIVE]: 'Inactivo',
+  };
 
   private vehicleId: number | null = null;
   private vehicleType: VehicleFormType = 'CAR';
@@ -122,6 +130,10 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
     return this.isEditMode
       ? 'Actualiza la información de la motocicleta seleccionada.'
       : 'Completa los datos para registrar una nueva motocicleta.';
+  }
+
+  getStatusLabel(status: VehicleStatus): string {
+    return this.statusLabels[status] ?? status;
   }
 
   get isCar(): boolean {
