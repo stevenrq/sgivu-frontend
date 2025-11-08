@@ -7,7 +7,7 @@ import {
   computed,
   signal,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, finalize, forkJoin, map, tap } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -24,47 +24,16 @@ import { CompanyService } from '../../../clients/services/company.service';
 import { UserService } from '../../../users/services/user.service';
 import { CarService } from '../../../vehicles/services/car.service';
 import { MotorcycleService } from '../../../vehicles/services/motorcycle.service';
-import { Person } from '../../../clients/models/person.model.';
-import { Company } from '../../../clients/models/company.model';
-import { User } from '../../../users/models/user.model';
-import { Car } from '../../../vehicles/models/car.model';
-import { Motorcycle } from '../../../vehicles/models/motorcycle.model';
-import { VehicleStatus } from '../../../vehicles/models/vehicle-status.enum';
-
-interface ClientOption {
-  id: number;
-  label: string;
-  type: 'PERSON' | 'COMPANY';
-}
-
-interface UserOption {
-  id: number;
-  label: string;
-}
-
-interface VehicleOption {
-  id: number;
-  label: string;
-  status: VehicleStatus;
-  type: 'CAR' | 'MOTORCYCLE';
-}
-
-interface PurchaseFormModel {
-  clientId: number | null;
-  userId: number | null;
-  vehicleId: number | null;
-  purchasePrice: number | null;
-  contractStatus: ContractStatus;
-  paymentLimitations: string;
-  paymentTerms: string;
-  paymentMethod: PaymentMethod;
-  observations: string;
-}
-
-interface SaleFormModel extends PurchaseFormModel {
-  salePrice: number | null;
-  contractType: ContractType;
-}
+import {
+  ClientOption,
+  UserOption,
+  VehicleOption,
+  mapCarsToVehicles,
+  mapCompaniesToClients,
+  mapMotorcyclesToVehicles,
+  mapPersonsToClients,
+  mapUsersToOptions,
+} from '../../models/purchase-sale-reference.model';
 
 interface PurchaseSaleListState {
   items: PurchaseSale[];
@@ -78,32 +47,21 @@ type ContractStatusFilter = ContractStatus | 'ALL';
 
 @Component({
   selector: 'app-purchase-sale-list',
-  imports: [
-    CommonModule,
-    FormsModule,
-    HasPermissionDirective,
-    PagerComponent,
-  ],
+  imports: [CommonModule, FormsModule, HasPermissionDirective, PagerComponent],
   templateUrl: './purchase-sale-list.component.html',
   styleUrl: './purchase-sale-list.component.css',
 })
 export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   readonly contractStatuses = Object.values(ContractStatus);
-  readonly paymentMethods = Object.values(PaymentMethod);
   readonly contractTypes = Object.values(ContractType);
   readonly ContractStatus = ContractStatus;
-
-  purchaseForm: PurchaseFormModel = this.createDefaultPurchaseForm();
-  saleForm: SaleFormModel = this.createDefaultSaleForm();
+  readonly ContractType = ContractType;
 
   readonly clients: WritableSignal<ClientOption[]> = signal<ClientOption[]>([]);
   readonly users: WritableSignal<UserOption[]> = signal<UserOption[]>([]);
   readonly vehicles: WritableSignal<VehicleOption[]> = signal<VehicleOption[]>(
     [],
   );
-
-  readonly isLoadingLookups = signal(false);
-  readonly hasLookupError = signal(false);
 
   readonly clientMap = computed(
     () =>
@@ -141,8 +99,6 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     excel: false,
   };
 
-  purchaseLoading = false;
-  saleLoading = false;
   listState: PurchaseSaleListState = {
     items: [],
     loading: false,
@@ -153,9 +109,9 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   private readonly subscriptions: Subscription[] = [];
   private readonly statusLabels: Record<ContractStatus, string> = {
     [ContractStatus.PENDING]: 'Pendiente',
-    [ContractStatus.ACTIVE]: 'Activa',
-    [ContractStatus.COMPLETED]: 'Completada',
-    [ContractStatus.CANCELED]: 'Cancelada',
+    [ContractStatus.ACTIVE]: 'Activo',
+    [ContractStatus.COMPLETED]: 'Completado',
+    [ContractStatus.CANCELED]: 'Cancelado',
   };
 
   private readonly typeLabels: Record<ContractType, string> = {
@@ -206,6 +162,10 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
+  }
+
+  navigateToCreate(): void {
+    void this.router.navigate(['/purchase-sales/register']);
   }
 
   get pager(): PaginatedResponse<PurchaseSale> | undefined {
@@ -286,7 +246,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   getClientLabel(contract: PurchaseSale): string {
     const summary = contract.clientSummary;
     if (summary) {
-      const pieces = [summary.name ?? `Cliente #${summary.id}`];
+      const pieces = [summary.name ?? `Cliente ##${summary.id}`];
       if (summary.identifier) {
         pieces.push(summary.identifier);
       }
@@ -302,8 +262,8 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     if (summary) {
       const username = summary.username ? `@${summary.username}` : null;
       return [summary.fullName ?? `Usuario #${summary.id}`, username]
-          .filter(Boolean)
-          .join(' ');
+        .filter(Boolean)
+        .join(' ');
     }
 
     const fallback = this.userMap().get(contract.userId);
@@ -319,8 +279,17 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       return `${brand} ${model} (${plate})`;
     }
 
+    if (!contract.vehicleId) {
+      return 'Vehículo no disponible';
+    }
+
     const fallback = this.vehicleMap().get(contract.vehicleId);
-    return fallback ? fallback.label : `Vehículo #${contract.vehicleId}`;
+    return fallback ? fallback.label : 'Vehículo';
+  }
+
+  private getVehicleLabelById(vehicleId: number): string | null {
+    const option = this.vehicleMap().get(vehicleId);
+    return option ? option.label : null;
   }
 
   resetFilters(): void {
@@ -383,77 +352,6 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
         ? `${this.reportStartDate ?? 'inicio'}-a-${this.reportEndDate ?? 'fin'}`
         : 'completo';
     return `reporte-compras-ventas-${rangeLabel}-${today}.${extension}`;
-  }
-
-  createPurchase(purchaseFormRef: NgForm): void {
-    if (!purchaseFormRef.valid) {
-      this.showValidationError();
-      return;
-    }
-
-    const payload: PurchaseSale = {
-      clientId: Number(this.purchaseForm.clientId),
-      userId: Number(this.purchaseForm.userId),
-      vehicleId: Number(this.purchaseForm.vehicleId),
-      purchasePrice: Number(this.purchaseForm.purchasePrice),
-      salePrice: 0,
-      contractStatus: this.purchaseForm.contractStatus,
-      contractType: ContractType.PURCHASE,
-      paymentLimitations: this.purchaseForm.paymentLimitations.trim(),
-      paymentTerms: this.purchaseForm.paymentTerms.trim(),
-      paymentMethod: this.purchaseForm.paymentMethod,
-      observations: this.purchaseForm.observations?.trim() ?? null,
-    };
-
-    this.purchaseLoading = true;
-
-    this.purchaseSaleService
-      .create(payload)
-      .pipe(finalize(() => (this.purchaseLoading = false)))
-      .subscribe({
-        next: () => {
-          this.resetPurchaseForm(purchaseFormRef);
-          this.reloadCurrentPage();
-          this.refreshSummary();
-          this.showSuccessMessage('Compra registrada con éxito.');
-        },
-        error: (error) => this.handleError(error, 'registrar la compra'),
-      });
-  }
-
-  createSale(saleFormRef: NgForm): void {
-    if (!saleFormRef.valid) {
-      this.showValidationError();
-      return;
-    }
-
-    const payload: PurchaseSale = {
-      clientId: Number(this.saleForm.clientId),
-      userId: Number(this.saleForm.userId),
-      vehicleId: Number(this.saleForm.vehicleId),
-      purchasePrice: Number(this.saleForm.purchasePrice),
-      salePrice: Number(this.saleForm.salePrice),
-      contractStatus: this.saleForm.contractStatus,
-      contractType: ContractType.SALE,
-      paymentLimitations: this.saleForm.paymentLimitations.trim(),
-      paymentTerms: this.saleForm.paymentTerms.trim(),
-      paymentMethod: this.saleForm.paymentMethod,
-      observations: this.saleForm.observations?.trim() ?? null,
-    };
-
-    this.saleLoading = true;
-    this.purchaseSaleService
-      .create(payload)
-      .pipe(finalize(() => (this.saleLoading = false)))
-      .subscribe({
-        next: () => {
-          this.resetSaleForm(saleFormRef);
-          this.reloadCurrentPage();
-          this.refreshSummary();
-          this.showSuccessMessage('Venta registrada con éxito.');
-        },
-        error: (error) => this.handleError(error, 'registrar la venta'),
-      });
   }
 
   updateStatus(contract: PurchaseSale, status: ContractStatus): void {
@@ -528,57 +426,44 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   }
 
   private loadLookups(): void {
-    this.isLoadingLookups.set(true);
-    this.hasLookupError.set(false);
-
     const clients$ = forkJoin([
       this.personService.getAll(),
       this.companyService.getAll(),
     ]).pipe(
       map(([persons, companies]) => [
-        ...this.mapPersonsToClients(persons),
-        ...this.mapCompaniesToClients(companies),
+        ...mapPersonsToClients(persons),
+        ...mapCompaniesToClients(companies),
       ]),
     );
 
-    const users$ = this.userService.getAll().pipe(
-      map((users) =>
-        users.map((user) => ({
-          id: user.id!,
-          label: `${user.firstName} ${user.lastName} (@${user.username})`,
-        })),
-      ),
-    );
+    const users$ = this.userService.getAll().pipe(map(mapUsersToOptions));
 
     const vehicles$ = forkJoin([
       this.carService.getAll(),
       this.motorcycleService.getAll(),
     ]).pipe(
       map(([cars, motorcycles]) => [
-        ...this.mapCarsToVehicles(cars),
-        ...this.mapMotorcyclesToVehicles(motorcycles),
+        ...mapCarsToVehicles(cars),
+        ...mapMotorcyclesToVehicles(motorcycles),
       ]),
     );
 
-    const lookupSub = forkJoin([clients$, users$, vehicles$])
-      .pipe(finalize(() => this.isLoadingLookups.set(false)))
-      .subscribe({
-        next: ([clientOptions, userOptions, vehicleOptions]) => {
-          this.clients.set(
-            clientOptions.sort((a, b) => a.label.localeCompare(b.label)),
-          );
-          this.users.set(
-            userOptions.sort((a, b) => a.label.localeCompare(b.label)),
-          );
-          this.vehicles.set(
-            vehicleOptions.sort((a, b) => a.label.localeCompare(b.label)),
-          );
-        },
-        error: (error) => {
-          this.hasLookupError.set(true);
-          this.handleError(error, 'cargar la información auxiliar');
-        },
-      });
+    const lookupSub = forkJoin([clients$, users$, vehicles$]).subscribe({
+      next: ([clientOptions, userOptions, vehicleOptions]) => {
+        this.clients.set(
+          clientOptions.sort((a, b) => a.label.localeCompare(b.label)),
+        );
+        this.users.set(
+          userOptions.sort((a, b) => a.label.localeCompare(b.label)),
+        );
+        this.vehicles.set(
+          vehicleOptions.sort((a, b) => a.label.localeCompare(b.label)),
+        );
+      },
+      error: (error) => {
+        this.handleError(error, 'cargar la información auxiliar');
+      },
+    });
 
     this.subscriptions.push(lookupSub);
   }
@@ -618,78 +503,6 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     return value ? Number(value) : 0;
   }
 
-  private createDefaultPurchaseForm(): PurchaseFormModel {
-    return {
-      clientId: null,
-      userId: null,
-      vehicleId: null,
-      purchasePrice: null,
-      contractStatus: ContractStatus.PENDING,
-      paymentLimitations: '',
-      paymentTerms: '',
-      paymentMethod: PaymentMethod.BANK_TRANSFER,
-      observations: '',
-    };
-  }
-
-  private createDefaultSaleForm(): SaleFormModel {
-    return {
-      ...this.createDefaultPurchaseForm(),
-      salePrice: null,
-      contractType: ContractType.SALE,
-    };
-  }
-
-  resetPurchaseForm(form?: NgForm): void {
-    this.purchaseForm = this.createDefaultPurchaseForm();
-    form?.resetForm({ ...this.purchaseForm });
-  }
-
-  resetSaleForm(form?: NgForm): void {
-    this.saleForm = this.createDefaultSaleForm();
-    form?.resetForm({ ...this.saleForm });
-  }
-
-  private mapPersonsToClients(persons: Person[]): ClientOption[] {
-    return persons
-      .filter((person) => person.id)
-      .map((person) => ({
-        id: person.id!,
-        label: `${person.firstName} ${person.lastName} (CC ${person.nationalId ?? 'N/A'})`,
-        type: 'PERSON' as const,
-      }));
-  }
-
-  private mapCompaniesToClients(companies: Company[]): ClientOption[] {
-    return companies
-      .filter((company) => company.id)
-      .map((company) => ({
-        id: company.id!,
-        label: `${company.companyName} (NIT ${company.taxId ?? 'N/A'})`,
-        type: 'COMPANY' as const,
-      }));
-  }
-
-  private mapCarsToVehicles(cars: Car[]): VehicleOption[] {
-    return cars.map((car) => ({
-      id: car.id,
-      label: `#${car.id} · ${car.brand} ${car.model} (${car.plate})`,
-      status: car.status,
-      type: 'CAR' as const,
-    }));
-  }
-
-  private mapMotorcyclesToVehicles(
-    motorcycles: Motorcycle[],
-  ): VehicleOption[] {
-    return motorcycles.map((motorcycle) => ({
-      id: motorcycle.id,
-      label: `#${motorcycle.id} · ${motorcycle.brand} ${motorcycle.model} (${motorcycle.plate})`,
-      status: motorcycle.status,
-      type: 'MOTORCYCLE' as const,
-    }));
-  }
-
   private matchesSearchTerm(contract: PurchaseSale): boolean {
     if (!this.searchTerm) {
       return true;
@@ -697,6 +510,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     const term = this.searchTerm.toLowerCase();
     const entries = [
       contract.id?.toString() ?? '',
+      contract.vehicleId?.toString() ?? '',
       this.getClientLabel(contract).toLowerCase(),
       this.getUserLabel(contract).toLowerCase(),
       this.getVehicleLabel(contract).toLowerCase(),
@@ -710,14 +524,6 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     ];
 
     return entries.some((value) => value.includes(term));
-  }
-
-  private showValidationError(): void {
-    void Swal.fire({
-      icon: 'warning',
-      title: 'Formulario incompleto',
-      text: 'Por favor, completa todos los campos obligatorios antes de continuar.',
-    });
   }
 
   private showSuccessMessage(message: string): void {
@@ -737,15 +543,29 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   ): void {
     const details =
       (error as { error?: { details?: string } })?.error?.details ?? null;
+    const message = this.decorateVehicleMessage(
+      details ??
+        `Se presentó un inconveniente al ${action}. Intenta nuevamente.`,
+    );
 
     if (displayAlert) {
       void Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text:
-          details ??
-          `Se presentó un inconveniente al ${action}. Intenta nuevamente.`,
+        text: message,
       });
     }
+  }
+
+  private decorateVehicleMessage(message: string | null): string {
+    if (!message) {
+      return '';
+    }
+
+    return message.replace(/veh[ií]culo con id (\d+)/gi, (_, id: string) => {
+      const numericId = Number(id);
+      const label = this.getVehicleLabelById(numericId);
+      return label ?? `vehículo con id ${id}`;
+    });
   }
 }

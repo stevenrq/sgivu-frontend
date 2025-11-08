@@ -14,7 +14,7 @@ import {
   forkJoin,
   map,
 } from 'rxjs';
-import Swal from 'sweetalert2';
+import { ClientUiHelperService } from '../../../../shared/services/client-ui-helper.service';
 import { Company } from '../../models/company.model';
 import { PaginatedResponse } from '../../../../shared/models/paginated-response';
 import { Person } from '../../models/person.model.';
@@ -129,6 +129,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
     private readonly companyService: CompanyService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly clientUiHelper: ClientUiHelperService,
   ) {}
 
   ngOnInit(): void {
@@ -244,11 +245,21 @@ export class ClientListComponent implements OnInit, OnDestroy {
   }
 
   protected togglePersonStatus(person: Person): void {
-    this.updateClientStatus('person', person.id, !person.enabled);
+    this.clientUiHelper.updatePersonStatus(
+      person.id,
+      !person.enabled,
+      () => this.reloadTab('person'),
+      `${person.firstName} ${person.lastName}`.trim(),
+    );
   }
 
   protected toggleCompanyStatus(company: Company): void {
-    this.updateClientStatus('company', company.id, !company.enabled);
+    this.clientUiHelper.updateCompanyStatus(
+      company.id,
+      !company.enabled,
+      () => this.reloadTab('company'),
+      company.companyName,
+    );
   }
 
   private createInitialState<T extends ClientEntity>(): ClientListState<T> {
@@ -699,55 +710,6 @@ export class ClientListComponent implements OnInit, OnDestroy {
       active,
       inactive: items.length - active,
     };
-  }
-
-  private updateClientStatus(
-    type: ClientTab,
-    id: number,
-    nextStatus: boolean,
-  ): void {
-    const entityLabel =
-      type === 'person' ? 'el cliente persona' : 'el cliente empresa';
-    const actionLabel = nextStatus ? 'activar' : 'desactivar';
-
-    void Swal.fire({
-      title: '¿Estás seguro?',
-      text: `Se ${actionLabel}á ${entityLabel}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí',
-      cancelButtonText: 'No',
-    }).then((result) => {
-      if (!result.isConfirmed) {
-        return;
-      }
-
-      const service =
-        type === 'person' ? this.personService : this.companyService;
-
-      const status$ = service.updateStatus(id, nextStatus).subscribe({
-        next: () => {
-          void Swal.fire({
-            icon: 'success',
-            title: 'Estado actualizado exitosamente',
-            confirmButtonColor: '#3085d6',
-          });
-          this.reloadTab(type);
-        },
-        error: () => {
-          void Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo actualizar el estado del cliente. Intenta nuevamente.',
-            confirmButtonColor: '#d33',
-          });
-        },
-      });
-
-      this.subscriptions.push(status$);
-    });
   }
 
   private getCurrentPage(type: ClientTab): number {

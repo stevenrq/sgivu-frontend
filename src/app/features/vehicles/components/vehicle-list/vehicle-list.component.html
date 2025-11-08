@@ -33,8 +33,8 @@
       <button
         class="btn btn-primary"
         type="button"
-        [routerLink]="createLink"
-        *appHasPermission="createPermission"
+        (click)="startPurchaseFlow()"
+        *appHasPermission="'purchase_sale:create'"
       >
         <i class="bi bi-plus-circle me-2"></i>{{ createLabel }}
       </button>
@@ -304,7 +304,7 @@
                 <th scope="col">Placa</th>
                 <th scope="col">Marca / Línea</th>
                 <th scope="col">Modelo</th>
-                <th scope="col">Capacidad</th>
+                <th scope="col">Capacidad de pasajeros</th>
                 <th scope="col">Transmisión</th>
                 <th scope="col">Estado</th>
                 <th scope="col" class="text-end">Precio venta</th>
@@ -362,22 +362,47 @@
                         | currency: "COP" : "symbol-narrow" : "1.0-0"
                     }}
                   </td>
-                  <td class="text-center">
-                    <div class="d-flex justify-content-center gap-2">
-                      <a
-                        class="btn btn-outline-secondary btn-icon"
-                        [routerLink]="['/vehicles/cars', car.id]"
-                        *appHasPermission="'car:update'"
-                        ><i class="bi bi-pencil-square"></i
-                      ></a>
+                  <td class="text-center" *appHasPermission="'car:update'">
+                    <div class="dropdown">
                       <button
-                        class="btn btn-outline-danger btn-icon"
+                        class="btn btn-outline-secondary btn-sm btn-icon"
                         type="button"
-                        (click)="deleteCar(car)"
-                        *appHasPermission="'car:delete'"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
                       >
-                        <i class="bi bi-trash3-fill"></i>
+                        <i class="bi bi-three-dots"></i>
                       </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a
+                            class="dropdown-item"
+                            [routerLink]="['/vehicles/cars', car.id]"
+                          >
+                            <i class="bi bi-pencil-square me-2"></i>Editar
+                          </a>
+                        </li>
+                        <li>
+                          <button
+                            class="dropdown-item d-flex align-items-center"
+                            type="button"
+                            (click)="toggleCarAvailability(car)"
+                          >
+                            <i
+                              class="bi me-2"
+                              [ngClass]="
+                                car.status === VehicleStatus.INACTIVE
+                                  ? 'bi-toggle-off'
+                                  : 'bi-toggle-on'
+                              "
+                            ></i>
+                            {{
+                              car.status === VehicleStatus.INACTIVE
+                                ? "Activar"
+                                : "Desactivar"
+                            }}
+                          </button>
+                        </li>
+                      </ul>
                     </div>
                   </td>
                 </tr>
@@ -395,10 +420,7 @@
                 <th
                   scope="col"
                   class="text-center"
-                  *appHasPermission="
-                    ['motorcycle:update', 'motorcycle:delete'];
-                    appHasPermissionLogic: 'OR'
-                  "
+                  *appHasPermission="'motorcycle:update'"
                 >
                   Acciones
                 </th>
@@ -450,22 +472,50 @@
                         | currency: "COP" : "symbol-narrow" : "1.0-0"
                     }}
                   </td>
-                  <td class="text-center">
-                    <div class="d-flex justify-content-center gap-2">
-                      <a
-                        class="btn btn-outline-secondary btn-icon"
-                        [routerLink]="['/vehicles/motorcycles', motorcycle.id]"
-                        *appHasPermission="'motorcycle:update'"
-                        ><i class="bi bi-pencil-square"></i
-                      ></a>
+                  <td class="text-center" *appHasPermission="'motorcycle:update'">
+                    <div class="dropdown">
                       <button
-                        class="btn btn-outline-danger btn-icon"
+                        class="btn btn-outline-secondary btn-sm btn-icon"
                         type="button"
-                        (click)="deleteMotorcycle(motorcycle)"
-                        *appHasPermission="'motorcycle:delete'"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
                       >
-                        <i class="bi bi-trash3-fill"></i>
+                        <i class="bi bi-three-dots"></i>
                       </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a
+                            class="dropdown-item"
+                            [routerLink]="[
+                              '/vehicles/motorcycles',
+                              motorcycle.id
+                            ]"
+                          >
+                            <i class="bi bi-pencil-square me-2"></i>Editar
+                          </a>
+                        </li>
+                        <li>
+                          <button
+                            class="dropdown-item d-flex align-items-center"
+                            type="button"
+                            (click)="toggleMotorcycleAvailability(motorcycle)"
+                          >
+                            <i
+                              class="bi me-2"
+                              [ngClass]="
+                                motorcycle.status === VehicleStatus.INACTIVE
+                                  ? 'bi-toggle-off'
+                                  : 'bi-toggle-on'
+                              "
+                            ></i>
+                            {{
+                              motorcycle.status === VehicleStatus.INACTIVE
+                                ? "Activar"
+                                : "Desactivar"
+                            }}
+                          </button>
+                        </li>
+                      </ul>
                     </div>
                   </td>
                 </tr>

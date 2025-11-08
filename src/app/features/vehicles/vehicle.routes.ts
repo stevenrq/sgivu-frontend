@@ -46,25 +46,6 @@ export const vehicleRoutes: Routes = [
     },
   },
   {
-    path: 'cars/create',
-    component: VehicleFormComponent,
-    canActivate: [authGuard, permissionGuard],
-    data: {
-      vehicleType: 'car',
-      canActivateFn: (ps: PermissionService) => ps.hasPermission('car:create'),
-    },
-  },
-  {
-    path: 'motorcycles/create',
-    component: VehicleFormComponent,
-    canActivate: [authGuard, permissionGuard],
-    data: {
-      vehicleType: 'motorcycle',
-      canActivateFn: (ps: PermissionService) =>
-        ps.hasPermission('motorcycle:create'),
-    },
-  },
-  {
     path: 'cars/:id',
     component: VehicleFormComponent,
     canActivate: [authGuard, permissionGuard],
@@ -88,4 +69,3 @@ export const vehicleRoutes: Routes = [
     redirectTo: 'cars/page/0',
   },
 ];
-

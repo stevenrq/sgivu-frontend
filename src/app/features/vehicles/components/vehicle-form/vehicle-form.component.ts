@@ -24,6 +24,7 @@ import { CarService } from '../../services/car.service';
 import { MotorcycleService } from '../../services/motorcycle.service';
 import { Car } from '../../models/car.model';
 import { Motorcycle } from '../../models/motorcycle.model';
+import { ContractType } from '../../../purchase-sales/models/contract-type.enum';
 
 type VehicleFormType = 'CAR' | 'MOTORCYCLE';
 
@@ -153,10 +154,20 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
               ? 'El vehículo fue actualizado correctamente.'
               : 'El vehículo fue registrado correctamente.',
           });
-          const redirect = this.isCar
-            ? ['/vehicles/cars/page', 0]
-            : ['/vehicles/motorcycles/page', 0];
-          void this.router.navigate(redirect);
+          const redirect = this.isEditMode
+            ? this.isCar
+              ? ['/vehicles/cars/page', 0]
+              : ['/vehicles/motorcycles/page', 0]
+            : ['/purchase-sales/registrar'];
+          const navigationExtras = this.isEditMode
+            ? undefined
+            : {
+                queryParams: {
+                  contractType: ContractType.PURCHASE,
+                  vehicleKind: this.vehicleType,
+                },
+              };
+          void this.router.navigate(redirect, navigationExtras);
         },
         error: (error) => {
           if (error?.status === 409) {
@@ -319,7 +330,7 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
         [Validators.required, lengthValidator(3, 20), noWhitespaceValidator()],
       ],
       purchasePrice: [null, [Validators.required, Validators.min(0)]],
-      salePrice: [null, [Validators.required, Validators.min(0)]],
+      salePrice: [null, [Validators.min(0)]],
       status: [VehicleStatus.AVAILABLE, Validators.required],
       photoUrl: [''],
       bodyType: [''],

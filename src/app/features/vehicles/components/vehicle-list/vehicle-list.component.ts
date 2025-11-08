@@ -25,6 +25,7 @@ import { PaginatedResponse } from '../../../../shared/models/paginated-response'
 import { Car } from '../../models/car.model';
 import { Motorcycle } from '../../models/motorcycle.model';
 import { VehicleStatus } from '../../models/vehicle-status.enum';
+import { VehicleUiHelperService } from '../../../../shared/services/vehicle-ui-helper.service';
 
 type VehicleTab = 'car' | 'motorcycle';
 type VehicleEntity = Car | Motorcycle;
@@ -76,6 +77,7 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   motorcycleFilters: MotorcycleSearchFilters = {};
 
   readonly vehicleStatuses = Object.values(VehicleStatus);
+  readonly VehicleStatus = VehicleStatus;
 
   readonly carState = this.createInitialState<Car>();
   readonly motorcycleState = this.createInitialState<Motorcycle>();
@@ -89,6 +91,7 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     private readonly motorcycleService: MotorcycleService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly vehicleUiHelper: VehicleUiHelperService,
   ) {}
 
   ngOnInit(): void {
@@ -146,14 +149,14 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       : '/vehicles/motorcycles/page';
   }
 
-  get createLink(): string[] {
-    return this.activeTab === 'car'
-      ? ['/vehicles/cars/create']
-      : ['/vehicles/motorcycles/create'];
-  }
-
-  get createPermission(): string {
-    return this.activeTab === 'car' ? 'car:create' : 'motorcycle:create';
+  startPurchaseFlow(): void {
+    const vehicleKind = this.activeTab === 'car' ? 'CAR' : 'MOTORCYCLE';
+    void this.router.navigate(['/purchase-sales/register'], {
+      queryParams: {
+        contractType: 'PURCHASE',
+        vehicleKind,
+      },
+    });
   }
 
   get createLabel(): string {
@@ -249,72 +252,26 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
-  deleteCar(car: Car): void {
-    void Swal.fire({
-      title: '¿Eliminar vehículo?',
-      text: `Esta acción eliminará el vehículo con placa ${car.plate}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      reverseButtons: true,
-    }).then((result) => {
-      if (!result.isConfirmed) {
-        return;
-      }
-      const sub = this.carService.delete(car.id).subscribe({
-        next: () => {
-          this.loadCars(this.currentCarPage);
-          void Swal.fire({
-            icon: 'success',
-            title: 'Vehículo eliminado',
-            timer: 2000,
-            showConfirmButton: false,
-          });
-        },
-        error: () => {
-          void Swal.fire({
-            icon: 'error',
-            title: 'No se pudo eliminar el vehículo',
-          });
-        },
-      });
-      this.subscriptions.push(sub);
-    });
+  toggleCarAvailability(car: Car): void {
+    this.vehicleUiHelper.updateCarStatus(
+      car.id,
+      car.status === VehicleStatus.INACTIVE
+        ? VehicleStatus.AVAILABLE
+        : VehicleStatus.INACTIVE,
+      () => this.loadCars(this.currentCarPage),
+      car.plate,
+    );
   }
 
-  deleteMotorcycle(motorcycle: Motorcycle): void {
-    void Swal.fire({
-      title: '¿Eliminar motocicleta?',
-      text: `Esta acción eliminará la motocicleta con placa ${motorcycle.plate}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      reverseButtons: true,
-    }).then((result) => {
-      if (!result.isConfirmed) {
-        return;
-      }
-      const sub = this.motorcycleService.delete(motorcycle.id).subscribe({
-        next: () => {
-          this.loadMotorcycles(this.currentMotorcyclePage);
-          void Swal.fire({
-            icon: 'success',
-            title: 'Motocicleta eliminada',
-            timer: 2000,
-            showConfirmButton: false,
-          });
-        },
-        error: () => {
-          void Swal.fire({
-            icon: 'error',
-            title: 'No se pudo eliminar la motocicleta',
-          });
-        },
-      });
-      this.subscriptions.push(sub);
-    });
+  toggleMotorcycleAvailability(motorcycle: Motorcycle): void {
+    this.vehicleUiHelper.updateMotorcycleStatus(
+      motorcycle.id,
+      motorcycle.status === VehicleStatus.INACTIVE
+        ? VehicleStatus.AVAILABLE
+        : VehicleStatus.INACTIVE,
+      () => this.loadMotorcycles(this.currentMotorcyclePage),
+      motorcycle.plate,
+    );
   }
 
   statusLabel(status: VehicleStatus): string {

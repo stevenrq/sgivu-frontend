@@ -174,15 +174,15 @@
                   type="number"
                   class="form-control"
                   id="capacity"
-                  placeholder="Capacidad"
+                  placeholder="Capacidad de pasajeros"
                   formControlName="capacity"
                   [ngClass]="{ 'is-invalid': formGroup.get('capacity')?.invalid && (formGroup.get('capacity')?.dirty || formGroup.get('capacity')?.touched) }"
                 />
                 <label for="capacity"
-                  ><i class="bi bi-people-fill me-2"></i>Capacidad (ocupantes)</label
+                  ><i class="bi bi-people-fill me-2"></i>Capacidad de pasajeros</label
                 >
                 <div class="invalid-feedback">
-                  Ingrese una capacidad válida (mínimo 1).
+                  Ingrese una capacidad de pasajeros válida (mínimo 1).
                 </div>
               </div>
             </div>
@@ -394,7 +394,7 @@
                   [ngClass]="{ 'is-invalid': formGroup.get('salePrice')?.invalid && (formGroup.get('salePrice')?.dirty || formGroup.get('salePrice')?.touched) }"
                 />
                 <label for="salePrice"
-                  ><i class="bi bi-bank me-2"></i>Precio de venta</label
+                  ><i class="bi bi-bank me-2"></i>Precio de venta (opcional)</label
                 >
                 <div class="invalid-feedback">
                   Ingrese un valor válido (>= 0).
