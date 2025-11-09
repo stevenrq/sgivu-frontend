@@ -6,6 +6,15 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { PersonCount } from '../interfaces/person-count.interface';
 
+export interface PersonSearchFilters {
+  name?: string;
+  email?: string;
+  nationalId?: string;
+  phoneNumber?: string;
+  enabled?: boolean | '';
+  city?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -95,8 +104,14 @@ export class PersonService {
       );
   }
 
-  public searchPersonsByName(name: string): Observable<Person[]> {
-    const params = new HttpParams().set('name', name);
+  public search(filters: PersonSearchFilters): Observable<Person[]> {
+    let params = new HttpParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+      params = params.set(key, String(value));
+    });
     return this.http.get<Person[]>(`${this.apiUrl}/search`, { params });
   }
 }

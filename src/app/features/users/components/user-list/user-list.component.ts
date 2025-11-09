@@ -6,7 +6,7 @@ import { Observable, Subscription, finalize, forkJoin } from 'rxjs';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { PagerComponent } from '../../../pager/components/pager/pager.component';
 import { PaginatedResponse } from '../../../../shared/models/paginated-response';
-import { UserService } from '../../services/user.service';
+import { UserSearchFilters, UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { UserUiHelperService } from '../../../../shared/services/user-ui-helper.service';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -34,7 +34,7 @@ interface UserLoadConfig<T extends User> {
 
 interface UserSearchConfig<T extends User> {
   state: UserListState<T>;
-  search: (term: string) => Observable<T[]>;
+  search: (filters: UserSearchFilters) => Observable<T[]>;
   errorMessage: string;
 }
 
@@ -67,7 +67,15 @@ interface UserListMetadata {
 export class UserListComponent implements OnInit, OnDestroy {
   readonly searchTermMaxLength = 80;
 
-  searchTerm = '';
+  filters: UserSearchFilters & { enabled?: boolean | '' } = {
+    name: '',
+    username: '',
+    email: '',
+    role: '',
+    enabled: '',
+  };
+
+  readonly roleOptions: string[] = ['ADMIN', 'MANAGER', 'SALE', 'PURCHASE', 'USER'];
 
   private readonly metadata: UserListMetadata = {
     pagerUrl: ['/users/page'],
@@ -175,11 +183,17 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   protected search(): void {
-    this.performSearch(this.searchTerm);
+    this.performSearch();
   }
 
   protected reset(): void {
-    this.searchTerm = '';
+    this.filters = {
+      name: '',
+      username: '',
+      email: '',
+      role: '',
+      enabled: '',
+    };
     this.reloadCurrentPage();
   }
 
@@ -241,31 +255,50 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(loader$);
   }
 
-  private performSearch(term: string): void {
-    const trimmed = term.trim().slice(0, this.searchTermMaxLength);
-    this.searchTerm = trimmed;
-
-    if (!trimmed) {
+  private performSearch(): void {
+    const activeFilters = this.buildActiveFilters();
+    if (this.areFiltersEmpty(activeFilters)) {
       this.reloadCurrentPage();
       return;
     }
 
-    this.searchEntities<User>(trimmed, {
+    this.searchEntities<User>(activeFilters, {
       state: this.userState,
-      search: (query) => this.userService.searchUsersByName(query),
+      search: (query) => this.userService.searchUsers(query),
       errorMessage: 'Error al buscar usuarios.',
     });
   }
 
+  private buildActiveFilters(): UserSearchFilters {
+    return {
+      name: this.filters.name?.trim().slice(0, this.searchTermMaxLength),
+      username: this.filters.username?.trim(),
+      email: this.filters.email?.trim(),
+      role: this.filters.role || undefined,
+      enabled:
+        this.filters.enabled === '' ? undefined : Boolean(this.filters.enabled),
+    };
+  }
+
+  private areFiltersEmpty(filters: UserSearchFilters): boolean {
+    return (
+      !filters.name &&
+      !filters.username &&
+      !filters.email &&
+      !filters.role &&
+      filters.enabled === undefined
+    );
+  }
+
   private searchEntities<T extends User>(
-    term: string,
+    filters: UserSearchFilters,
     config: UserSearchConfig<T>,
   ): void {
     const { state, search, errorMessage } = config;
     state.loading = true;
     state.error = null;
 
-    const search$ = search(term)
+    const search$ = search(filters)
       .pipe(finalize(() => (state.loading = false)))
       .subscribe({
         next: (items) => {

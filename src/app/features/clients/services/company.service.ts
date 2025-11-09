@@ -6,6 +6,15 @@ import { PaginatedResponse } from '../../../shared/models/paginated-response';
 import { CompanyCount } from '../interfaces/company-count.interface';
 import { Company } from '../models/company.model';
 
+export interface CompanySearchFilters {
+  companyName?: string;
+  taxId?: string;
+  email?: string;
+  phoneNumber?: string;
+  enabled?: boolean | '';
+  city?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -95,8 +104,14 @@ export class CompanyService {
       );
   }
 
-  public searchCompaniesByName(companyName: string): Observable<Company[]> {
-    const params = new HttpParams().set('companyName', companyName);
+  public search(filters: CompanySearchFilters): Observable<Company[]> {
+    let params = new HttpParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+      params = params.set(key, String(value));
+    });
     return this.http.get<Company[]>(`${this.apiUrl}/search`, { params });
   }
 }

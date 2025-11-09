@@ -6,6 +6,14 @@ import { Observable, tap } from 'rxjs';
 import { PaginatedResponse } from '../../../shared/models/paginated-response';
 import { UserCount } from '../interfaces/user-count.interface';
 
+export interface UserSearchFilters {
+  name?: string;
+  username?: string;
+  email?: string;
+  role?: string;
+  enabled?: boolean | '';
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -90,8 +98,15 @@ export class UserService {
       );
   }
 
-  public searchUsersByName(name: string): Observable<User[]> {
-    const params = new HttpParams().set('name', name);
+  public searchUsers(filters: UserSearchFilters): Observable<User[]> {
+    let params = new HttpParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+      params = params.set(key, String(value));
+    });
+
     return this.http.get<User[]>(`${this.apiUrl}/search`, { params });
   }
 }

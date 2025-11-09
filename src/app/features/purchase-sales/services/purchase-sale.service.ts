@@ -4,6 +4,27 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PurchaseSale } from '../models/purchase-sale.model';
 import { PaginatedResponse } from '../../../shared/models/paginated-response';
+import { ContractType } from '../models/contract-type.enum';
+import { ContractStatus } from '../models/contract-status.enum';
+import { PaymentMethod } from '../models/payment-method.enum';
+
+export interface PurchaseSaleSearchFilters {
+  page?: number;
+  size?: number;
+  clientId?: number | null;
+  userId?: number | null;
+  vehicleId?: number | null;
+  contractType?: ContractType | '';
+  contractStatus?: ContractStatus | '';
+  paymentMethod?: PaymentMethod | '';
+  startDate?: string | null;
+  endDate?: string | null;
+  minPurchasePrice?: number | null;
+  maxPurchasePrice?: number | null;
+  minSalePrice?: number | null;
+  maxSalePrice?: number | null;
+  term?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +49,30 @@ export class PurchaseSaleService {
   getAllPaginated(page: number): Observable<PaginatedResponse<PurchaseSale>> {
     return this.http.get<PaginatedResponse<PurchaseSale>>(
       `${this.apiUrl}/page/${page}/detailed`,
+    );
+  }
+
+  searchPaginated(
+    filters: PurchaseSaleSearchFilters,
+  ): Observable<PaginatedResponse<PurchaseSale>> {
+    let params = new HttpParams()
+      .set('page', String(filters.page ?? 0))
+      .set('size', String(filters.size ?? 10));
+
+    const optionalFilters = { ...filters };
+    delete optionalFilters.page;
+    delete optionalFilters.size;
+
+    Object.entries(optionalFilters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+      params = params.set(key, String(value));
+    });
+
+    return this.http.get<PaginatedResponse<PurchaseSale>>(
+      `${this.apiUrl}/search`,
+      { params },
     );
   }
 

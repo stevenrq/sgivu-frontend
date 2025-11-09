@@ -11,6 +11,7 @@
         <a
           class="page-link"
           [routerLink]="[url, firstPageIndex]"
+          [queryParams]="queryParams"
           aria-label="Primera"
         >
           <span aria-hidden="true">&laquo;&laquo;</span>
@@ -21,6 +22,7 @@
         <a
           class="page-link"
           [routerLink]="[url, pager.number - 1]"
+          [queryParams]="queryParams"
           aria-label="Anterior"
         >
           <span aria-hidden="true">&laquo;</span>
@@ -29,7 +31,12 @@
 
       @for (page of pages; track page) {
         <li class="page-item" [class.active]="page === pager.number + 1">
-          <a class="page-link" [routerLink]="[url, page - 1]">{{ page }}</a>
+          <a
+            class="page-link"
+            [routerLink]="[url, page - 1]"
+            [queryParams]="queryParams"
+            >{{ page }}</a
+          >
         </li>
       }
 
@@ -37,6 +44,7 @@
         <a
           class="page-link"
           [routerLink]="[url, pager.number + 1]"
+          [queryParams]="queryParams"
           aria-label="Siguiente"
         >
           <span aria-hidden="true">&raquo;</span>
@@ -47,6 +55,7 @@
         <a
           class="page-link"
           [routerLink]="[url, lastPageIndex]"
+          [queryParams]="queryParams"
           aria-label="Última"
         >
           <span aria-hidden="true">&raquo;&raquo;</span>

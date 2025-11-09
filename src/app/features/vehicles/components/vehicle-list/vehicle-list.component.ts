@@ -79,8 +79,8 @@ interface VehicleFallbackResult<T extends VehicleEntity> {
 })
 export class VehicleListComponent implements OnInit, OnDestroy {
   activeTab: VehicleTab = 'car';
-  carFilters: CarSearchFilters = {};
-  motorcycleFilters: MotorcycleSearchFilters = {};
+  carFilters: CarSearchFilters = this.createCarFilterState();
+  motorcycleFilters: MotorcycleSearchFilters = this.createMotorcycleFilterState();
 
   readonly vehicleStatuses = Object.values(VehicleStatus);
   readonly VehicleStatus = VehicleStatus;
@@ -545,10 +545,10 @@ export class VehicleListComponent implements OnInit, OnDestroy {
 
   private resetSearchFilters(tab: VehicleTab): void {
     if (tab === 'car') {
-      this.carFilters = {};
+      this.carFilters = this.createCarFilterState();
       return;
     }
-    this.motorcycleFilters = {};
+    this.motorcycleFilters = this.createMotorcycleFilterState();
   }
 
   private createInitialState<T extends VehicleEntity>(): VehicleListState<T> {
@@ -560,6 +560,49 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       unavailable: 0,
       loading: false,
       error: null,
+    };
+  }
+
+  private createCarFilterState(): CarSearchFilters {
+    return {
+      plate: '',
+      brand: '',
+      line: '',
+      model: '',
+      fuelType: '',
+      bodyType: '',
+      transmission: '',
+      cityRegistered: '',
+      status: '',
+      minYear: null,
+      maxYear: null,
+      minCapacity: null,
+      maxCapacity: null,
+      minMileage: null,
+      maxMileage: null,
+      minSalePrice: null,
+      maxSalePrice: null,
+    };
+  }
+
+  private createMotorcycleFilterState(): MotorcycleSearchFilters {
+    return {
+      plate: '',
+      brand: '',
+      line: '',
+      model: '',
+      motorcycleType: '',
+      transmission: '',
+      cityRegistered: '',
+      status: '',
+      minYear: null,
+      maxYear: null,
+      minCapacity: null,
+      maxCapacity: null,
+      minMileage: null,
+      maxMileage: null,
+      minSalePrice: null,
+      maxSalePrice: null,
     };
   }
 
@@ -807,5 +850,13 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       }
       return false;
     });
+  }
+
+  protected toNumber(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
   }
 }

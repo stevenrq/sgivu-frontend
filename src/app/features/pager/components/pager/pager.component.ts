@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { PaginatedResponse } from '../../../../shared/models/paginated-response';
-import { RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-pager',
@@ -14,6 +14,9 @@ export class PagerComponent<T = unknown> implements OnChanges {
 
   @Input({ required: true })
   url!: string;
+
+  @Input()
+  queryParams: Params | null = null;
 
   pages: number[] = [];
 

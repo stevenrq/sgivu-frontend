@@ -4,8 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { PagerComponent } from '../../../pager/components/pager/pager.component';
-import { PersonService } from '../../services/person.service';
-import { CompanyService } from '../../services/company.service';
+import {
+  PersonSearchFilters,
+  PersonService,
+} from '../../services/person.service';
+import {
+  CompanySearchFilters,
+  CompanyService,
+} from '../../services/company.service';
 import {
   Observable,
   Subscription,
@@ -60,10 +66,10 @@ interface ClientLoadConfig<T extends ClientEntity> {
   fallbackCounts?: () => Observable<ClientCountsResult<T>>;
 }
 
-interface ClientSearchConfig<T extends ClientEntity> {
+interface ClientSearchConfig<T extends ClientEntity, F> {
   state: ClientListState<T>;
   type: ClientTab;
-  search: (term: string) => Observable<T[]>;
+  search: (filters: F) => Observable<T[]>;
   errorMessage: string;
 }
 
@@ -90,7 +96,12 @@ interface ClientCountsResult<T extends ClientEntity = ClientEntity> {
   styleUrl: './client-list.component.css',
 })
 export class ClientListComponent implements OnInit, OnDestroy {
-  searchTerm = '';
+  personFilters: PersonSearchFilters & { enabled?: boolean | '' | 'true' | 'false' } =
+    this.createPersonFilterState();
+  companyFilters: CompanySearchFilters & {
+    enabled?: boolean | '' | 'true' | 'false';
+  } =
+    this.createCompanyFilterState();
 
   activeTab: ClientTab = 'person';
 
@@ -241,12 +252,31 @@ export class ClientListComponent implements OnInit, OnDestroy {
     this.navigateToPage(page, this.activeTab);
   }
 
-  protected search(): void {
-    this.performSearch(this.searchTerm);
+  protected applyFilters(): void {
+    if (this.activeTab === 'person') {
+      const filters = this.buildPersonFilters();
+      if (this.areFiltersEmpty(filters as Record<string, unknown>)) {
+        this.reloadTab('person');
+        return;
+      }
+      this.searchPersons(filters);
+      return;
+    }
+
+    const companyFilters = this.buildCompanyFilters();
+    if (this.areFiltersEmpty(companyFilters as Record<string, unknown>)) {
+      this.reloadTab('company');
+      return;
+    }
+    this.searchCompanies(companyFilters);
   }
 
-  protected reset(): void {
-    this.searchTerm = '';
+  protected clearFilters(): void {
+    if (this.activeTab === 'person') {
+      this.personFilters = this.createPersonFilterState();
+    } else {
+      this.companyFilters = this.createCompanyFilterState();
+    }
     this.reloadTab(this.activeTab);
   }
 
@@ -296,7 +326,8 @@ export class ClientListComponent implements OnInit, OnDestroy {
   }
 
   private resetSearchState(): void {
-    this.searchTerm = '';
+    this.personFilters = this.createPersonFilterState();
+    this.companyFilters = this.createCompanyFilterState();
   }
 
   private loadPersons(page: number): void {
@@ -453,49 +484,33 @@ export class ClientListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(loader$);
   }
 
-  private performSearch(term: string): void {
-    const trimmed = term.trim();
-    this.searchTerm = trimmed;
-
-    if (!trimmed) {
-      this.reloadTab(this.activeTab);
-      return;
-    }
-
-    if (this.activeTab === 'person') {
-      this.searchPersons(trimmed);
-    } else {
-      this.searchCompanies(trimmed);
-    }
-  }
-
-  private searchPersons(term: string): void {
-    this.searchClients<Person>(term, {
+  private searchPersons(filters: PersonSearchFilters): void {
+    this.searchClients<Person, PersonSearchFilters>(filters, {
       state: this.personState,
       type: 'person',
-      search: (query) => this.personService.searchPersonsByName(query),
+      search: (params) => this.personService.search(params),
       errorMessage: 'Error al buscar personas.',
     });
   }
 
-  private searchCompanies(term: string): void {
-    this.searchClients<Company>(term, {
+  private searchCompanies(filters: CompanySearchFilters): void {
+    this.searchClients<Company, CompanySearchFilters>(filters, {
       state: this.companyState,
       type: 'company',
-      search: (query) => this.companyService.searchCompaniesByName(query),
+      search: (params) => this.companyService.search(params),
       errorMessage: 'Error al buscar empresas.',
     });
   }
 
-  private searchClients<T extends ClientEntity>(
-    term: string,
-    config: ClientSearchConfig<T>,
+  private searchClients<T extends ClientEntity, F>(
+    filters: F,
+    config: ClientSearchConfig<T, F>,
   ): void {
     const { state, type, search, errorMessage } = config;
     state.loading = true;
     state.error = null;
 
-    const search$ = search(term)
+    const search$ = search(filters)
       .pipe(finalize(() => (state.loading = false)))
       .subscribe({
         next: (items) => {
@@ -742,5 +757,84 @@ export class ClientListComponent implements OnInit, OnDestroy {
   private navigateToPage(page: number, type: ClientTab): void {
     const baseRoute = this.tabMetadata[type].routeBase;
     void this.router.navigate([...baseRoute, page]);
+  }
+
+  private createPersonFilterState(): PersonSearchFilters & {
+    enabled?: boolean | '' | 'true' | 'false';
+  } {
+    return {
+      name: '',
+      email: '',
+      nationalId: '',
+      phoneNumber: '',
+      city: '',
+      enabled: '',
+    };
+  }
+
+  private createCompanyFilterState(): CompanySearchFilters & {
+    enabled?: boolean | '' | 'true' | 'false';
+  } {
+    return {
+      companyName: '',
+      taxId: '',
+      email: '',
+      phoneNumber: '',
+      city: '',
+      enabled: '',
+    };
+  }
+
+  private buildPersonFilters(): PersonSearchFilters {
+    return {
+      name: this.normalizeFilterValue(this.personFilters.name),
+      email: this.normalizeFilterValue(this.personFilters.email),
+      nationalId: this.normalizeFilterValue(this.personFilters.nationalId),
+      phoneNumber: this.normalizeFilterValue(this.personFilters.phoneNumber),
+      city: this.normalizeFilterValue(this.personFilters.city),
+      enabled: this.normalizeStatus(this.personFilters.enabled),
+    };
+  }
+
+  private buildCompanyFilters(): CompanySearchFilters {
+    return {
+      companyName: this.normalizeFilterValue(this.companyFilters.companyName),
+      taxId: this.normalizeFilterValue(this.companyFilters.taxId),
+      email: this.normalizeFilterValue(this.companyFilters.email),
+      phoneNumber: this.normalizeFilterValue(this.companyFilters.phoneNumber),
+      city: this.normalizeFilterValue(this.companyFilters.city),
+      enabled: this.normalizeStatus(this.companyFilters.enabled),
+    };
+  }
+
+  private normalizeFilterValue(value: string | undefined | null):
+    | string
+    | undefined {
+    if (!value) {
+      return undefined;
+    }
+    const trimmed = value.trim();
+    return trimmed ? trimmed : undefined;
+  }
+
+  private normalizeStatus(
+    value: boolean | '' | 'true' | 'false' | undefined,
+  ): boolean | undefined {
+    if (value === '' || value === undefined) {
+      return undefined;
+    }
+    return value === true || value === 'true';
+  }
+
+  private areFiltersEmpty(filters: Record<string, unknown>): boolean {
+    return Object.values(filters).every((value) => {
+      if (value === undefined || value === null) {
+        return true;
+      }
+      if (typeof value === 'string') {
+        return value.trim().length === 0;
+      }
+      return false;
+    });
   }
 }

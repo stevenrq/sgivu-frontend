@@ -19,6 +19,17 @@ export interface MotorcycleSearchFilters {
   line?: string;
   model?: string;
   motorcycleType?: string;
+  transmission?: string;
+  cityRegistered?: string;
+  status?: VehicleStatus | '';
+  minYear?: number | null;
+  maxYear?: number | null;
+  minCapacity?: number | null;
+  maxCapacity?: number | null;
+  minMileage?: number | null;
+  maxMileage?: number | null;
+  minSalePrice?: number | null;
+  maxSalePrice?: number | null;
 }
 
 @Injectable({
@@ -141,16 +152,21 @@ export class MotorcycleService {
     );
   }
 
-  search(
+  search(filters: Partial<MotorcycleSearchFilters>): Observable<Motorcycle[]> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<Motorcycle[]>(`${this.apiUrl}/search`, { params });
+  }
+
+  private buildSearchParams(
     filters: Partial<MotorcycleSearchFilters>,
-  ): Observable<Motorcycle[]> {
+  ): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params = params.set(key, value as string);
+      if (value === undefined || value === null || value === '') {
+        return;
       }
+      params = params.set(key, String(value));
     });
-
-    return this.http.get<Motorcycle[]>(`${this.apiUrl}/search`, { params });
+    return params;
   }
 }

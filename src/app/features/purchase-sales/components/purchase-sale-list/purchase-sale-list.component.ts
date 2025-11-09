@@ -8,13 +8,16 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, finalize, forkJoin, map, tap } from 'rxjs';
+import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
+import { Subscription, combineLatest, finalize, forkJoin, map, tap } from 'rxjs';
 import Swal from 'sweetalert2';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { PagerComponent } from '../../../pager/components/pager/pager.component';
 import { UtcToGmtMinus5Pipe } from '../../../../shared/pipes/utc-to-gmt-minus5.pipe';
-import { PurchaseSaleService } from '../../services/purchase-sale.service';
+import {
+  PurchaseSaleSearchFilters,
+  PurchaseSaleService,
+} from '../../services/purchase-sale.service';
 import { PurchaseSale } from '../../models/purchase-sale.model';
 import { ContractType } from '../../models/contract-type.enum';
 import { ContractStatus } from '../../models/contract-status.enum';
@@ -49,6 +52,20 @@ interface PurchaseSaleListState {
 type ContractTypeFilter = ContractType | 'ALL';
 type ContractStatusFilter = ContractStatus | 'ALL';
 
+type PurchaseSaleUiFilters = {
+  contractType: ContractTypeFilter;
+  contractStatus: ContractStatusFilter;
+  clientId: string;
+  userId: string;
+  vehicleId: string;
+  paymentMethod: string;
+  term: string;
+  minPurchasePrice: string;
+  maxPurchasePrice: string;
+  minSalePrice: string;
+  maxSalePrice: string;
+};
+
 @Component({
   selector: 'app-purchase-sale-list',
   imports: [
@@ -69,6 +86,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   readonly contractTypes = Object.values(ContractType);
   readonly ContractStatus = ContractStatus;
   readonly ContractType = ContractType;
+  readonly paymentMethods = Object.values(PaymentMethod);
 
   readonly clients: WritableSignal<ClientOption[]> = signal<ClientOption[]>([]);
   readonly users: WritableSignal<UserOption[]> = signal<UserOption[]>([]);
@@ -101,9 +119,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     sales: 0,
   });
 
-  filterType: ContractTypeFilter = 'ALL';
-  filterStatus: ContractStatusFilter = 'ALL';
-  searchTerm = '';
+  filters: PurchaseSaleUiFilters = this.getDefaultUiFilters();
 
   reportStartDate: string | null = null;
   reportEndDate: string | null = null;
@@ -121,6 +137,8 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
   private currentPage = 0;
   private readonly subscriptions: Subscription[] = [];
+  private activeSearchFilters: PurchaseSaleSearchFilters | null = null;
+  pagerQueryParams: Params | null = null;
   private readonly statusLabels: Record<ContractStatus, string> = {
     [ContractStatus.PENDING]: 'Pendiente',
     [ContractStatus.ACTIVE]: 'Activo',
@@ -158,14 +176,26 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadLookups();
-    const routeSub = this.route.paramMap.subscribe((params) => {
+    const routeSub = combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap,
+    ]).subscribe(([params, query]) => {
       const pageParam = params.get('page');
       const requiredPage = this.parsePage(pageParam);
       if (Number.isNaN(requiredPage) || requiredPage < 0) {
-        this.navigateToPage(0);
+        this.navigateToPage(0, this.paramMapToObject(query) ?? undefined);
         return;
       }
-      this.loadContracts(requiredPage);
+
+      const {
+        uiFilters,
+        requestFilters,
+        queryParams: pagerParams,
+      } = this.extractFiltersFromQuery(query);
+      this.filters = uiFilters;
+      this.pagerQueryParams = pagerParams;
+      this.activeSearchFilters = requestFilters;
+      this.loadContracts(requiredPage, requestFilters ?? undefined);
     });
 
     this.subscriptions.push(routeSub);
@@ -199,19 +229,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   }
 
   get contracts(): PurchaseSale[] {
-    if (!this.listState.items.length) {
-      return [];
-    }
-
-    return this.listState.items.filter((contract) => {
-      const matchesType =
-        this.filterType === 'ALL' || contract.contractType === this.filterType;
-      const matchesStatus =
-        this.filterStatus === 'ALL' ||
-        contract.contractStatus === this.filterStatus;
-      const matchesSearch = this.matchesSearchTerm(contract);
-      return matchesType && matchesStatus && matchesSearch;
-    });
+    return this.listState.items;
   }
 
   get totalContracts(): number {
@@ -307,14 +325,24 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   }
 
   resetFilters(): void {
-    this.filterType = 'ALL';
-    this.filterStatus = 'ALL';
-    this.searchTerm = '';
+    this.clearFilters();
   }
 
   resetReportDates(): void {
     this.reportStartDate = null;
     this.reportEndDate = null;
+  }
+
+  applyFilters(): void {
+    const queryParams = this.buildQueryParamsFromFilters();
+    void this.router.navigate(['/purchase-sales/page', 0], {
+      queryParams,
+    });
+  }
+
+  clearFilters(): void {
+    this.filters = this.getDefaultUiFilters();
+    void this.router.navigate(['/purchase-sales/page', 0]);
   }
 
   downloadReport(format: 'pdf' | 'excel' | 'csv'): void {
@@ -438,15 +466,25 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   }
 
   private reloadCurrentPage(): void {
-    this.loadContracts(this.currentPage);
+    this.loadContracts(this.currentPage, this.activeSearchFilters ?? undefined);
   }
 
-  private loadContracts(page: number): void {
+  private loadContracts(
+    page: number,
+    filters?: PurchaseSaleSearchFilters,
+  ): void {
     this.listState.loading = true;
     this.listState.error = null;
 
-    this.purchaseSaleService
-      .getAllPaginated(page)
+    const request$ = filters
+      ? this.purchaseSaleService.searchPaginated({
+          ...filters,
+          page,
+          size: 10,
+        })
+      : this.purchaseSaleService.getAllPaginated(page);
+
+    request$
       .pipe(finalize(() => (this.listState.loading = false)))
       .subscribe({
         next: (pager) => {
@@ -532,35 +570,210 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(summarySub);
   }
 
-  private navigateToPage(page: number): void {
-    void this.router.navigate(['/purchase-sales/page', page]);
+  private navigateToPage(page: number, queryParams?: Params): void {
+    void this.router.navigate(['/purchase-sales/page', page], {
+      queryParams,
+    });
   }
 
   private parsePage(value: string | null): number {
     return value ? Number(value) : 0;
   }
 
-  private matchesSearchTerm(contract: PurchaseSale): boolean {
-    if (!this.searchTerm) {
-      return true;
-    }
-    const term = this.searchTerm.toLowerCase();
-    const entries = [
-      contract.id?.toString() ?? '',
-      contract.vehicleId?.toString() ?? '',
-      this.getClientLabel(contract).toLowerCase(),
-      this.getUserLabel(contract).toLowerCase(),
-      this.getVehicleLabel(contract).toLowerCase(),
-      this.getContractTypeLabel(contract.contractType).toLowerCase(),
-      this.getStatusLabel(contract.contractStatus).toLowerCase(),
-      contract.paymentMethod.toLowerCase(),
-      this.getPaymentMethodLabel(contract.paymentMethod).toLowerCase(),
-      contract.paymentTerms.toLowerCase(),
-      contract.paymentLimitations.toLowerCase(),
-      contract.observations?.toLowerCase() ?? '',
-    ];
+  private getDefaultUiFilters(): PurchaseSaleUiFilters {
+    return {
+      contractType: 'ALL',
+      contractStatus: 'ALL',
+      clientId: '',
+      userId: '',
+      vehicleId: '',
+      paymentMethod: '',
+      term: '',
+      minPurchasePrice: '',
+      maxPurchasePrice: '',
+      minSalePrice: '',
+      maxSalePrice: '',
+    };
+  }
 
-    return entries.some((value) => value.includes(term));
+  private buildQueryParamsFromFilters(): Params | undefined {
+    const params: Params = {};
+
+    if (this.filters.contractType !== 'ALL') {
+      params['contractType'] = this.filters.contractType;
+    }
+
+    if (this.filters.contractStatus !== 'ALL') {
+      params['contractStatus'] = this.filters.contractStatus;
+    }
+
+    if (this.filters.paymentMethod) {
+      params['paymentMethod'] = this.filters.paymentMethod;
+    }
+
+    [
+      ['clientId', this.filters.clientId],
+      ['userId', this.filters.userId],
+      ['vehicleId', this.filters.vehicleId],
+      ['term', this.filters.term],
+      ['minPurchasePrice', this.filters.minPurchasePrice],
+      ['maxPurchasePrice', this.filters.maxPurchasePrice],
+      ['minSalePrice', this.filters.minSalePrice],
+      ['maxSalePrice', this.filters.maxSalePrice],
+    ].forEach(([key, value]) => {
+      if (value) {
+        params[key] = value;
+      }
+    });
+
+    return Object.keys(params).length ? params : undefined;
+  }
+
+  private extractFiltersFromQuery(query: ParamMap): {
+    uiFilters: PurchaseSaleUiFilters;
+    requestFilters: PurchaseSaleSearchFilters | null;
+    queryParams: Params | null;
+  } {
+    const uiFilters = this.getDefaultUiFilters();
+    const requestFilters: PurchaseSaleSearchFilters = {};
+
+    const contractTypeParam = query.get('contractType');
+    if (this.isValidContractType(contractTypeParam)) {
+      uiFilters.contractType = contractTypeParam as ContractTypeFilter;
+      requestFilters.contractType = contractTypeParam as ContractType;
+    }
+
+    const contractStatusParam = query.get('contractStatus');
+    if (this.isValidContractStatus(contractStatusParam)) {
+      uiFilters.contractStatus = contractStatusParam as ContractStatusFilter;
+      requestFilters.contractStatus = contractStatusParam as ContractStatus;
+    }
+
+    const paymentMethodParam = query.get('paymentMethod');
+    if (this.isValidPaymentMethod(paymentMethodParam)) {
+      uiFilters.paymentMethod = paymentMethodParam!;
+      requestFilters.paymentMethod = paymentMethodParam as PaymentMethod;
+    }
+
+    const clientIdParam = query.get('clientId');
+    if (clientIdParam) {
+      uiFilters.clientId = clientIdParam;
+      const parsed = this.parseNumberParam(clientIdParam);
+      if (parsed !== undefined) {
+        requestFilters.clientId = parsed;
+      }
+    }
+
+    const userIdParam = query.get('userId');
+    if (userIdParam) {
+      uiFilters.userId = userIdParam;
+      const parsed = this.parseNumberParam(userIdParam);
+      if (parsed !== undefined) {
+        requestFilters.userId = parsed;
+      }
+    }
+
+    const vehicleIdParam = query.get('vehicleId');
+    if (vehicleIdParam) {
+      uiFilters.vehicleId = vehicleIdParam;
+      const parsed = this.parseNumberParam(vehicleIdParam);
+      if (parsed !== undefined) {
+        requestFilters.vehicleId = parsed;
+      }
+    }
+
+    const minPurchase = query.get('minPurchasePrice');
+    if (minPurchase) {
+      uiFilters.minPurchasePrice = minPurchase;
+      const parsed = this.parseNumberParam(minPurchase);
+      if (parsed !== undefined) {
+        requestFilters.minPurchasePrice = parsed;
+      }
+    }
+
+    const maxPurchase = query.get('maxPurchasePrice');
+    if (maxPurchase) {
+      uiFilters.maxPurchasePrice = maxPurchase;
+      const parsed = this.parseNumberParam(maxPurchase);
+      if (parsed !== undefined) {
+        requestFilters.maxPurchasePrice = parsed;
+      }
+    }
+
+    const minSale = query.get('minSalePrice');
+    if (minSale) {
+      uiFilters.minSalePrice = minSale;
+      const parsed = this.parseNumberParam(minSale);
+      if (parsed !== undefined) {
+        requestFilters.minSalePrice = parsed;
+      }
+    }
+
+    const maxSale = query.get('maxSalePrice');
+    if (maxSale) {
+      uiFilters.maxSalePrice = maxSale;
+      const parsed = this.parseNumberParam(maxSale);
+      if (parsed !== undefined) {
+        requestFilters.maxSalePrice = parsed;
+      }
+    }
+
+    const term = query.get('term');
+    if (term) {
+      uiFilters.term = term;
+      requestFilters.term = term;
+    }
+
+    const queryParams = this.paramMapToObject(query);
+    const hasFilters = !this.arePurchaseSaleFiltersEmpty(requestFilters);
+
+    return {
+      uiFilters,
+      requestFilters: hasFilters ? requestFilters : null,
+      queryParams,
+    };
+  }
+
+  private paramMapToObject(map: ParamMap): Params | null {
+    const params: Params = {};
+    map.keys.forEach((key) => {
+      const value = map.get(key);
+      if (value) {
+        params[key] = value;
+      }
+    });
+    return Object.keys(params).length ? params : null;
+  }
+
+  private parseNumberParam(value: string | null): number | undefined {
+    if (!value) {
+      return undefined;
+    }
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  }
+
+  private arePurchaseSaleFiltersEmpty(
+    filters: PurchaseSaleSearchFilters,
+  ): boolean {
+    return Object.values(filters).every(
+      (value) => value === undefined || value === null,
+    );
+  }
+
+  private isValidContractType(value: string | null): value is ContractType {
+    return !!value && this.contractTypes.includes(value as ContractType);
+  }
+
+  private isValidContractStatus(value: string | null): value is ContractStatus {
+    return !!value && this.contractStatuses.includes(value as ContractStatus);
+  }
+
+  private isValidPaymentMethod(value: string | null): value is PaymentMethod {
+    return (
+      !!value &&
+      Object.values(PaymentMethod).includes(value as PaymentMethod)
+    );
   }
 
   private showSuccessMessage(message: string): void {

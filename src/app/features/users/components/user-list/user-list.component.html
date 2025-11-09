@@ -39,35 +39,84 @@
   </div>
 
   <div class="card">
-    <div
-      class="card-header bg-white py-3 d-flex flex-wrap align-items-center justify-content-between"
-    >
-      <h5 class="card-title mb-0">Lista de Usuarios Registrados</h5>
-      <div class="ms-auto d-flex align-items-center">
-        <div class="input-group input-group-sm">
+    <div class="card-header bg-white py-3">
+      <div class="d-flex flex-wrap align-items-start justify-content-between">
+        <div>
+          <h5 class="card-title mb-1">Lista de Usuarios Registrados</h5>
+          <p class="text-muted small mb-0">
+            Combina filtros por nombre, credenciales, rol o estado para ubicar
+            rápidamente a cualquier usuario.
+          </p>
+        </div>
+      </div>
+      <div class="row g-2 g-md-3 mt-3 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label form-label-sm">Nombre o apellido</label>
           <input
             type="search"
-            [(ngModel)]="searchTerm"
             class="form-control form-control-sm"
+            [(ngModel)]="filters.name"
+            (keyup.enter)="search()"
             [placeholder]="searchPlaceholder"
-            (keyup)="search()"
+            maxlength="{{ searchTermMaxLength }}"
           />
-          <button
-            (click)="search()"
-            class="btn btn-outline-secondary"
-            type="button"
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label form-label-sm">Nombre de usuario</label>
+          <input
+            type="search"
+            class="form-control form-control-sm"
+            [(ngModel)]="filters.username"
+            (keyup.enter)="search()"
+            placeholder="&#64;username"
+          />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label form-label-sm">Correo electrónico</label>
+          <input
+            type="email"
+            class="form-control form-control-sm"
+            [(ngModel)]="filters.email"
+            (keyup.enter)="search()"
+            placeholder="usuario@correo.com"
+          />
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label form-label-sm">Rol</label>
+          <select
+            class="form-select form-select-sm"
+            [(ngModel)]="filters.role"
           >
-            <i class="bi bi-search"></i>
-          </button>
-          @if (searchTerm) {
+            <option value="">Todos</option>
+            @for (role of roleOptions; track role) {
+              <option [ngValue]="role">{{ role }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label form-label-sm">Estado</label>
+          <select
+            class="form-select form-select-sm"
+            [(ngModel)]="filters.enabled"
+          >
+            <option value="">Todos</option>
+            <option value="true">Activos</option>
+            <option value="false">Inactivos</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-auto">
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-primary btn-sm" type="button" (click)="search()">
+              <i class="bi bi-funnel me-1"></i>Aplicar filtros
+            </button>
             <button
-              class="btn btn-outline-secondary"
+              class="btn btn-outline-secondary btn-sm"
               type="button"
               (click)="reset()"
             >
-              <i class="bi bi-x-circle"></i>
+              <i class="bi bi-eraser me-1"></i>Limpiar
             </button>
-          }
+          </div>
         </div>
       </div>
     </div>

@@ -20,6 +20,17 @@ export interface CarSearchFilters {
   model?: string;
   fuelType?: string;
   bodyType?: string;
+  transmission?: string;
+  cityRegistered?: string;
+  status?: VehicleStatus | '';
+  minYear?: number | null;
+  maxYear?: number | null;
+  minCapacity?: number | null;
+  maxCapacity?: number | null;
+  minMileage?: number | null;
+  maxMileage?: number | null;
+  minSalePrice?: number | null;
+  maxSalePrice?: number | null;
 }
 
 @Injectable({
@@ -129,13 +140,18 @@ export class CarService {
   }
 
   search(filters: Partial<CarSearchFilters>): Observable<Car[]> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<Car[]>(`${this.apiUrl}/search`, { params });
+  }
+
+  private buildSearchParams(filters: Partial<CarSearchFilters>): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params = params.set(key, value as string);
+      if (value === undefined || value === null || value === '') {
+        return;
       }
+      params = params.set(key, String(value));
     });
-
-    return this.http.get<Car[]>(`${this.apiUrl}/search`, { params });
+    return params;
   }
 }

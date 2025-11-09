@@ -156,6 +156,97 @@
                 placeholder="Sedán"
               />
             </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carTransmission" class="form-label filter-label"
+                >Transmisión</label
+              >
+              <input
+                id="carTransmission"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.transmission"
+                placeholder="Automática"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="carCity" class="form-label filter-label">Ciudad</label>
+              <input
+                id="carCity"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="carFilters.cityRegistered"
+                placeholder="Bogotá"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="carStatus">Estado</label>
+              <select
+                id="carStatus"
+                class="form-select form-select-sm"
+                [(ngModel)]="carFilters.status"
+              >
+                <option value="">Todos</option>
+                @for (status of vehicleStatuses; track status) {
+                  <option [ngValue]="status">
+                    {{ statusLabel(status) }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="carYearFrom"
+                >Año desde</label
+              >
+              <input
+                id="carYearFrom"
+                type="number"
+                min="1950"
+                class="form-control form-control-sm"
+                [ngModel]="carFilters.minYear"
+                (ngModelChange)="carFilters.minYear = toNumber($event)"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="carYearTo"
+                >Año hasta</label
+              >
+              <input
+                id="carYearTo"
+                type="number"
+                min="1950"
+                class="form-control form-control-sm"
+                [ngModel]="carFilters.maxYear"
+                (ngModelChange)="carFilters.maxYear = toNumber($event)"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="carMinPrice"
+                >Precio mínimo</label
+              >
+              <input
+                id="carMinPrice"
+                type="number"
+                min="0"
+                class="form-control form-control-sm"
+                [ngModel]="carFilters.minSalePrice"
+                (ngModelChange)="carFilters.minSalePrice = toNumber($event)"
+                placeholder="COP"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="carMaxPrice"
+                >Precio máximo</label
+              >
+              <input
+                id="carMaxPrice"
+                type="number"
+                min="0"
+                class="form-control form-control-sm"
+                [ngModel]="carFilters.maxSalePrice"
+                (ngModelChange)="carFilters.maxSalePrice = toNumber($event)"
+                placeholder="COP"
+              />
+            </div>
             <div
               class="col-12 col-md-auto d-flex gap-2 justify-content-end mt-2 mt-md-3"
             >
@@ -233,6 +324,103 @@
                 class="form-control form-control-sm"
                 [(ngModel)]="motorcycleFilters.motorcycleType"
                 placeholder="Sport"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="motoTransmission" class="form-label filter-label"
+                >Transmisión</label
+              >
+              <input
+                id="motoTransmission"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="motorcycleFilters.transmission"
+                placeholder="Manual"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label for="motoCity" class="form-label filter-label">Ciudad</label>
+              <input
+                id="motoCity"
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="motorcycleFilters.cityRegistered"
+                placeholder="Medellín"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="motoStatus">Estado</label>
+              <select
+                id="motoStatus"
+                class="form-select form-select-sm"
+                [(ngModel)]="motorcycleFilters.status"
+              >
+                <option value="">Todos</option>
+                @for (status of vehicleStatuses; track status) {
+                  <option [ngValue]="status">
+                    {{ statusLabel(status) }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="motoYearFrom"
+                >Año desde</label
+              >
+              <input
+                id="motoYearFrom"
+                type="number"
+                min="1950"
+                class="form-control form-control-sm"
+                [ngModel]="motorcycleFilters.minYear"
+                (ngModelChange)="
+                  motorcycleFilters.minYear = toNumber($event)
+                "
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="motoYearTo"
+                >Año hasta</label
+              >
+              <input
+                id="motoYearTo"
+                type="number"
+                min="1950"
+                class="form-control form-control-sm"
+                [ngModel]="motorcycleFilters.maxYear"
+                (ngModelChange)="
+                  motorcycleFilters.maxYear = toNumber($event)
+                "
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="motoMinPrice"
+                >Precio mínimo</label
+              >
+              <input
+                id="motoMinPrice"
+                type="number"
+                min="0"
+                class="form-control form-control-sm"
+                [ngModel]="motorcycleFilters.minSalePrice"
+                (ngModelChange)="
+                  motorcycleFilters.minSalePrice = toNumber($event)
+                "
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="motoMaxPrice"
+                >Precio máximo</label
+              >
+              <input
+                id="motoMaxPrice"
+                type="number"
+                min="0"
+                class="form-control form-control-sm"
+                [ngModel]="motorcycleFilters.maxSalePrice"
+                (ngModelChange)="
+                  motorcycleFilters.maxSalePrice = toNumber($event)
+                "
               />
             </div>
             <div
