@@ -1,15 +1,12 @@
 <div class="container-fluid">
-  <header
-    class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3"
+  <app-page-header
+    title="Gestión de Clientes"
+    subtitle="Administra clientes personas naturales y empresas registradas en el sistema."
   >
-    <div class="mb-2">
-      <h1 class="h3 mb-2 fw-bold">Gestión de Clientes</h1>
-      <p class="text-muted mb-3">
-        Administra clientes personas naturales y empresas registradas en el
-        sistema.
-      </p>
-    </div>
-    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+    <div
+      page-header-actions
+      class="d-flex align-items-center gap-2 flex-wrap justify-content-end"
+    >
       <div class="btn-group toggle-group" aria-label="Tipo de cliente">
         <button
           type="button"
@@ -39,82 +36,50 @@
         <i class="bi bi-plus-circle me-2"></i>{{ activeCreateLabel }}
       </button>
     </div>
-  </header>
+  </app-page-header>
 
   <div class="row g-4 mb-4">
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-primary">
-            <i
-              class="bi"
-              [ngClass]="
-                activeTab === 'person' ? 'bi-people-fill' : 'bi-buildings'
-              "
-            ></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">
-              {{
-                activeTab === "person"
-                  ? "Personas registradas"
-                  : "Empresas registradas"
-              }}
-            </h6>
-            <h4 class="card-title fw-bold mb-0">{{ activeState.total }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        [label]="
+          activeTab === 'person'
+            ? 'Personas registradas'
+            : 'Empresas registradas'
+        "
+        [value]="activeState.total"
+        [icon]="activeTab === 'person' ? 'bi-people-fill' : 'bi-buildings'"
+        variant="primary"
+      ></app-kpi-card>
     </div>
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-success">
-            <i
-              class="bi"
-              [ngClass]="
-                activeTab === 'person'
-                  ? 'bi-person-check-fill'
-                  : 'bi-building-check'
-              "
-            ></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">
-              {{
-                activeTab === "person" ? "Personas activas" : "Empresas activas"
-              }}
-            </h6>
-            <h4 class="card-title fw-bold mb-0">{{ activeState.active }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        [label]="
+          activeTab === 'person' ? 'Personas activas' : 'Empresas activas'
+        "
+        [value]="activeState.active"
+        [icon]="
+          activeTab === 'person'
+            ? 'bi-person-check-fill'
+            : 'bi-building-check'
+        "
+        variant="success"
+      ></app-kpi-card>
     </div>
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-warning">
-            <i
-              class="bi"
-              [ngClass]="
-                activeTab === 'person'
-                  ? 'bi-person-dash-fill'
-                  : 'bi-building-dash'
-              "
-            ></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">
-              {{
-                activeTab === "person"
-                  ? "Personas inactivas"
-                  : "Empresas inactivas"
-              }}
-            </h6>
-            <h4 class="card-title fw-bold mb-0">{{ activeState.inactive }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        [label]="
+          activeTab === 'person'
+            ? 'Personas inactivas'
+            : 'Empresas inactivas'
+        "
+        [value]="activeState.inactive"
+        [icon]="
+          activeTab === 'person'
+            ? 'bi-person-dash-fill'
+            : 'bi-building-dash'
+        "
+        variant="warning"
+      ></app-kpi-card>
     </div>
   </div>
 
@@ -162,226 +127,220 @@
     }
 
     <div class="card-body p-0">
-      <div class="table-responsive position-relative">
-        @if (activeState.loading) {
-          <div class="loading-overlay">
-            <div class="spinner-border text-primary">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-          </div>
-        }
-
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            @if (activeTab === "person") {
-              <tr>
-                <th scope="col">Nombre completo</th>
-                <th scope="col">Cédula</th>
-                <th scope="col">Correo</th>
-                <th scope="col">Teléfono</th>
-                <th scope="col">Estado</th>
-                <th
-                  scope="col"
-                  class="text-center"
-                  *appHasPermission="'person:update'"
-                >
-                  Acciones
-                </th>
-              </tr>
+      <app-data-table
+        [loading]="activeState.loading"
+        [minHeight]="320"
+        loadingLabel="Cargando clientes..."
+      >
+        <ng-container table-head>
+          @if (activeTab === 'person') {
+            <tr>
+              <th scope="col">Nombre completo</th>
+              <th scope="col">Cédula</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Teléfono</th>
+              <th scope="col">Estado</th>
+              <th
+                scope="col"
+                class="text-center"
+                *appHasPermission="'person:update'"
+              >
+                Acciones
+              </th>
+            </tr>
+          } @else {
+            <tr>
+              <th scope="col">Razón social</th>
+              <th scope="col">NIT</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Teléfono</th>
+              <th scope="col">Estado</th>
+              <th
+                scope="col"
+                class="text-center"
+                *appHasPermission="'company:update'"
+              >
+                Acciones
+              </th>
+            </tr>
+          }
+        </ng-container>
+        <ng-container table-body>
+          @if (!activeState.loading && activeState.items.length === 0) {
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                {{ emptyMessage }}
+              </td>
+            </tr>
+          } @else {
+            @if (activeTab === 'person') {
+              @for (person of personState.items; track person.id) {
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div
+                        class="avatar bg-primary-subtle text-primary-emphasis me-3"
+                      >
+                        {{ person.firstName.charAt(0) || "?"
+                        }}{{ person.lastName.charAt(0) || "" }}
+                      </div>
+                      <div>
+                        <div class="fw-semibold">
+                          {{ person.firstName }} {{ person.lastName }}
+                        </div>
+                        <div class="text-muted small">
+                          <i class="bi bi-geo-alt me-1"></i>
+                          {{ person.address.city || "Ciudad no definida" }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ person.nationalId }}</td>
+                  <td>{{ person.email }}</td>
+                  <td>{{ person.phoneNumber }}</td>
+                  <td>
+                    @if (person.enabled) {
+                      <span
+                        class="badge bg-success-subtle text-success-emphasis rounded-pill"
+                      >
+                        Activo
+                      </span>
+                    } @else {
+                      <span
+                        class="badge bg-warning-subtle text-warning-emphasis rounded-pill"
+                      >
+                        Inactivo
+                      </span>
+                    }
+                  </td>
+                  <td class="text-center" *appHasPermission="'person:update'">
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-outline-secondary btn-sm btn-icon"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="bi bi-three-dots"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a
+                            class="dropdown-item"
+                            [routerLink]="['/clients/persons', person.id]"
+                          >
+                            <i class="bi bi-pencil-square me-2"></i>Editar
+                          </a>
+                        </li>
+                        <li>
+                          <button
+                            class="dropdown-item d-flex align-items-center"
+                            type="button"
+                            (click)="togglePersonStatus(person)"
+                          >
+                            <i
+                              class="bi me-2"
+                              [ngClass]="
+                                person.enabled
+                                  ? 'bi-toggle-on'
+                                  : 'bi-toggle-off'
+                              "
+                            ></i>
+                            {{ person.enabled ? "Desactivar" : "Activar" }}
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              }
             } @else {
-              <tr>
-                <th scope="col">Razón social</th>
-                <th scope="col">NIT</th>
-                <th scope="col">Correo</th>
-                <th scope="col">Teléfono</th>
-                <th scope="col">Estado</th>
-                <th
-                  scope="col"
-                  class="text-center"
-                  *appHasPermission="'company:update'"
-                >
-                  Acciones
-                </th>
-              </tr>
-            }
-          </thead>
-          <tbody>
-            @if (!activeState.loading && activeState.items.length === 0) {
-              <tr>
-                <td colspan="6" class="text-center py-5 text-muted">
-                  {{ emptyMessage }}
-                </td>
-              </tr>
-            } @else {
-              @if (activeTab === "person") {
-                @for (person of personState.items; track person.id) {
-                  <tr>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <div
-                          class="avatar bg-primary-subtle text-primary-emphasis me-3"
-                        >
-                          {{ person.firstName.charAt(0) || "?"
-                          }}{{ person.lastName.charAt(0) || "" }}
+              @for (company of companyState.items; track company.id) {
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div
+                        class="avatar bg-info-subtle text-info-emphasis me-3"
+                      >
+                        {{ company.companyName.charAt(0) || "E" }}
+                      </div>
+                      <div>
+                        <div class="fw-semibold">
+                          {{ company.companyName }}
                         </div>
-                        <div>
-                          <div class="fw-semibold">
-                            {{ person.firstName }} {{ person.lastName }}
-                          </div>
-                          <div class="text-muted small">
-                            <i class="bi bi-geo-alt me-1"></i>
-                            {{ person.address.city || "Ciudad no definida" }}
-                          </div>
+                        <div class="text-muted small">
+                          <i class="bi bi-geo-alt me-1"></i>
+                          {{ company.address.city || "Ciudad no definida" }}
                         </div>
                       </div>
-                    </td>
-                    <td>{{ person.nationalId }}</td>
-                    <td>{{ person.email }}</td>
-                    <td>{{ person.phoneNumber }}</td>
-                    <td>
-                      @if (person.enabled) {
-                        <span
-                          class="badge bg-success-subtle text-success-emphasis rounded-pill"
-                        >
-                          Activo
-                        </span>
-                      } @else {
-                        <span
-                          class="badge bg-warning-subtle text-warning-emphasis rounded-pill"
-                        >
-                          Inactivo
-                        </span>
-                      }
-                    </td>
-                    <td class="text-center" *appHasPermission="'person:update'">
-                      <div class="dropdown">
-                        <button
-                          class="btn btn-outline-secondary btn-sm btn-icon"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                          <li>
-                            <a
-                              class="dropdown-item"
-                              [routerLink]="['/clients/persons', person.id]"
-                            >
-                              <i class="bi bi-pencil-square me-2"></i>Editar
-                            </a>
-                          </li>
-                          <li>
-                            <button
-                              class="dropdown-item d-flex align-items-center"
-                              type="button"
-                              (click)="togglePersonStatus(person)"
-                            >
-                              <i
-                                class="bi me-2"
-                                [ngClass]="
-                                  person.enabled
-                                    ? 'bi-toggle-on'
-                                    : 'bi-toggle-off'
-                                "
-                              ></i>
-                              {{ person.enabled ? "Desactivar" : "Activar" }}
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                }
-              } @else {
-                @for (company of companyState.items; track company.id) {
-                  <tr>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <div
-                          class="avatar bg-info-subtle text-info-emphasis me-3"
-                        >
-                          {{ company.companyName.charAt(0) || "E" }}
-                        </div>
-                        <div>
-                          <div class="fw-semibold">
-                            {{ company.companyName }}
-                          </div>
-                          <div class="text-muted small">
-                            <i class="bi bi-geo-alt me-1"></i>
-                            {{ company.address.city || "Ciudad no definida" }}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>{{ company.taxId }}</td>
-                    <td>{{ company.email }}</td>
-                    <td>{{ company.phoneNumber }}</td>
-                    <td>
-                      @if (company.enabled) {
-                        <span
-                          class="badge bg-success-subtle text-success-emphasis rounded-pill"
-                        >
-                          Activa
-                        </span>
-                      } @else {
-                        <span
-                          class="badge bg-warning-subtle text-warning-emphasis rounded-pill"
-                        >
-                          Inactiva
-                        </span>
-                      }
-                    </td>
-                    <td
-                      class="text-center"
-                      *appHasPermission="'company:update'"
-                    >
-                      <div class="dropdown">
-                        <button
-                          class="btn btn-outline-secondary btn-sm btn-icon"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <i class="bi bi-three-dots"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                          <li>
-                            <a
-                              class="dropdown-item"
-                              [routerLink]="['/clients/companies', company.id]"
-                            >
-                              <i class="bi bi-pencil-square me-2"></i>Editar
-                            </a>
-                          </li>
-                          <li>
-                            <button
-                              class="dropdown-item d-flex align-items-center"
-                              type="button"
-                              (click)="toggleCompanyStatus(company)"
-                            >
-                              <i
-                                class="bi me-2"
-                                [ngClass]="
-                                  company.enabled
-                                    ? 'bi-toggle-on'
-                                    : 'bi-toggle-off'
-                                "
-                              ></i>
-                              {{ company.enabled ? "Desactivar" : "Activar" }}
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-                  </tr>
-                }
+                    </div>
+                  </td>
+                  <td>{{ company.taxId }}</td>
+                  <td>{{ company.email }}</td>
+                  <td>{{ company.phoneNumber }}</td>
+                  <td>
+                    @if (company.enabled) {
+                      <span
+                        class="badge bg-success-subtle text-success-emphasis rounded-pill"
+                      >
+                        Activa
+                      </span>
+                    } @else {
+                      <span
+                        class="badge bg-warning-subtle text-warning-emphasis rounded-pill"
+                      >
+                        Inactiva
+                      </span>
+                    }
+                  </td>
+                  <td
+                    class="text-center"
+                    *appHasPermission="'company:update'"
+                  >
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-outline-secondary btn-sm btn-icon"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="bi bi-three-dots"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a
+                            class="dropdown-item"
+                            [routerLink]="['/clients/companies', company.id]"
+                          >
+                            <i class="bi bi-pencil-square me-2"></i>Editar
+                          </a>
+                        </li>
+                        <li>
+                          <button
+                            class="dropdown-item d-flex align-items-center"
+                            type="button"
+                            (click)="toggleCompanyStatus(company)"
+                          >
+                            <i
+                              class="bi me-2"
+                              [ngClass]="
+                                company.enabled
+                                  ? 'bi-toggle-on'
+                                  : 'bi-toggle-off'
+                              "
+                            ></i>
+                            {{ company.enabled ? "Desactivar" : "Activar" }}
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
               }
             }
-          </tbody>
-        </table>
-      </div>
+          }
+        </ng-container>
+      </app-data-table>
     </div>
 
     @if (activePager && activePager.totalPages && activePager.totalPages > 0) {

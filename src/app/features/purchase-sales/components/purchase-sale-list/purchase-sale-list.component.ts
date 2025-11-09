@@ -25,6 +25,9 @@ import { CompanyService } from '../../../clients/services/company.service';
 import { UserService } from '../../../users/services/user.service';
 import { CarService } from '../../../vehicles/services/car.service';
 import { MotorcycleService } from '../../../vehicles/services/motorcycle.service';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import {
   ClientOption,
   UserOption,
@@ -54,6 +57,9 @@ type ContractStatusFilter = ContractStatus | 'ALL';
     HasPermissionDirective,
     PagerComponent,
     UtcToGmtMinus5Pipe,
+    PageHeaderComponent,
+    KpiCardComponent,
+    DataTableComponent,
   ],
   templateUrl: './purchase-sale-list.component.html',
   styleUrl: './purchase-sale-list.component.css',

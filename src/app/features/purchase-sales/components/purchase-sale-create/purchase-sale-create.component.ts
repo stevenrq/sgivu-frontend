@@ -48,6 +48,8 @@ import {
   mapPersonsToClients,
   mapUsersToOptions,
 } from '../../models/purchase-sale-reference.model';
+import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 interface ContractFormModel {
   clientId: number | null;
@@ -88,7 +90,14 @@ interface VehicleFormModel {
 
 @Component({
   selector: 'app-purchase-sale-create',
-  imports: [CommonModule, FormsModule, HasPermissionDirective, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    HasPermissionDirective,
+    RouterLink,
+    KpiCardComponent,
+    PageHeaderComponent,
+  ],
   templateUrl: './purchase-sale-create.component.html',
   styleUrl: './purchase-sale-create.component.css',
 })

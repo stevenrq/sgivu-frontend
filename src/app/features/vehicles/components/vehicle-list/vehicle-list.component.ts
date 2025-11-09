@@ -26,6 +26,9 @@ import { Car } from '../../models/car.model';
 import { Motorcycle } from '../../models/motorcycle.model';
 import { VehicleStatus } from '../../models/vehicle-status.enum';
 import { VehicleUiHelperService } from '../../../../shared/services/vehicle-ui-helper.service';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
 type VehicleTab = 'car' | 'motorcycle';
 type VehicleEntity = Car | Motorcycle;
@@ -67,6 +70,9 @@ interface VehicleFallbackResult<T extends VehicleEntity> {
     RouterLink,
     HasPermissionDirective,
     PagerComponent,
+    PageHeaderComponent,
+    KpiCardComponent,
+    DataTableComponent,
   ],
   templateUrl: './vehicle-list.component.html',
   styleUrl: './vehicle-list.component.css',

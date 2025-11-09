@@ -1,0 +1,18 @@
+<header
+  class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3"
+>
+  <div class="page-header__text">
+    @if (eyebrow) {
+      <p class="page-header__eyebrow text-uppercase text-muted mb-1">
+        {{ eyebrow }}
+      </p>
+    }
+    <h1 class="h3 mb-1 fw-bold">{{ title }}</h1>
+    @if (subtitle) {
+      <p class="text-muted mb-0">{{ subtitle }}</p>
+    }
+  </div>
+  <div class="page-header__actions ms-auto">
+    <ng-content select="[page-header-actions]"></ng-content>
+  </div>
+</header>

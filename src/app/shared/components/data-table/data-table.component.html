@@ -1,0 +1,21 @@
+<div
+  class="table-container position-relative"
+  [class.table-responsive]="responsive"
+  [style.minHeight.px]="minHeight"
+>
+  @if (loading) {
+    <app-loading-overlay [label]="loadingLabel"></app-loading-overlay>
+  }
+
+  <table [class]="tableClass">
+    @if (showHeader) {
+      <thead class="table-light">
+        <ng-content select="[table-head]"></ng-content>
+      </thead>
+    }
+    <tbody>
+      <ng-content select="[table-body]"></ng-content>
+    </tbody>
+  </table>
+  <ng-content select="[table-empty]"></ng-content>
+</div>

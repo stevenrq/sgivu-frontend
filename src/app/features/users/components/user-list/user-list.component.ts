@@ -9,6 +9,9 @@ import { PaginatedResponse } from '../../../../shared/models/paginated-response'
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { UserUiHelperService } from '../../../../shared/services/user-ui-helper.service';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
 interface UserListState<T extends User> {
   items: T[];
@@ -54,6 +57,9 @@ interface UserListMetadata {
     PagerComponent,
     RouterLink,
     HasPermissionDirective,
+    PageHeaderComponent,
+    KpiCardComponent,
+    DataTableComponent,
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css',

@@ -1,12 +1,6 @@
 <div class="container-fluid">
-  <header
-    class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3"
-  >
-    <div>
-      <h1 class="h3 mb-1 fw-bold">{{ title }}</h1>
-      <p class="text-muted mb-0">{{ subtitle }}</p>
-    </div>
-    <div>
+  <app-page-header [title]="title" [subtitle]="subtitle">
+    <div page-header-actions>
       <button
         class="btn btn-primary"
         [routerLink]="createLink"
@@ -15,47 +9,32 @@
         <i class="bi bi-plus-circle me-2"></i>{{ createLabel }}
       </button>
     </div>
-  </header>
+  </app-page-header>
 
   <div class="row g-4 mb-4">
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-primary">
-            <i class="bi bi-people-fill"></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">Usuarios Totales</h6>
-            <h4 class="card-title fw-bold mb-0">{{ totalUsers }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        label="Usuarios Totales"
+        [value]="totalUsers"
+        icon="bi-people-fill"
+        variant="primary"
+      ></app-kpi-card>
     </div>
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-success">
-            <i class="bi bi-person-check-fill"></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">Usuarios Activos</h6>
-            <h4 class="card-title fw-bold mb-0">{{ activeUsers }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        label="Usuarios Activos"
+        [value]="activeUsers"
+        icon="bi-person-check-fill"
+        variant="success"
+      ></app-kpi-card>
     </div>
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-warning">
-            <i class="bi bi-person-x-fill"></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">Usuarios Inactivos</h6>
-            <h4 class="card-title fw-bold mb-0">{{ inactiveUsers }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        label="Usuarios Inactivos"
+        [value]="inactiveUsers"
+        icon="bi-person-x-fill"
+        variant="warning"
+      ></app-kpi-card>
     </div>
   </div>
 
@@ -100,154 +79,149 @@
     }
 
     <div class="card-body p-0">
-      <div class="table-responsive position-relative">
-        @if (isLoading) {
-          <div class="loading-overlay">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-          </div>
-        }
-
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
+      <app-data-table
+        [loading]="isLoading"
+        [minHeight]="300"
+        loadingLabel="Cargando usuarios..."
+      >
+        <ng-container table-head>
+          <tr>
+            <th scope="col">Nombre Completo</th>
+            <th scope="col">Correo Electrónico</th>
+            <th scope="col">Nombre de Usuario</th>
+            <th scope="col">Rol</th>
+            <th scope="col">Estado</th>
+            <th
+              scope="col"
+              class="text-center"
+              *appHasPermission="'user:update'"
+            >
+              Acciones
+            </th>
+          </tr>
+        </ng-container>
+        <ng-container table-body>
+          @for (user of users; track user.id) {
             <tr>
-              <th scope="col">Nombre Completo</th>
-              <th scope="col">Correo Electrónico</th>
-              <th scope="col">Nombre de Usuario</th>
-              <th scope="col">Rol</th>
-              <th scope="col">Estado</th>
-              <th
-                scope="col"
-                class="text-center"
-                *appHasPermission="'user:update'"
-              >
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of users; track user.id) {
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <img
-                      src="https://placehold.co/40x40/EFEFEF/333333?text={{
-                        user.firstName.charAt(0)
-                      }}{{ user.lastName.charAt(0) }}"
-                      alt="Avatar"
-                      class="rounded-circle me-3"
-                    />
-                    <div>
-                      {{ user.firstName }} {{ user.lastName }}
-                      <div class="text-muted small">
-                        {{ user.address.city }}
-                      </div>
+              <td>
+                <div class="d-flex align-items-center">
+                  <img
+                    src="https://placehold.co/40x40/EFEFEF/333333?text={{
+                      user.firstName.charAt(0)
+                    }}{{ user.lastName.charAt(0) }}"
+                    alt="Avatar"
+                    class="rounded-circle me-3"
+                  />
+                  <div>
+                    {{ user.firstName }} {{ user.lastName }}
+                    <div class="text-muted small">
+                      {{ user.address.city }}
                     </div>
                   </div>
-                </td>
-                <td>{{ user.email }}</td>
-                <td>&#64;{{ user.username }}</td>
-                <td>
-                  @for (role of user.roles; track role.id) {
-                    @switch (role.name) {
-                      @case ("ADMIN") {
-                        <span class="badge bg-primary me-2">{{
-                          role.name
-                        }}</span>
-                      }
-                      @case ("MANAGER") {
-                        <span class="badge bg-info text-dark">{{
-                          role.name
-                        }}</span>
-                      }
-                      @case ("SALE") {
-                        <span class="badge bg-secondary">{{ role.name }}</span>
-                      }
-                      @case ("PURCHASE") {
-                        <span class="badge bg-dark">{{ role.name }}</span>
-                      }
-                      @case ("USER") {
-                        <span class="badge bg-light text-dark border me-2">{{
-                          role.name
-                        }}</span>
-                      }
+                </div>
+              </td>
+              <td>{{ user.email }}</td>
+              <td>&#64;{{ user.username }}</td>
+              <td>
+                @for (role of user.roles; track role.id) {
+                  @switch (role.name) {
+                    @case ('ADMIN') {
+                      <span class="badge bg-primary me-2">{{
+                        role.name
+                      }}</span>
+                    }
+                    @case ('MANAGER') {
+                      <span class="badge bg-info text-dark">{{
+                        role.name
+                      }}</span>
+                    }
+                    @case ('SALE') {
+                      <span class="badge bg-secondary">{{ role.name }}</span>
+                    }
+                    @case ('PURCHASE') {
+                      <span class="badge bg-dark">{{ role.name }}</span>
+                    }
+                    @case ('USER') {
+                      <span class="badge bg-light text-dark border me-2">{{
+                        role.name
+                      }}</span>
                     }
                   }
-                </td>
-                <td>
-                  @if (user.enabled) {
-                    <span
-                      class="badge bg-success-subtle text-success-emphasis rounded-pill"
-                      >Activo</span
-                    >
-                  } @else {
-                    <span
-                      class="badge bg-warning-subtle text-warning-emphasis rounded-pill"
-                      >Inactivo</span
-                    >
-                  }
-                </td>
-                <td class="text-center" *appHasPermission="'user:update'">
-                  <div>
-                    <button
-                      class="btn btn-outline-secondary btn-sm btn-icon"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <i class="bi bi-three-dots"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li>
-                        <a
-                          class="dropdown-item"
-                          [routerLink]="['/users/profile', user.id]"
-                        >
-                          <i class="bi bi-eye me-2"></i>Ver Detalles
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          class="dropdown-item"
-                          [routerLink]="['/users', user.id]"
-                        >
-                          <i class="bi bi-pencil-square me-2"></i>Editar
-                        </a>
-                      </li>
-                      <li>
-                        <hr class="dropdown-divider" />
-                      </li>
-                      <li>
-                        <button
-                          type="button"
-                          class="dropdown-item d-flex align-items-center"
-                          (click)="updateStatus(user.id, !user.enabled)"
-                        >
-                          <i
-                            class="bi me-2"
-                            [ngClass]="
-                              user.enabled ? 'bi-toggle-on' : 'bi-toggle-off'
-                            "
-                          ></i>
-                          {{ user.enabled ? 'Desactivar' : 'Activar' }}
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-
-        @if (!users.length && !isLoading && !error) {
-          <div class="text-center py-5 text-muted">
-            <i class="bi bi-people-slash display-6 d-block mb-2"></i>
-            {{ emptyMessage }}
-          </div>
-        }
-      </div>
+                }
+              </td>
+              <td>
+                @if (user.enabled) {
+                  <span
+                    class="badge bg-success-subtle text-success-emphasis rounded-pill"
+                    >Activo</span
+                  >
+                } @else {
+                  <span
+                    class="badge bg-warning-subtle text-warning-emphasis rounded-pill"
+                    >Inactivo</span
+                  >
+                }
+              </td>
+              <td class="text-center" *appHasPermission="'user:update'">
+                <div>
+                  <button
+                    class="btn btn-outline-secondary btn-sm btn-icon"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i class="bi bi-three-dots"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        [routerLink]="['/users/profile', user.id]"
+                      >
+                        <i class="bi bi-eye me-2"></i>Ver Detalles
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        [routerLink]="['/users', user.id]"
+                      >
+                        <i class="bi bi-pencil-square me-2"></i>Editar
+                      </a>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        class="dropdown-item d-flex align-items-center"
+                        (click)="updateStatus(user.id, !user.enabled)"
+                      >
+                        <i
+                          class="bi me-2"
+                          [ngClass]="
+                            user.enabled ? 'bi-toggle-on' : 'bi-toggle-off'
+                          "
+                        ></i>
+                        {{ user.enabled ? 'Desactivar' : 'Activar' }}
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          }
+        </ng-container>
+        <div
+          table-empty
+          class="text-center py-5 text-muted"
+          *ngIf="!users.length && !isLoading && !error"
+        >
+          <i class="bi bi-people-slash display-6 d-block mb-2"></i>
+          {{ emptyMessage }}
+        </div>
+      </app-data-table>
     </div>
     @if (pager) {
       <div

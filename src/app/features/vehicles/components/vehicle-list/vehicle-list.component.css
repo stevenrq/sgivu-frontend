@@ -46,38 +46,6 @@
   background-color: rgba(13, 110, 253, 0.08);
 }
 
-.kpi-card .card-body {
-  display: flex;
-  align-items: center;
-  padding: 1.5rem;
-}
-
-.kpi-card .icon-circle {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1.5rem;
-  font-size: 1.5rem;
-}
-
-.icon-primary {
-  background-color: rgba(13, 110, 253, 0.1);
-  color: #0d6efd;
-}
-
-.icon-success {
-  background-color: rgba(25, 135, 84, 0.1);
-  color: #198754;
-}
-
-.icon-warning {
-  background-color: rgba(255, 193, 7, 0.1);
-  color: #ffc107;
-}
-
 .filters-panel {
   width: 100%;
   background-color: var(--bs-body-bg);
@@ -112,48 +80,6 @@
 
 .filters-panel .btn {
   height: 38px;
-}
-
-.btn-icon {
-  width: 38px;
-  height: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.table {
-  margin-bottom: 0;
-}
-
-.table th {
-  font-weight: 600;
-  color: var(--bs-body-color);
-  font-size: 0.9rem;
-  padding: 1rem 1.25rem;
-}
-
-.table td {
-  padding: 1rem 1.25rem;
-  vertical-align: middle;
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(13, 110, 253, 0.05);
-}
-
-.table-responsive {
-  min-height: 280px;
-}
-
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.85);
-  z-index: 5;
 }
 
 .form-select-sm {

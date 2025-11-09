@@ -1,17 +1,14 @@
 <div class="container-fluid p-4">
-  <header class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h3 mb-1 fw-bold">Gestión de Roles y Permisos</h1>
-      <p class="text-muted mb-0">
-        Administra los roles del sistema y los permisos asociados a cada uno.
-      </p>
-    </div>
-    <div>
+  <app-page-header
+    title="Gestión de Roles y Permisos"
+    subtitle="Administra los roles del sistema y los permisos asociados a cada uno."
+  >
+    <div page-header-actions>
       <button class="btn btn-primary" (click)="openCreateRoleModal()">
         <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Rol
       </button>
     </div>
-  </header>
+  </app-page-header>
 
   <div class="card">
     <div
@@ -32,88 +29,85 @@
       </div>
     </div>
     <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
+      <app-data-table [loading]="false" [minHeight]="260">
+        <ng-container table-head>
+          <tr>
+            <th>Rol</th>
+            <th>Descripción</th>
+            <th class="text-center">Usuarios</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </ng-container>
+        <ng-container table-body>
+          @for (role of roles; track role.id) {
             <tr>
-              <th>Rol</th>
-              <th>Descripción</th>
-              <th class="text-center">Usuarios</th>
-              <th class="text-center">Acciones</th>
+              <td>
+                <span class="fw-bold">{{ role.name }}</span>
+              </td>
+              <td>{{ role.description }}</td>
+              <td class="text-center">
+                <span class="badge bg-secondary rounded-pill">{{
+                  role.userCount
+                }}</span>
+              </td>
+              <td class="text-center">
+                <div ngbDropdown container="body">
+                  <button
+                    class="btn btn-outline-secondary btn-sm btn-icon"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i class="bi bi-three-dots"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <button
+                        type="button"
+                        class="dropdown-item"
+                        (click)="openEditRoleModal(role)"
+                      >
+                        <i class="bi bi-pencil-square me-2"></i>Editar Rol
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        class="dropdown-item"
+                        (click)="openPermissionsModal(role)"
+                      >
+                        <i class="bi bi-shield-check me-2"></i>Gestionar Permisos
+                      </button>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        class="dropdown-item text-danger"
+                        (click)="openDeleteModal(role)"
+                      >
+                        <i class="bi bi-trash3 me-2"></i>Eliminar Rol
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            @for (role of roles; track role.id) {
-              <tr>
-                <td>
-                  <span class="fw-bold">{{ role.name }}</span>
-                </td>
-                <td>{{ role.description }}</td>
-                <td class="text-center">
-                  <span class="badge bg-secondary rounded-pill">{{
-                    role.userCount
-                  }}</span>
-                </td>
-                <td class="text-center">
-                  <div ngbDropdown container="body">
-                    <button
-                      class="btn btn-outline-secondary btn-sm btn-icon"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <i class="bi bi-three-dots"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li>
-                        <button
-                          type="button"
-                          class="dropdown-item"
-                          (click)="openEditRoleModal(role)"
-                        >
-                          <i class="bi bi-pencil-square me-2"></i>Editar Rol
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          type="button"
-                          class="dropdown-item"
-                          (click)="openPermissionsModal(role)"
-                        >
-                          <i class="bi bi-shield-check me-2"></i>Gestionar
-                          Permisos
-                        </button>
-                      </li>
-                      <li>
-                        <hr class="dropdown-divider" />
-                      </li>
-                      <li>
-                        <button
-                          type="button"
-                          class="dropdown-item text-danger"
-                          (click)="openDeleteModal(role)"
-                        >
-                          <i class="bi bi-trash3 me-2"></i>Eliminar Rol
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4" class="text-center text-muted py-5">
-                  <i class="bi bi-exclamation-circle fs-3 d-block mb-2"></i>
-                  <h5 class="mb-0">No se encontraron roles</h5>
-                  <p class="text-muted">
-                    No hay roles registrados en el sistema.
-                  </p>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+          } @empty {
+            <tr>
+              <td colspan="4" class="text-center text-muted py-5">
+                <i class="bi bi-exclamation-circle fs-3 d-block mb-2"></i>
+                <h5 class="mb-0">No se encontraron roles</h5>
+                <p class="text-muted">
+                  No hay roles registrados en el sistema.
+                </p>
+              </td>
+            </tr>
+          }
+        </ng-container>
+      </app-data-table>
     </div>
   </div>
 </div>

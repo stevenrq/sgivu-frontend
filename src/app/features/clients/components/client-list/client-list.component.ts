@@ -18,6 +18,9 @@ import { ClientUiHelperService } from '../../../../shared/services/client-ui-hel
 import { Company } from '../../models/company.model';
 import { PaginatedResponse } from '../../../../shared/models/paginated-response';
 import { Person } from '../../models/person.model.';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
 type ClientTab = 'person' | 'company';
 
@@ -79,6 +82,9 @@ interface ClientCountsResult<T extends ClientEntity = ClientEntity> {
     RouterLink,
     HasPermissionDirective,
     PagerComponent,
+    PageHeaderComponent,
+    KpiCardComponent,
+    DataTableComponent,
   ],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.css',

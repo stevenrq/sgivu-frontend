@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
 declare let bootstrap: any;
 
@@ -28,7 +30,7 @@ interface Role {
 
 @Component({
   selector: 'app-roles-permissions',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent, DataTableComponent],
   templateUrl: './roles-permissions.component.html',
   styleUrls: ['./roles-permissions.component.css'],
 })

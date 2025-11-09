@@ -1,56 +1,42 @@
 <div class="container-fluid">
-  <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-    <div>
-      <h1 class="h3 mb-1 fw-bold">Registrar contrato de compraventa</h1>
-      <p class="text-muted mb-0">
-        Separa la captura de información de compras y ventas en esta página dedicada.
-      </p>
-    </div>
-    <a class="btn btn-outline-secondary" routerLink="/purchase-sales/page/0">
+  <app-page-header
+    title="Registrar contrato de compraventa"
+    subtitle="Separa la captura de información de compras y ventas en esta página dedicada."
+  >
+    <a
+      page-header-actions
+      class="btn btn-outline-secondary"
+      routerLink="/purchase-sales/page/0"
+    >
       <i class="bi bi-card-checklist me-1"></i>
       Ver lista de contratos
     </a>
-  </header>
+  </app-page-header>
 
   <div class="row g-4 mb-4">
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-primary">
-            <i class="bi bi-file-earmark-text-fill"></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">Contratos Totales</h6>
-            <h4 class="card-title fw-bold mb-0">{{ totalContracts }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        label="Contratos Totales"
+        [value]="totalContracts"
+        icon="bi-file-earmark-text-fill"
+        variant="primary"
+      ></app-kpi-card>
     </div>
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-success">
-            <i class="bi bi-cart-plus-fill"></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">Compras Registradas</h6>
-            <h4 class="card-title fw-bold mb-0">{{ totalPurchases }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        label="Compras Registradas"
+        [value]="totalPurchases"
+        icon="bi-cart-plus-fill"
+        variant="success"
+      ></app-kpi-card>
     </div>
     <div class="col-md-4">
-      <div class="card kpi-card">
-        <div class="card-body">
-          <div class="icon-circle icon-warning">
-            <i class="bi bi-cart-check-fill"></i>
-          </div>
-          <div>
-            <h6 class="card-subtitle text-muted mb-1">Ventas Registradas</h6>
-            <h4 class="card-title fw-bold mb-0">{{ totalSales }}</h4>
-          </div>
-        </div>
-      </div>
+      <app-kpi-card
+        label="Ventas Registradas"
+        [value]="totalSales"
+        icon="bi-cart-check-fill"
+        variant="warning"
+      ></app-kpi-card>
     </div>
   </div>
 
