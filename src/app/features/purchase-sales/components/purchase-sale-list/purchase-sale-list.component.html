@@ -4,7 +4,11 @@
     subtitle="Registra las operaciones de compra y venta de vehículos y monitorea su estado en tiempo real."
   >
     <div page-header-actions class="d-flex flex-wrap gap-2">
-      <button class="btn btn-primary" type="button" (click)="navigateToCreate()">
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="navigateToCreate()"
+      >
         <i class="bi bi-plus-lg me-1"></i>
         Registrar contrato
       </button>
@@ -38,7 +42,6 @@
     </div>
   </div>
 
-
   <section class="card">
     <div
       class="card-header bg-white py-3 d-flex flex-wrap align-items-center gap-3 justify-content-between"
@@ -46,7 +49,8 @@
       <div>
         <h5 class="card-title mb-0">Contratos registrados</h5>
         <small class="text-muted"
-          >Visualiza el historial de compras y ventas para todos los vehículos.</small
+          >Visualiza el historial de compras y ventas para todos los
+          vehículos.</small
         >
       </div>
       <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
@@ -98,7 +102,9 @@
           class="btn btn-outline-secondary btn-sm"
           type="button"
           (click)="resetReportDates()"
-          [disabled]="exportLoading.pdf || exportLoading.excel || exportLoading.csv"
+          [disabled]="
+            exportLoading.pdf || exportLoading.excel || exportLoading.csv
+          "
         >
           <i class="bi bi-eraser"></i>
         </button>
@@ -175,7 +181,6 @@
       >
         <ng-container table-head>
           <tr>
-            <th scope="col">ID</th>
             <th scope="col">Tipo</th>
             <th scope="col">Cliente</th>
             <th scope="col">Usuario</th>
@@ -183,8 +188,12 @@
             <th scope="col">Precio compra</th>
             <th scope="col">Precio venta</th>
             <th scope="col">Estado</th>
-            <th scope="col">Actualizado</th>
-            <th scope="col" class="text-center" *appHasPermission="'purchase_sale:update'">
+            <th scope="col">Última actualización</th>
+            <th
+              scope="col"
+              class="text-center"
+              *appHasPermission="'purchase_sale:update'"
+            >
               Acciones
             </th>
           </tr>
@@ -201,45 +210,51 @@
           @for (contract of contracts; track contract.id) {
             <tr>
               <td>
-                <span class="fw-semibold">{{ contract.id }}</span>
-                <div class="text-muted small">
-                  {{ contract.createdAt | utcToGmtMinus5 }}
-                </div>
-              </td>
-              <td>
-                <span class="badge rounded-pill" [ngClass]="getVehicleBadgeClass(contract)">
+                <span
+                  class="badge rounded-pill"
+                  [ngClass]="getVehicleBadgeClass(contract)"
+                >
                   {{ getContractTypeLabel(contract.contractType) }}
                 </span>
               </td>
               <td>
                 <div>{{ getClientLabel(contract) }}</div>
-                <div class="text-muted small">ID: {{ contract.clientId }}</div>
               </td>
               <td>
                 <div>{{ getUserLabel(contract) }}</div>
-                <div class="text-muted small">ID: {{ contract.userId }}</div>
               </td>
               <td>
                 <div>{{ getVehicleLabel(contract) }}</div>
-                <div class="text-muted small">ID: {{ contract.vehicleId }}</div>
               </td>
               <td>
-                {{ contract.purchasePrice | currency: 'COP':'symbol-narrow':'1.0-0' }}
+                {{
+                  contract.purchasePrice
+                    | currency: "COP" : "symbol-narrow" : "1.0-0"
+                }}
               </td>
               <td>
                 @if (contract.salePrice > 0) {
-                  {{ contract.salePrice | currency: 'COP':'symbol-narrow':'1.0-0' }}
+                  {{
+                    contract.salePrice
+                      | currency: "COP" : "symbol-narrow" : "1.0-0"
+                  }}
                 } @else {
                   <span class="text-muted">—</span>
                 }
               </td>
               <td>
-                <span class="badge rounded-pill" [ngClass]="getStatusBadgeClass(contract.contractStatus)">
+                <span
+                  class="badge rounded-pill"
+                  [ngClass]="getStatusBadgeClass(contract.contractStatus)"
+                >
                   {{ getStatusLabel(contract.contractStatus) }}
                 </span>
               </td>
               <td>{{ contract.updatedAt | utcToGmtMinus5 }}</td>
-              <td class="text-center" *appHasPermission="'purchase_sale:update'">
+              <td
+                class="text-center"
+                *appHasPermission="'purchase_sale:update'"
+              >
                 <div class="btn-group">
                   <button
                     class="btn btn-outline-secondary btn-sm btn-icon"
@@ -266,7 +281,9 @@
                         type="button"
                         (click)="updateStatus(contract, ContractStatus.ACTIVE)"
                       >
-                        <i class="bi bi-lightning-charge-fill me-2 text-primary"></i>
+                        <i
+                          class="bi bi-lightning-charge-fill me-2 text-primary"
+                        ></i>
                         Marcar como activa
                       </button>
                     </li>
@@ -274,9 +291,13 @@
                       <button
                         class="dropdown-item"
                         type="button"
-                        (click)="updateStatus(contract, ContractStatus.COMPLETED)"
+                        (click)="
+                          updateStatus(contract, ContractStatus.COMPLETED)
+                        "
                       >
-                        <i class="bi bi-check-circle-fill me-2 text-success"></i>
+                        <i
+                          class="bi bi-check-circle-fill me-2 text-success"
+                        ></i>
                         Marcar como completada
                       </button>
                     </li>
@@ -284,7 +305,9 @@
                       <button
                         class="dropdown-item text-danger"
                         type="button"
-                        (click)="updateStatus(contract, ContractStatus.CANCELED)"
+                        (click)="
+                          updateStatus(contract, ContractStatus.CANCELED)
+                        "
                       >
                         <i class="bi bi-x-circle-fill me-2"></i>
                         Cancelar contrato
