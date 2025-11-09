@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  LOCALE_ID,
   provideAppInitializer,
   provideZoneChangeDetection,
   inject,
@@ -29,6 +30,10 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([defaultOAuthInterceptor])),
     provideOAuthClient(authModuleConfig),
     provideCharts(withDefaultRegisterables()),
+    {
+      provide: LOCALE_ID,
+      useValue: 'es-CO',
+    },
     {
       provide: OAuthStorage,
       useFactory: storageFactory,

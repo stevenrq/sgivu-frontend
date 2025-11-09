@@ -13,6 +13,7 @@ import { Subscription, finalize, forkJoin, map, tap } from 'rxjs';
 import Swal from 'sweetalert2';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { PagerComponent } from '../../../pager/components/pager/pager.component';
+import { UtcToGmtMinus5Pipe } from '../../../../shared/pipes/utc-to-gmt-minus5.pipe';
 import { PurchaseSaleService } from '../../services/purchase-sale.service';
 import { PurchaseSale } from '../../models/purchase-sale.model';
 import { ContractType } from '../../models/contract-type.enum';
@@ -47,7 +48,13 @@ type ContractStatusFilter = ContractStatus | 'ALL';
 
 @Component({
   selector: 'app-purchase-sale-list',
-  imports: [CommonModule, FormsModule, HasPermissionDirective, PagerComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    HasPermissionDirective,
+    PagerComponent,
+    UtcToGmtMinus5Pipe,
+  ],
   templateUrl: './purchase-sale-list.component.html',
   styleUrl: './purchase-sale-list.component.css',
 })

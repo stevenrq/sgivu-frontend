@@ -22,6 +22,7 @@ import {
 } from 'rxjs';
 import Swal from 'sweetalert2';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
+import { parseUtcDate } from '../../../../shared/utils/date.utils';
 import { PurchaseSaleService } from '../../services/purchase-sale.service';
 import {
   PurchaseSale,
@@ -556,8 +557,8 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
         .filter((contract) => eligibleStatuses.has(contract.contractStatus))
         .sort(
           (a, b) =>
-            (new Date(b.updatedAt ?? '').getTime() || 0) -
-            (new Date(a.updatedAt ?? '').getTime() || 0),
+            (parseUtcDate(b.updatedAt ?? '')?.getTime() ?? 0) -
+            (parseUtcDate(a.updatedAt ?? '')?.getTime() ?? 0),
         )[0] ?? null
     );
   }

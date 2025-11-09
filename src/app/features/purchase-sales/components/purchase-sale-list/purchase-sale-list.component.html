@@ -214,7 +214,7 @@
                 <td>
                   <span class="fw-semibold">{{ contract.id }}</span>
                   <div class="text-muted small">
-                    {{ contract.createdAt | date: 'short' }}
+                    {{ contract.createdAt | utcToGmtMinus5 }}
                   </div>
                 </td>
                 <td>
@@ -249,7 +249,7 @@
                     {{ getStatusLabel(contract.contractStatus) }}
                   </span>
                 </td>
-                <td>{{ contract.updatedAt | date: 'short' }}</td>
+                <td>{{ contract.updatedAt | utcToGmtMinus5 }}</td>
                 <td class="text-center" *appHasPermission="'purchase_sale:update'">
                   <div class="btn-group">
                     <button
