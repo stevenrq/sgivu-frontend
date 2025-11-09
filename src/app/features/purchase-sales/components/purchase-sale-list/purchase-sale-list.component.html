@@ -116,7 +116,7 @@
           class="btn btn-outline-secondary btn-sm"
           type="button"
           (click)="resetReportDates()"
-          [disabled]="exportLoading.pdf || exportLoading.excel"
+          [disabled]="exportLoading.pdf || exportLoading.excel || exportLoading.csv"
         >
           <i class="bi bi-eraser"></i>
         </button>
@@ -142,6 +142,18 @@
             <span class="spinner-border spinner-border-sm"></span>
           } @else {
             <i class="bi bi-file-earmark-excel me-1"></i>Excel
+          }
+        </button>
+        <button
+          class="btn btn-outline-dark btn-sm"
+          type="button"
+          (click)="downloadReport('csv')"
+          [disabled]="exportLoading.csv"
+        >
+          @if (exportLoading.csv) {
+            <span class="spinner-border spinner-border-sm"></span>
+          } @else {
+            <i class="bi bi-filetype-csv me-1"></i>CSV
           }
         </button>
         <div class="input-group input-group-sm w-auto">

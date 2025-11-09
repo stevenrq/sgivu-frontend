@@ -59,6 +59,14 @@ export class PurchaseSaleService {
     });
   }
 
+  downloadCsv(startDate?: string | null, endDate?: string | null): Observable<Blob> {
+    const params = this.buildReportParams(startDate, endDate);
+    return this.http.get<Blob>(`${this.apiUrl}/report/csv`, {
+      params,
+      responseType: 'blob' as 'json',
+    });
+  }
+
   private buildReportParams(startDate?: string | null, endDate?: string | null): HttpParams {
     let params = new HttpParams();
     if (startDate) {

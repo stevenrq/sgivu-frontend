@@ -101,9 +101,10 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
   reportStartDate: string | null = null;
   reportEndDate: string | null = null;
-  exportLoading: Record<'pdf' | 'excel', boolean> = {
+  exportLoading: Record<'pdf' | 'excel' | 'csv', boolean> = {
     pdf: false,
     excel: false,
+    csv: false,
   };
 
   listState: PurchaseSaleListState = {
@@ -310,7 +311,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     this.reportEndDate = null;
   }
 
-  downloadReport(format: 'pdf' | 'excel'): void {
+  downloadReport(format: 'pdf' | 'excel' | 'csv'): void {
     if (this.reportStartDate && this.reportEndDate) {
       if (this.reportStartDate > this.reportEndDate) {
         void Swal.fire({
@@ -325,16 +326,13 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     this.exportLoading[format] = true;
     const start = this.reportStartDate ?? undefined;
     const end = this.reportEndDate ?? undefined;
-    const request$ =
-      format === 'pdf'
-        ? this.purchaseSaleService.downloadPdf(start, end)
-        : this.purchaseSaleService.downloadExcel(start, end);
+    const request$ = this.getReportObservable(format, start, end);
 
     request$
       .pipe(finalize(() => (this.exportLoading[format] = false)))
       .subscribe({
         next: (blob) => {
-          const extension = format === 'pdf' ? 'pdf' : 'xlsx';
+          const extension = this.getExtension(format);
           const fileName = this.buildReportFileName(extension);
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
@@ -352,7 +350,33 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       });
   }
 
-  private buildReportFileName(extension: 'pdf' | 'xlsx'): string {
+  private getReportObservable(
+    format: 'pdf' | 'excel' | 'csv',
+    start?: string,
+    end?: string,
+  ) {
+    switch (format) {
+      case 'pdf':
+        return this.purchaseSaleService.downloadPdf(start, end);
+      case 'excel':
+        return this.purchaseSaleService.downloadExcel(start, end);
+      case 'csv':
+      default:
+        return this.purchaseSaleService.downloadCsv(start, end);
+    }
+  }
+
+  private getExtension(format: 'pdf' | 'excel' | 'csv'): 'pdf' | 'xlsx' | 'csv' {
+    if (format === 'pdf') {
+      return 'pdf';
+    }
+    if (format === 'excel') {
+      return 'xlsx';
+    }
+    return 'csv';
+  }
+
+  private buildReportFileName(extension: 'pdf' | 'xlsx' | 'csv'): string {
     const today = new Date().toISOString().split('T')[0];
     const rangeLabel =
       this.reportStartDate || this.reportEndDate
