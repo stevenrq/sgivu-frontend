@@ -144,6 +144,17 @@ export class CarService {
     return this.http.get<Car[]>(`${this.apiUrl}/search`, { params });
   }
 
+  searchPaginated(
+    page: number,
+    filters: Partial<CarSearchFilters>,
+  ): Observable<PaginatedResponse<Car>> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<PaginatedResponse<Car>>(
+      `${this.apiUrl}/search/page/${page}`,
+      { params },
+    );
+  }
+
   private buildSearchParams(filters: Partial<CarSearchFilters>): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {

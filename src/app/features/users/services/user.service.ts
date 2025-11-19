@@ -109,4 +109,22 @@ export class UserService {
 
     return this.http.get<User[]>(`${this.apiUrl}/search`, { params });
   }
+
+  public searchUsersPaginated(
+    page: number,
+    filters: UserSearchFilters,
+  ): Observable<PaginatedResponse<User>> {
+    let params = new HttpParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+      params = params.set(key, String(value));
+    });
+
+    return this.http.get<PaginatedResponse<User>>(
+      `${this.apiUrl}/search/page/${page}`,
+      { params },
+    );
+  }
 }

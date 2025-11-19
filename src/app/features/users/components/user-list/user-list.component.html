@@ -280,7 +280,11 @@
           >Mostrando {{ pager.numberOfElements }} de
           {{ pager.totalElements }} usuarios</span
         >
-        <app-pager [pager]="pager" [url]="pagerUrl"></app-pager>
+        <app-pager
+          [pager]="pager"
+          [url]="pagerUrl"
+          [queryParams]="pagerQueryParams"
+        ></app-pager>
       </div>
     }
   </div>

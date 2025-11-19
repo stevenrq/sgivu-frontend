@@ -483,7 +483,11 @@
           >Mostrando {{ activePager.numberOfElements }} de
           {{ activePager.totalElements }} {{ activePagerLabel }}</span
         >
-        <app-pager [pager]="activePager" [url]="activePagerUrl"></app-pager>
+        <app-pager
+          [pager]="activePager"
+          [url]="activePagerUrl"
+          [queryParams]="activePagerQueryParams"
+        ></app-pager>
       </div>
     }
   </div>

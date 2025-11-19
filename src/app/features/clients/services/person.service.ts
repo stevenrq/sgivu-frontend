@@ -11,7 +11,7 @@ export interface PersonSearchFilters {
   email?: string;
   nationalId?: string;
   phoneNumber?: string;
-  enabled?: boolean | '';
+  enabled?: boolean | '' | 'true' | 'false';
   city?: string;
 }
 
@@ -105,6 +105,22 @@ export class PersonService {
   }
 
   public search(filters: PersonSearchFilters): Observable<Person[]> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<Person[]>(`${this.apiUrl}/search`, { params });
+  }
+
+  public searchPaginated(
+    page: number,
+    filters: PersonSearchFilters,
+  ): Observable<PaginatedResponse<Person>> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<PaginatedResponse<Person>>(
+      `${this.apiUrl}/search/page/${page}`,
+      { params },
+    );
+  }
+
+  private buildSearchParams(filters: PersonSearchFilters): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value === undefined || value === null || value === '') {
@@ -112,6 +128,6 @@ export class PersonService {
       }
       params = params.set(key, String(value));
     });
-    return this.http.get<Person[]>(`${this.apiUrl}/search`, { params });
+    return params;
   }
 }

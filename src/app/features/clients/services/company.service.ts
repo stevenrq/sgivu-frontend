@@ -11,7 +11,7 @@ export interface CompanySearchFilters {
   taxId?: string;
   email?: string;
   phoneNumber?: string;
-  enabled?: boolean | '';
+  enabled?: boolean | '' | 'true' | 'false';
   city?: string;
 }
 
@@ -105,6 +105,22 @@ export class CompanyService {
   }
 
   public search(filters: CompanySearchFilters): Observable<Company[]> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<Company[]>(`${this.apiUrl}/search`, { params });
+  }
+
+  public searchPaginated(
+    page: number,
+    filters: CompanySearchFilters,
+  ): Observable<PaginatedResponse<Company>> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<PaginatedResponse<Company>>(
+      `${this.apiUrl}/search/page/${page}`,
+      { params },
+    );
+  }
+
+  private buildSearchParams(filters: CompanySearchFilters): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value === undefined || value === null || value === '') {
@@ -112,6 +128,6 @@ export class CompanyService {
       }
       params = params.set(key, String(value));
     });
-    return this.http.get<Company[]>(`${this.apiUrl}/search`, { params });
+    return params;
   }
 }

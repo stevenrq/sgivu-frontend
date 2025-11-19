@@ -1,8 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Observable, Subscription, finalize, forkJoin } from 'rxjs';
+import {
+  ActivatedRoute,
+  ParamMap,
+  Params,
+  Router,
+  RouterLink,
+} from '@angular/router';
+import { Observable, Subscription, combineLatest, finalize, forkJoin } from 'rxjs';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { PagerComponent } from '../../../pager/components/pager/pager.component';
 import { PaginatedResponse } from '../../../../shared/models/paginated-response';
@@ -29,12 +35,6 @@ interface UserLoadConfig<T extends User> {
   fetchPager: (page: number) => Observable<PaginatedResponse<T>>;
   fetchCounts: () => Observable<unknown>;
   onPageResolved: (page: number) => void;
-  errorMessage: string;
-}
-
-interface UserSearchConfig<T extends User> {
-  state: UserListState<T>;
-  search: (filters: UserSearchFilters) => Observable<T[]>;
   errorMessage: string;
 }
 
@@ -86,6 +86,8 @@ export class UserListComponent implements OnInit, OnDestroy {
   private readonly userState = this.createInitialState<User>();
   private readonly subscriptions: Subscription[] = [];
   private currentPage = 0;
+  private activeUserFilters: UserSearchFilters | null = null;
+  private userQueryParams: Params | null = null;
 
   constructor(
     private readonly userService: UserService,
@@ -95,16 +97,24 @@ export class UserListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const routeSub = this.route.paramMap.subscribe((params) => {
+    const routeSub = combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap,
+    ]).subscribe(([params, query]) => {
       const pageParam = params.get('page');
       const page = this.parsePage(pageParam);
 
+      const filterInfo = this.extractUserFiltersFromQuery(query);
+      this.filters = filterInfo.uiState;
+      this.activeUserFilters = filterInfo.filters;
+      this.userQueryParams = filterInfo.queryParams;
+
       if (page < 0) {
-        this.navigateToPage(0);
+        this.navigateToPage(0, filterInfo.queryParams ?? undefined);
         return;
       }
 
-      this.loadUsers(page);
+      this.loadUsers(page, this.activeUserFilters ?? undefined);
     });
 
     this.subscriptions.push(routeSub);
@@ -172,6 +182,10 @@ export class UserListComponent implements OnInit, OnDestroy {
     return this.metadata.pagerUrl.join('/');
   }
 
+  get pagerQueryParams(): Params | null {
+    return this.userQueryParams;
+  }
+
   get emptyMessage(): string {
     return this.metadata.emptyMessage;
   }
@@ -182,19 +196,27 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   protected reset(): void {
     this.filters = this.createDefaultFilters();
-    this.reloadCurrentPage();
+    this.activeUserFilters = null;
+    this.userQueryParams = null;
+    this.navigateToPage(0);
   }
 
   public updateStatus(id: number, status: boolean): void {
     this.userUiHelper.updateStatus(id, status, () => this.reloadCurrentPage());
   }
 
-  private loadUsers(page: number): void {
+  private loadUsers(page: number, filters?: UserSearchFilters): void {
+    const activeFilters =
+      filters && !this.areFiltersEmpty(filters)
+        ? filters
+        : undefined;
     this.loadEntities<User>({
       page,
       state: this.userState,
       fetchPager: (requestedPage) =>
-        this.userService.getAllPaginated(requestedPage),
+        activeFilters
+          ? this.userService.searchUsersPaginated(requestedPage, activeFilters)
+          : this.userService.getAllPaginated(requestedPage),
       fetchCounts: () => this.userService.getUserCount(),
       onPageResolved: (resolvedPage) => this.setCurrentPage(resolvedPage),
       errorMessage: 'Error al cargar usuarios.',
@@ -246,15 +268,12 @@ export class UserListComponent implements OnInit, OnDestroy {
   private performSearch(): void {
     const activeFilters = this.buildActiveFilters();
     if (this.areFiltersEmpty(activeFilters)) {
-      this.reloadCurrentPage();
+      this.navigateToPage(0);
       return;
     }
 
-    this.searchEntities<User>(activeFilters, {
-      state: this.userState,
-      search: (query) => this.userService.searchUsers(query),
-      errorMessage: 'Error al buscar usuarios.',
-    });
+    const queryParams = this.buildUserQueryParams(activeFilters);
+    this.navigateToPage(0, queryParams ?? undefined);
   }
 
   private buildActiveFilters(): UserSearchFilters {
@@ -280,29 +299,69 @@ export class UserListComponent implements OnInit, OnDestroy {
     );
   }
 
-  private searchEntities<T extends User>(
-    filters: UserSearchFilters,
-    config: UserSearchConfig<T>,
-  ): void {
-    const { state, search, errorMessage } = config;
-    state.loading = true;
-    state.error = null;
+  private extractUserFiltersFromQuery(
+    map: ParamMap,
+  ): {
+    filters: UserSearchFilters | null;
+    uiState: UserSearchFilters & { enabled?: boolean | null };
+    queryParams: Params | null;
+  } {
+    const uiState = this.createDefaultFilters();
+    const filters: UserSearchFilters = {};
 
-    const search$ = search(filters)
-      .pipe(finalize(() => (state.loading = false)))
-      .subscribe({
-        next: (items) => {
-          state.items = items;
-          state.pager = undefined;
-          this.updateDerivedCountsFromList(items);
-        },
-        error: (err) => {
-          console.error(err);
-          state.error = errorMessage;
-        },
-      });
+    const assign = (
+      paramKey: string,
+      targetKey: keyof UserSearchFilters,
+    ): void => {
+      const value = map.get(paramKey);
+      if (value) {
+        (filters as Record<string, unknown>)[targetKey] = value;
+        (uiState as Record<string, unknown>)[targetKey] = value;
+      }
+    };
 
-    this.subscriptions.push(search$);
+    assign('userName', 'name');
+    assign('userUsername', 'username');
+    assign('userEmail', 'email');
+    assign('userRole', 'role');
+
+    const enabledValue = map.get('userEnabled');
+    if (enabledValue !== null) {
+      const enabled = enabledValue === 'true';
+      filters.enabled = enabled;
+      uiState.enabled = enabled;
+    } else {
+      uiState.enabled = null;
+    }
+
+    const hasFilters = !this.areFiltersEmpty(filters);
+    return {
+      filters: hasFilters ? filters : null,
+      uiState,
+      queryParams: hasFilters ? this.buildUserQueryParams(filters) : null,
+    };
+  }
+
+  private buildUserQueryParams(filters: UserSearchFilters): Params | null {
+    const params: Params = {};
+
+    if (filters.name) {
+      params['userName'] = filters.name;
+    }
+    if (filters.username) {
+      params['userUsername'] = filters.username;
+    }
+    if (filters.email) {
+      params['userEmail'] = filters.email;
+    }
+    if (filters.role) {
+      params['userRole'] = filters.role;
+    }
+    if (filters.enabled !== undefined) {
+      params['userEnabled'] = String(filters.enabled);
+    }
+
+    return Object.keys(params).length ? params : null;
   }
 
   private updateDerivedCountsFromList(items: User[]): void {
@@ -391,10 +450,15 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   private reloadCurrentPage(): void {
-    this.loadUsers(this.currentPage);
+    this.loadUsers(this.currentPage, this.activeUserFilters ?? undefined);
   }
 
-  private navigateToPage(page: number): void {
-    void this.router.navigate([...this.metadata.pagerUrl, page]);
+  private navigateToPage(page: number, queryParams?: Params): void {
+    const commands = [...this.metadata.pagerUrl, page];
+    if (queryParams) {
+      void this.router.navigate(commands, { queryParams });
+    } else {
+      void this.router.navigate(commands);
+    }
   }
 }

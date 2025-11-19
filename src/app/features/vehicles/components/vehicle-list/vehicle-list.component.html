@@ -680,7 +680,11 @@
 
     @if (activeState.pager) {
       <div class="card-footer d-flex justify-content-end">
-        <app-pager [pager]="activeState.pager!" [url]="pagerUrl"></app-pager>
+        <app-pager
+          [pager]="activeState.pager!"
+          [url]="pagerUrl"
+          [queryParams]="pagerQueryParams"
+        ></app-pager>
       </div>
     }
   </div>

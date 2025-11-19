@@ -1,15 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  ActivatedRoute,
+  Params,
+  ParamMap,
+  Router,
+  RouterLink,
+} from '@angular/router';
 import {
   combineLatest,
   finalize,
   forkJoin,
   map,
-  of,
   Subscription,
-  switchMap,
   Observable,
 } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -103,6 +107,10 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   private currentMotorcyclePage = 0;
   private readonly subscriptions: Subscription[] = [];
   private readonly priceDecimals = 0;
+  private activeCarFilters: CarSearchFilters | null = null;
+  private activeMotorcycleFilters: MotorcycleSearchFilters | null = null;
+  private carQueryParams: Params | null = null;
+  private motorcycleQueryParams: Params | null = null;
 
   constructor(
     private readonly carService: CarService,
@@ -113,38 +121,51 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const sub = combineLatest([this.route.paramMap, this.route.data])
-      .pipe(
-        switchMap(([params, data]) => {
-          const requestedTab = this.normalizeTab(data['vehicleType']);
-          const tabChanged = this.activeTab !== requestedTab;
-          this.activeTab = requestedTab;
+    const sub = combineLatest([
+      this.route.paramMap,
+      this.route.data,
+      this.route.queryParamMap,
+    ]).subscribe(([params, data, query]) => {
+      const requestedTab = this.normalizeTab(data['vehicleType']);
+      const tabChanged = this.activeTab !== requestedTab;
+      this.activeTab = requestedTab;
 
-          const pageParam = params.get('page');
-          const page = this.parsePage(pageParam);
-          if (Number.isNaN(page) || page < 0) {
-            this.navigateToPage(0, this.activeTab);
-            return of(null);
-          }
+      if (tabChanged) {
+        this.resetSearchFilters(requestedTab);
+      }
 
-          if (tabChanged) {
-            this.resetSearchFilters(requestedTab);
-          }
+      const pageParam = params.get('page');
+      const page = this.parsePage(pageParam);
 
-          return of({ page });
-        }),
-      )
-      .subscribe((result) => {
-        if (!result) {
-          return;
-        }
+      if (this.activeTab === 'car') {
+        const info = this.extractCarFiltersFromQuery(query);
+        this.carFilters = info.uiState;
+        this.carPriceInputs = info.priceInputs;
+        this.activeCarFilters = info.filters;
+        this.carQueryParams = info.queryParams;
+      } else {
+        const info = this.extractMotorcycleFiltersFromQuery(query);
+        this.motorcycleFilters = info.uiState;
+        this.motorcyclePriceInputs = info.priceInputs;
+        this.activeMotorcycleFilters = info.filters;
+        this.motorcycleQueryParams = info.queryParams;
+      }
 
-        if (this.activeTab === 'car') {
-          this.loadCars(result.page);
-        } else {
-          this.loadMotorcycles(result.page);
-        }
-      });
+      if (Number.isNaN(page) || page < 0) {
+        this.navigateToPage(
+          0,
+          this.activeTab,
+          this.getQueryParamsForTab(this.activeTab) ?? undefined,
+        );
+        return;
+      }
+
+      if (this.activeTab === 'car') {
+        this.loadCars(page, this.activeCarFilters ?? undefined);
+      } else {
+        this.loadMotorcycles(page, this.activeMotorcycleFilters ?? undefined);
+      }
+    });
 
     this.subscriptions.push(sub);
   }
@@ -165,6 +186,12 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     return this.activeTab === 'car'
       ? '/vehicles/cars/page'
       : '/vehicles/motorcycles/page';
+  }
+
+  get pagerQueryParams(): Params | null {
+    return this.activeTab === 'car'
+      ? this.carQueryParams
+      : this.motorcycleQueryParams;
   }
 
   startPurchaseFlow(): void {
@@ -200,22 +227,49 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       return;
     }
     this.activeTab = tab;
-    this.navigateToPage(this.getCurrentPage(tab), tab);
+    this.navigateToPage(
+      this.getCurrentPage(tab),
+      tab,
+      this.getQueryParamsForTab(tab) ?? undefined,
+    );
   }
 
   onCarSearch(): void {
     this.syncPriceFilters('car');
-    this.performSearch('car');
+    if (
+      this.areFiltersEmpty(this.carFilters as Record<string, unknown>)
+    ) {
+      this.clearFilters('car');
+      return;
+    }
+    const queryParams = this.buildCarQueryParams(this.carFilters);
+    this.navigateToPage(0, 'car', queryParams ?? undefined);
   }
 
   onMotorcycleSearch(): void {
     this.syncPriceFilters('motorcycle');
-    this.performSearch('motorcycle');
+    if (
+      this.areFiltersEmpty(this.motorcycleFilters as Record<string, unknown>)
+    ) {
+      this.clearFilters('motorcycle');
+      return;
+    }
+    const queryParams = this.buildMotorcycleQueryParams(
+      this.motorcycleFilters,
+    );
+    this.navigateToPage(0, 'motorcycle', queryParams ?? undefined);
   }
 
   clearFilters(tab: VehicleTab): void {
     this.resetSearchFilters(tab);
-    this.reloadTab(tab);
+    if (tab === 'car') {
+      this.activeCarFilters = null;
+      this.carQueryParams = null;
+    } else {
+      this.activeMotorcycleFilters = null;
+      this.motorcycleQueryParams = null;
+    }
+    this.navigateToPage(0, tab);
   }
 
   changeCarStatus(car: Car, status: VehicleStatus): void {
@@ -324,49 +378,68 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadCars(page: number): void {
+  private loadCars(page: number, filters?: CarSearchFilters): void {
+    const activeFilters =
+      filters && !this.areFiltersEmpty(filters as Record<string, unknown>)
+        ? filters
+        : undefined;
     this.loadVehicles<Car>({
       page,
       state: this.carState,
       type: 'car',
       fetchPager: (requestedPage) =>
-        this.carService.getAllPaginated(requestedPage),
+        activeFilters
+          ? this.carService.searchPaginated(requestedPage, activeFilters)
+          : this.carService.getAllPaginated(requestedPage),
       fetchCounts: () => this.carService.getCounts(),
       onPageResolved: (resolvedPage) =>
         this.setCurrentPage('car', resolvedPage),
       errorMessage: 'Error al cargar los automóviles.',
-      fallbackCounts: () =>
-        this.carService.getAll().pipe(
-          map(
-            (cars): VehicleFallbackResult<Car> => ({
-              ...this.buildFallbackCounts(cars),
-              items: cars,
-            }),
-          ),
-        ),
+      fallbackCounts: activeFilters
+        ? undefined
+        : () =>
+            this.carService.getAll().pipe(
+              map(
+                (cars): VehicleFallbackResult<Car> => ({
+                  ...this.buildFallbackCounts(cars),
+                  items: cars,
+                }),
+              ),
+            ),
     });
   }
 
-  private loadMotorcycles(page: number): void {
+  private loadMotorcycles(
+    page: number,
+    filters?: MotorcycleSearchFilters,
+  ): void {
+    const activeFilters =
+      filters && !this.areFiltersEmpty(filters as Record<string, unknown>)
+        ? filters
+        : undefined;
     this.loadVehicles<Motorcycle>({
       page,
       state: this.motorcycleState,
       type: 'motorcycle',
       fetchPager: (requestedPage) =>
-        this.motorcycleService.getAllPaginated(requestedPage),
+        activeFilters
+          ? this.motorcycleService.searchPaginated(requestedPage, activeFilters)
+          : this.motorcycleService.getAllPaginated(requestedPage),
       fetchCounts: () => this.motorcycleService.getCounts(),
       onPageResolved: (resolvedPage) =>
         this.setCurrentPage('motorcycle', resolvedPage),
       errorMessage: 'Error al cargar las motocicletas.',
-      fallbackCounts: () =>
-        this.motorcycleService.getAll().pipe(
-          map(
-            (motorcycles): VehicleFallbackResult<Motorcycle> => ({
-              ...this.buildFallbackCounts(motorcycles),
-              items: motorcycles,
-            }),
-          ),
-        ),
+      fallbackCounts: activeFilters
+        ? undefined
+        : () =>
+            this.motorcycleService.getAll().pipe(
+              map(
+                (motorcycles): VehicleFallbackResult<Motorcycle> => ({
+                  ...this.buildFallbackCounts(motorcycles),
+                  items: motorcycles,
+                }),
+              ),
+            ),
     });
   }
 
@@ -479,70 +552,15 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(loader$);
   }
 
-  private performSearch(tab: VehicleTab): void {
-    if (tab === 'car') {
-      if (this.areFiltersEmpty(this.carFilters as Record<string, unknown>)) {
-        this.reloadTab('car');
-        return;
-      }
-
-      this.runVehicleSearch<Car>(
-        'car',
-        this.carState,
-        this.carService.search(this.carFilters),
-      );
-      return;
-    }
-
-    if (
-      this.areFiltersEmpty(this.motorcycleFilters as Record<string, unknown>)
-    ) {
-      this.reloadTab('motorcycle');
-      return;
-    }
-
-    this.runVehicleSearch<Motorcycle>(
-      'motorcycle',
-      this.motorcycleState,
-      this.motorcycleService.search(this.motorcycleFilters),
-    );
-  }
-
-  private runVehicleSearch<T extends VehicleEntity>(
-    tab: VehicleTab,
-    state: VehicleListState<T>,
-    search$: Observable<T[]>,
-  ): void {
-    state.loading = true;
-    state.error = null;
-
-    const sub = search$
-      .pipe(
-        finalize(() => {
-          state.loading = false;
-        }),
-      )
-      .subscribe({
-        next: (items: T[]) => {
-          state.items = items;
-          state.pager = undefined;
-          this.setCountsFromItems(tab, items);
-        },
-        error: (err: unknown) => {
-          console.error(err);
-          state.error = 'No fue posible realizar la búsqueda.';
-        },
-      });
-
-    this.subscriptions.push(sub);
-  }
-
   private reloadTab(tab: VehicleTab): void {
     if (tab === 'car') {
-      this.loadCars(this.currentCarPage);
+      this.loadCars(this.currentCarPage, this.activeCarFilters ?? undefined);
       return;
     }
-    this.loadMotorcycles(this.currentMotorcyclePage);
+    this.loadMotorcycles(
+      this.currentMotorcyclePage,
+      this.activeMotorcycleFilters ?? undefined,
+    );
   }
 
   private parsePage(raw: string | null): number {
@@ -561,10 +579,14 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     if (tab === 'car') {
       this.carFilters = this.createCarFilterState();
       this.carPriceInputs = { minSalePrice: '', maxSalePrice: '' };
+       this.activeCarFilters = null;
+       this.carQueryParams = null;
       return;
     }
     this.motorcycleFilters = this.createMotorcycleFilterState();
     this.motorcyclePriceInputs = { minSalePrice: '', maxSalePrice: '' };
+    this.activeMotorcycleFilters = null;
+    this.motorcycleQueryParams = null;
   }
 
   onCarPriceInput(field: 'minSalePrice' | 'maxSalePrice', rawValue: string): void {
@@ -602,6 +624,334 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       'maxSalePrice',
       this.motorcyclePriceInputs.maxSalePrice,
     );
+  }
+
+  private extractCarFiltersFromQuery(
+    map: ParamMap,
+  ): {
+    filters: CarSearchFilters | null;
+    uiState: CarSearchFilters;
+    priceInputs: Record<'minSalePrice' | 'maxSalePrice', string>;
+    queryParams: Params | null;
+  } {
+    const uiState = this.createCarFilterState();
+    const priceInputs: Record<'minSalePrice' | 'maxSalePrice', string> = {
+      minSalePrice: '',
+      maxSalePrice: '',
+    };
+    const filters: CarSearchFilters = {};
+
+    const assignText = (
+      paramKey: string,
+      setter: (value: string) => void,
+    ): void => {
+      const value = map.get(paramKey);
+      if (value) {
+        setter(value);
+      }
+    };
+
+    assignText('carPlate', (value) => {
+      filters.plate = value;
+      uiState.plate = value;
+    });
+    assignText('carBrand', (value) => {
+      filters.brand = value;
+      uiState.brand = value;
+    });
+    assignText('carLine', (value) => {
+      filters.line = value;
+      uiState.line = value;
+    });
+    assignText('carModel', (value) => {
+      filters.model = value;
+      uiState.model = value;
+    });
+    assignText('carFuelType', (value) => {
+      filters.fuelType = value;
+      uiState.fuelType = value;
+    });
+    assignText('carBodyType', (value) => {
+      filters.bodyType = value;
+      uiState.bodyType = value;
+    });
+    assignText('carTransmission', (value) => {
+      filters.transmission = value;
+      uiState.transmission = value;
+    });
+    assignText('carCity', (value) => {
+      filters.cityRegistered = value;
+      uiState.cityRegistered = value;
+    });
+
+    const statusValue = map.get('carStatus');
+    if (statusValue) {
+      filters.status = statusValue as VehicleStatus;
+      uiState.status = statusValue as VehicleStatus;
+    }
+
+    const minYear = this.toNumber(map.get('carMinYear'));
+    if (minYear !== null) {
+      filters.minYear = minYear;
+      uiState.minYear = minYear;
+    }
+    const maxYear = this.toNumber(map.get('carMaxYear'));
+    if (maxYear !== null) {
+      filters.maxYear = maxYear;
+      uiState.maxYear = maxYear;
+    }
+
+    const minCapacity = this.toNumber(map.get('carMinCapacity'));
+    if (minCapacity !== null) {
+      filters.minCapacity = minCapacity;
+      uiState.minCapacity = minCapacity;
+    }
+    const maxCapacity = this.toNumber(map.get('carMaxCapacity'));
+    if (maxCapacity !== null) {
+      filters.maxCapacity = maxCapacity;
+      uiState.maxCapacity = maxCapacity;
+    }
+
+    const minMileage = this.toNumber(map.get('carMinMileage'));
+    if (minMileage !== null) {
+      filters.minMileage = minMileage;
+      uiState.minMileage = minMileage;
+    }
+    const maxMileage = this.toNumber(map.get('carMaxMileage'));
+    if (maxMileage !== null) {
+      filters.maxMileage = maxMileage;
+      uiState.maxMileage = maxMileage;
+    }
+
+    const minSalePrice = this.toNumber(map.get('carMinSalePrice'));
+    if (minSalePrice !== null) {
+      filters.minSalePrice = minSalePrice;
+      uiState.minSalePrice = minSalePrice;
+      priceInputs.minSalePrice = String(minSalePrice);
+    } else {
+      priceInputs.minSalePrice = '';
+    }
+
+    const maxSalePrice = this.toNumber(map.get('carMaxSalePrice'));
+    if (maxSalePrice !== null) {
+      filters.maxSalePrice = maxSalePrice;
+      uiState.maxSalePrice = maxSalePrice;
+      priceInputs.maxSalePrice = String(maxSalePrice);
+    } else {
+      priceInputs.maxSalePrice = '';
+    }
+
+    const hasFilters = !this.areFiltersEmpty(filters as Record<string, unknown>);
+
+    return {
+      filters: hasFilters ? filters : null,
+      uiState,
+      priceInputs,
+      queryParams: hasFilters ? this.buildCarQueryParams(filters) : null,
+    };
+  }
+
+  private extractMotorcycleFiltersFromQuery(
+    map: ParamMap,
+  ): {
+    filters: MotorcycleSearchFilters | null;
+    uiState: MotorcycleSearchFilters;
+    priceInputs: Record<'minSalePrice' | 'maxSalePrice', string>;
+    queryParams: Params | null;
+  } {
+    const uiState = this.createMotorcycleFilterState();
+    const priceInputs: Record<'minSalePrice' | 'maxSalePrice', string> = {
+      minSalePrice: '',
+      maxSalePrice: '',
+    };
+    const filters: MotorcycleSearchFilters = {};
+
+    const assignText = (
+      paramKey: string,
+      setter: (value: string) => void,
+    ): void => {
+      const value = map.get(paramKey);
+      if (value) {
+        setter(value);
+      }
+    };
+
+    assignText('motorcyclePlate', (value) => {
+      filters.plate = value;
+      uiState.plate = value;
+    });
+    assignText('motorcycleBrand', (value) => {
+      filters.brand = value;
+      uiState.brand = value;
+    });
+    assignText('motorcycleLine', (value) => {
+      filters.line = value;
+      uiState.line = value;
+    });
+    assignText('motorcycleModel', (value) => {
+      filters.model = value;
+      uiState.model = value;
+    });
+    assignText('motorcycleType', (value) => {
+      filters.motorcycleType = value;
+      uiState.motorcycleType = value;
+    });
+    assignText('motorcycleTransmission', (value) => {
+      filters.transmission = value;
+      uiState.transmission = value;
+    });
+    assignText('motorcycleCity', (value) => {
+      filters.cityRegistered = value;
+      uiState.cityRegistered = value;
+    });
+
+    const statusValue = map.get('motorcycleStatus');
+    if (statusValue) {
+      filters.status = statusValue as VehicleStatus;
+      uiState.status = statusValue as VehicleStatus;
+    }
+
+    const minYear = this.toNumber(map.get('motorcycleMinYear'));
+    if (minYear !== null) {
+      filters.minYear = minYear;
+      uiState.minYear = minYear;
+    }
+    const maxYear = this.toNumber(map.get('motorcycleMaxYear'));
+    if (maxYear !== null) {
+      filters.maxYear = maxYear;
+      uiState.maxYear = maxYear;
+    }
+
+    const minCapacity = this.toNumber(map.get('motorcycleMinCapacity'));
+    if (minCapacity !== null) {
+      filters.minCapacity = minCapacity;
+      uiState.minCapacity = minCapacity;
+    }
+    const maxCapacity = this.toNumber(map.get('motorcycleMaxCapacity'));
+    if (maxCapacity !== null) {
+      filters.maxCapacity = maxCapacity;
+      uiState.maxCapacity = maxCapacity;
+    }
+
+    const minMileage = this.toNumber(map.get('motorcycleMinMileage'));
+    if (minMileage !== null) {
+      filters.minMileage = minMileage;
+      uiState.minMileage = minMileage;
+    }
+    const maxMileage = this.toNumber(map.get('motorcycleMaxMileage'));
+    if (maxMileage !== null) {
+      filters.maxMileage = maxMileage;
+      uiState.maxMileage = maxMileage;
+    }
+
+    const minSalePrice = this.toNumber(map.get('motorcycleMinSalePrice'));
+    if (minSalePrice !== null) {
+      filters.minSalePrice = minSalePrice;
+      uiState.minSalePrice = minSalePrice;
+      priceInputs.minSalePrice = String(minSalePrice);
+    } else {
+      priceInputs.minSalePrice = '';
+    }
+
+    const maxSalePrice = this.toNumber(map.get('motorcycleMaxSalePrice'));
+    if (maxSalePrice !== null) {
+      filters.maxSalePrice = maxSalePrice;
+      uiState.maxSalePrice = maxSalePrice;
+      priceInputs.maxSalePrice = String(maxSalePrice);
+    } else {
+      priceInputs.maxSalePrice = '';
+    }
+
+    const hasFilters = !this.areFiltersEmpty(filters as Record<string, unknown>);
+
+    return {
+      filters: hasFilters ? filters : null,
+      uiState,
+      priceInputs,
+      queryParams: hasFilters ? this.buildMotorcycleQueryParams(filters) : null,
+    };
+  }
+
+  private buildCarQueryParams(filters: CarSearchFilters): Params | null {
+    const params: Params = {};
+
+    const assignString = (key: string, value?: string | null) => {
+      if (value && value.trim().length > 0) {
+        params[key] = value;
+      }
+    };
+    const assignNumber = (key: string, value?: number | null) => {
+      if (value !== undefined && value !== null) {
+        params[key] = String(value);
+      }
+    };
+
+    assignString('carPlate', filters.plate);
+    assignString('carBrand', filters.brand);
+    assignString('carLine', filters.line);
+    assignString('carModel', filters.model);
+    assignString('carFuelType', filters.fuelType);
+    assignString('carBodyType', filters.bodyType);
+    assignString('carTransmission', filters.transmission);
+    assignString('carCity', filters.cityRegistered);
+
+    if (filters.status) {
+      params['carStatus'] = filters.status;
+    }
+
+    assignNumber('carMinYear', filters.minYear);
+    assignNumber('carMaxYear', filters.maxYear);
+    assignNumber('carMinCapacity', filters.minCapacity);
+    assignNumber('carMaxCapacity', filters.maxCapacity);
+    assignNumber('carMinMileage', filters.minMileage);
+    assignNumber('carMaxMileage', filters.maxMileage);
+    assignNumber('carMinSalePrice', filters.minSalePrice);
+    assignNumber('carMaxSalePrice', filters.maxSalePrice);
+
+    return Object.keys(params).length ? params : null;
+  }
+
+  private buildMotorcycleQueryParams(
+    filters: MotorcycleSearchFilters,
+  ): Params | null {
+    const params: Params = {};
+    const assignString = (key: string, value?: string | null) => {
+      if (value && value.trim().length > 0) {
+        params[key] = value;
+      }
+    };
+    const assignNumber = (key: string, value?: number | null) => {
+      if (value !== undefined && value !== null) {
+        params[key] = String(value);
+      }
+    };
+
+    assignString('motorcyclePlate', filters.plate);
+    assignString('motorcycleBrand', filters.brand);
+    assignString('motorcycleLine', filters.line);
+    assignString('motorcycleModel', filters.model);
+    assignString('motorcycleType', filters.motorcycleType);
+    assignString('motorcycleTransmission', filters.transmission);
+    assignString('motorcycleCity', filters.cityRegistered);
+
+    if (filters.status) {
+      params['motorcycleStatus'] = filters.status;
+    }
+
+    assignNumber('motorcycleMinYear', filters.minYear);
+    assignNumber('motorcycleMaxYear', filters.maxYear);
+    assignNumber('motorcycleMinCapacity', filters.minCapacity);
+    assignNumber('motorcycleMaxCapacity', filters.maxCapacity);
+    assignNumber('motorcycleMinMileage', filters.minMileage);
+    assignNumber('motorcycleMaxMileage', filters.maxMileage);
+    assignNumber('motorcycleMinSalePrice', filters.minSalePrice);
+    assignNumber('motorcycleMaxSalePrice', filters.maxSalePrice);
+
+    return Object.keys(params).length ? params : null;
+  }
+
+  private getQueryParamsForTab(tab: VehicleTab): Params | null {
+    return tab === 'car' ? this.carQueryParams : this.motorcycleQueryParams;
   }
 
   private createInitialState<T extends VehicleEntity>(): VehicleListState<T> {
@@ -671,12 +1021,20 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     this.currentMotorcyclePage = page;
   }
 
-  private navigateToPage(page: number, tab: VehicleTab): void {
+  private navigateToPage(
+    page: number,
+    tab: VehicleTab,
+    queryParams?: Params,
+  ): void {
     const commands =
       tab === 'car'
         ? ['/vehicles/cars/page', page]
         : ['/vehicles/motorcycles/page', page];
-    void this.router.navigate(commands);
+    if (queryParams) {
+      void this.router.navigate(commands, { queryParams });
+    } else {
+      void this.router.navigate(commands);
+    }
   }
 
   private computeCountsFromItems(items: VehicleEntity[]): {

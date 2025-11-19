@@ -157,6 +157,17 @@ export class MotorcycleService {
     return this.http.get<Motorcycle[]>(`${this.apiUrl}/search`, { params });
   }
 
+  searchPaginated(
+    page: number,
+    filters: Partial<MotorcycleSearchFilters>,
+  ): Observable<PaginatedResponse<Motorcycle>> {
+    const params = this.buildSearchParams(filters);
+    return this.http.get<PaginatedResponse<Motorcycle>>(
+      `${this.apiUrl}/search/page/${page}`,
+      { params },
+    );
+  }
+
   private buildSearchParams(
     filters: Partial<MotorcycleSearchFilters>,
   ): HttpParams {
