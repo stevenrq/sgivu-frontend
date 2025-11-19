@@ -65,6 +65,11 @@ interface ViewCopy {
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css',
 })
+/**
+ * Gestiona la creación y edición de usuarios, incluyendo dirección anidada,
+ * alternancia entre modos (autoedición vs. administración) y reglas dinámicas
+ * para el campo de contraseña según el contexto.
+ */
 export class UserFormComponent implements OnInit, OnDestroy {
   formGroup: FormGroup<UserFormControls>;
   showPassword = false;
@@ -306,6 +311,11 @@ export class UserFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Ajusta dinámicamente las validaciones de contraseña. En modo edición permite
+   * dejar el campo vacío para conservar el valor actual, pero exige los
+   * validadores si el usuario escribe algo.
+   */
   private configurePasswordWatcher(): void {
     const passwordControl = this.password;
     if (!passwordControl) {
@@ -332,6 +342,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
+  /**
+   * Cambia el formulario a modo edición, aplicando reglas de contraseña,
+   * guardando el id actual y cargando la información del usuario.
+   *
+   * @param id - Identificador del usuario a editar.
+   */
   private activateEditMode(id: number): void {
     if (this.currentUserId === id && this.isEditMode) {
       return;
@@ -343,6 +359,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.loadUserForEdit(id);
   }
 
+  /**
+   * Obtiene los datos del usuario desde la API, rellena el formulario y maneja
+   * el estado de carga/errores cuando no se encuentra la información.
+   *
+   * @param id - Identificador del usuario que se va a editar.
+   */
   private loadUserForEdit(id: number): void {
     this.loadingSignal.set(true);
 
@@ -380,6 +402,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
+  /**
+   * Restaura el formulario a su estado inicial para crear usuarios nuevos,
+   * reactivando los validadores obligatorios y limpiando ids previos.
+   */
   private resetToCreateMode(): void {
     this.isEditMode = false;
     this.currentUserId = null;
@@ -390,12 +416,20 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.formGroup.markAsUntouched();
   }
 
+  /**
+   * Limpia el campo de contraseña y elimina los validadores para que las
+   * ediciones no obliguen a asignar una nueva clave.
+   */
   private applyEditPasswordBehaviour(): void {
     this.password?.setValue('', { emitEvent: false });
     this.password?.clearValidators();
     this.password?.updateValueAndValidity({ emitEvent: false });
   }
 
+  /**
+   * Reasigna los validadores estrictos de contraseña cuando el formulario vuelve
+   * al modo de creación.
+   */
   private applyCreatePasswordBehaviour(): void {
     this.password?.setValidators([
       Validators.required,
@@ -405,6 +439,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
     this.password?.updateValueAndValidity({ emitEvent: false });
   }
 
+  /**
+   * Genera la configuración necesaria para enviar el formulario, seleccionando
+   * entre crear o actualizar y resolviendo los mensajes de feedback.
+   *
+   * @returns Configuración con observable de la petición y textos para la UI.
+   */
   private buildSubmitConfig(): SubmitConfig {
     const payload = this.buildUserPayload();
 
@@ -425,6 +465,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
     };
   }
 
+  /**
+   * Normaliza el formulario y construye el payload que espera el backend.
+   * Incluye trims, cast numéricos y eliminación condicional de la contraseña.
+   *
+   * @returns Objeto listo para enviarse al servicio de usuarios.
+   */
   private buildUserPayload(): Partial<User> {
     const raw = this.formGroup.getRawValue();
     const payload: Partial<User> = {
@@ -449,6 +495,12 @@ export class UserFormComponent implements OnInit, OnDestroy {
     return payload;
   }
 
+  /**
+   * Extrae la dirección embebida, aplica trims y agrega el `id` cuando se
+   * edita, manteniendo la compatibilidad con la API.
+   *
+   * @returns Dirección normalizada que se adjunta al payload del usuario.
+   */
   private normalizeAddress(): Address {
     const addressGroup = this.addressGroup?.getRawValue() ?? {
       street: '',

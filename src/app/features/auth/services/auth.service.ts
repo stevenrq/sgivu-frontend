@@ -19,6 +19,12 @@ enum OAuthEventType {
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Encapsula la integración con `angular-oauth2-oidc`, centralizando la lógica
+ * de autenticación, manejo de tokens y recuperación del usuario actual. Este
+ * servicio sirve como única fuente de verdad para el estado de sesión en toda
+ * la aplicación.
+ */
 export class AuthService {
   private readonly isAuthenticatedSubject$ = new BehaviorSubject<boolean>(
     false,
@@ -65,6 +71,11 @@ export class AuthService {
     this.setupOAuthEventListeners();
   }
 
+  /**
+   * Realiza la configuración inicial: intenta completar el login silencioso,
+   * actualiza el estado de autenticación y, si aplica, recupera al usuario.
+   * También marca cuando terminó la carga para que los guards puedan avanzar.
+   */
   public async initializeAuthentication(): Promise<void> {
     await this.oauthService.loadDiscoveryDocumentAndTryLogin();
     this.updateAuthState();
@@ -78,11 +89,21 @@ export class AuthService {
     this.isDoneLoadingSubject$.next(true);
   }
 
+  /**
+   * Inicia el flujo OAuth 2.0 guardando previamente la ruta destino para
+   * retomar la navegación tras un login exitoso.
+   *
+   * @param redirectUrl - Ruta a la que se redirige después de autenticarse.
+   */
   public startLoginFlow(redirectUrl: string = '/dashboard'): void {
     sessionStorage.setItem('postLoginRedirectUrl', redirectUrl);
     this.oauthService.initCodeFlow();
   }
 
+  /**
+   * Limpia el estado local de autenticación y delega el cierre de sesión al
+   * proveedor OAuth (lo que también revoca tokens en el backend).
+   */
   public logout(): void {
     this.isAuthenticatedSubject$.next(false);
     this.userSubject$.next(null);
@@ -124,6 +145,12 @@ export class AuthService {
     return this.oauthService.getIdToken() ?? null;
   }
 
+  /**
+   * Decodifica el payload del access token JWT sin validarlo criptográficamente.
+   * Sirve para obtener claims personalizados cuando la librería no los expone.
+   *
+   * @returns Payload del token o `null` si no existe o es inválido.
+   */
   private getAccessTokenPayload(): AccessTokenPayload | null {
     const accessToken = this.oauthService.getAccessToken();
     if (!accessToken) {
@@ -194,6 +221,10 @@ export class AuthService {
     );
   }
 
+  /**
+   * Suscribe los eventos emitidos por `OAuthService` para reaccionar a la
+   * recepción/expiración de tokens y errores de sesión en un único punto.
+   */
   private setupOAuthEventListeners(): void {
     this.oauthService.events.subscribe((event) => {
       switch (event.type) {
@@ -216,6 +247,10 @@ export class AuthService {
     });
   }
 
+  /**
+   * Actualiza el estado interno tras recibir nuevos tokens, dispara la carga
+   * del usuario autenticado y redirige cuando proviene del callback OAuth.
+   */
   private handleTokenReceived(): void {
     this.updateAuthState();
 
@@ -231,6 +266,12 @@ export class AuthService {
     }
   }
 
+  /**
+   * Resetea el estado local cuando ocurre un error en el flujo OAuth y deja un
+   * log para facilitar el diagnóstico.
+   *
+   * @param event - Evento original proporcionado por la librería (si existe).
+   */
   private handleAuthError(event?: OAuthEvent): void {
     if (event) console.error('Error de autenticación:', event);
 
@@ -238,16 +279,28 @@ export class AuthService {
     this.userSubject$.next(null);
   }
 
+  /**
+   * Marca la sesión como no autenticada cuando el token expira para que los
+   * guards obliguen a relogear.
+   */
   private handleTokenExpired(): void {
     this.isAuthenticatedSubject$.next(false);
   }
 
+  /**
+   * Evalúa los tokens actuales y comunica el estado de autenticación al resto
+   * de la app mediante el `BehaviorSubject`.
+   */
   private updateAuthState(): void {
     const isAuthenticated =
       this.hasValidAccessToken() && this.hasValidIdToken();
     this.isAuthenticatedSubject$.next(isAuthenticated);
   }
 
+  /**
+   * Recupera la ruta almacenada antes de iniciar sesión y navega hacia ella
+   * al completar el callback OAuth.
+   */
   private navigateAfterLogin(): void {
     const redirectUrl =
       sessionStorage.getItem('postLoginRedirectUrl') ?? '/dashboard';
@@ -259,6 +312,12 @@ export class AuthService {
     return window.location.pathname.includes('/callback');
   }
 
+  /**
+   * Obtiene el usuario autenticado desde el backend y lo almacena en el Subject
+   * para exponerlo como observable. Regresa una promesa para facilitar awaits.
+   *
+   * @returns Promesa resuelta cuando finaliza la llamada al backend.
+   */
   private fetchAndStoreCurrentAuthenticatedUser(): Promise<void> {
     return new Promise((resolve) => {
       const userId = this.getUserId();

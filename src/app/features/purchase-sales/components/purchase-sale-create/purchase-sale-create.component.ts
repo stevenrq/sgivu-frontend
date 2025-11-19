@@ -107,6 +107,16 @@ interface VehicleFormModel {
   templateUrl: './purchase-sale-create.component.html',
   styleUrl: './purchase-sale-create.component.css',
 })
+/**
+ * Gestiona el formulario combinado de registro de contratos de compra y venta
+ * junto con la posible creación de vehículos. Coordina catálogos auxiliares,
+ * validaciones monetarias y reglas de negocio (por ejemplo, impedir la venta
+ * de vehículos que aún no tienen una compra válida).
+ *
+ * @remarks
+ * Este componente centraliza el flujo de alta de contratos y sirve como nexo
+ * entre los módulos de usuarios, clientes y vehículos.
+ */
 export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
   readonly contractStatuses = Object.values(ContractStatus);
   readonly paymentMethods = Object.values(PaymentMethod);
@@ -254,6 +264,14 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     return this.availableVehicles();
   }
 
+  /**
+   * Valida el formulario, arma el payload respetando el tipo de contrato y
+   * gestiona la secuencia de guardado, limpieza del estado y redirección.
+   * También reutiliza la lógica de precios normalizados para evitar discrepancias
+   * entre la UI y el backend.
+   *
+   * @param contractFormRef - Referencia al formulario de Angular usado en plantilla.
+   */
   submitContract(contractFormRef: NgForm): void {
     this.formSubmitted = true;
     if (!contractFormRef.valid) {
@@ -343,6 +361,13 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     this.vehicleSalePriceInput = '';
   }
 
+  /**
+   * Al seleccionar un vehículo para venta se consulta el historial de contratos
+   * para impedir ventas duplicadas y precargar el precio de compra elegible. Se
+   * cachean resultados para evitar llamadas repetidas mientras el usuario prueba.
+   *
+   * @param vehicleId - Identificador del vehículo seleccionado o `null` si se deselecciona.
+   */
   onVehicleSelectionChange(vehicleId: number | null): void {
     if (!this.isSaleType) {
       return;
@@ -486,6 +511,11 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     return option ? option.label : null;
   }
 
+  /**
+   * Ejecuta en paralelo las consultas necesarias para poblar clientes, usuarios
+   * y vehículos. Normaliza la estructura en colecciones listas para los selects
+   * y maneja estados de loading/errores compartidos.
+   */
   private loadLookups(): void {
     this.isLoadingLookups.set(true);
     this.hasLookupError.set(false);
@@ -568,6 +598,14 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     this.purchasePriceInput = this.formatPriceInput(normalized);
   }
 
+  /**
+   * Busca la compra más reciente (según `updatedAt`) que se encuentre en un
+   * estado habilitado para sostener una venta. Sirve para precargar el precio de
+   * compra del vehículo y validar la regla de negocio.
+   *
+   * @param contracts - Historial de contratos asociados al vehículo.
+   * @returns Contrato de compra elegible o `null` si no existe.
+   */
   private findEligiblePurchase(contracts: PurchaseSale[]): PurchaseSale | null {
     const eligibleStatuses = new Set([
       ContractStatus.ACTIVE,
@@ -692,6 +730,14 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     };
   }
 
+  /**
+   * Transforma el formulario de vehículo en el payload esperado por el backend,
+   * aplicando `trim`, conversiones numéricas y descartando campos que no aplican
+   * según el tipo seleccionado. Mantener esta lógica centralizada reduce errores
+   * cuando se crean vehículos desde el flujo de contratos.
+   *
+   * @returns Payload listo para enviar en contratos de compra.
+   */
   private buildVehiclePayload(): VehicleCreationPayload {
     const salePrice =
       this.vehicleForm.salePrice !== null &&
@@ -785,6 +831,15 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     }).then(() => undefined);
   }
 
+  /**
+   * Unifica el manejo de errores provenientes de múltiples servicios, intentando
+   * mapear mensajes específicos y decorarlos (por ejemplo reemplazando ids de
+   * vehículos por sus etiquetas) antes de mostrarlos vía SweetAlert.
+   *
+   * @param error - Error recibido desde el backend o la red.
+   * @param action - Acción que se intentaba realizar al fallar.
+   * @param displayAlert - Indica si debe mostrarse un mensaje visual.
+   */
   private handleError(
     error: unknown,
     action: string,

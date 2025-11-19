@@ -63,6 +63,10 @@ export class HasPermissionDirective implements OnChanges, OnDestroy {
     }
   }
 
+  /**
+   * Reconstruye la vista según los permisos actuales. Determina la combinación AND/OR
+   * y se suscribe a los observables del `PermissionService`.
+   */
   private updateView(): void {
     this.destroy$.next();
 
@@ -98,6 +102,11 @@ export class HasPermissionDirective implements OnChanges, OnDestroy {
       });
   }
 
+  /**
+   * Crea o elimina la vista embebida según el resultado de los permisos evaluados.
+   *
+   * @param hasPermission Indica si se deben renderizar los elementos hijos.
+   */
   private handlePermissionResult(hasPermission: boolean): void {
     if (hasPermission && !this.hasView) {
       this.viewContainerRef.createEmbeddedView(this.templateRef);
@@ -107,6 +116,7 @@ export class HasPermissionDirective implements OnChanges, OnDestroy {
     }
   }
 
+  /** Elimina la vista del DOM y marca el flag interno en falso. */
   private clearView(): void {
     this.viewContainerRef.clear();
     this.hasView = false;

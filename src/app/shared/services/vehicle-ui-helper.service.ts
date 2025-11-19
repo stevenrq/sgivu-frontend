@@ -15,12 +15,26 @@ interface VehicleStatusUpdateConfig {
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Centraliza la lógica de confirmación y actualización de estado para vehículos.
+ * Evita duplicar prompts de SweetAlert2 y llamadas a los servicios de autos/motos
+ * en todos los componentes que administran inventario.
+ */
 export class VehicleUiHelperService {
   constructor(
     private readonly carService: CarService,
     private readonly motorcycleService: MotorcycleService,
   ) {}
 
+  /**
+   * Confirma y ejecuta el cambio de estado para un automóvil llamando al servicio
+   * correspondiente. Permite mostrar la placa en el mensaje para mayor claridad.
+   *
+   * @param id Identificador del automóvil.
+   * @param nextStatus Estado objetivo.
+   * @param onSuccess Callback a ejecutar al finalizar correctamente.
+   * @param plate Texto opcional que describe la placa en la alerta.
+   */
   updateCarStatus(
     id: number,
     nextStatus: VehicleStatus,
@@ -38,6 +52,15 @@ export class VehicleUiHelperService {
     });
   }
 
+  /**
+   * Variante para motocicletas; reutiliza el mismo flujo pero ajusta la descripción
+   * mostrada en los mensajes.
+   *
+   * @param id Identificador de la motocicleta.
+   * @param nextStatus Estado objetivo a asignar.
+   * @param onSuccess Acción a ejecutar tras el éxito.
+   * @param plate Placa usada en el texto de confirmación.
+   */
   updateMotorcycleStatus(
     id: number,
     nextStatus: VehicleStatus,
@@ -55,6 +78,12 @@ export class VehicleUiHelperService {
     });
   }
 
+  /**
+   * Despliega el diálogo de confirmación y, al aceptarse, ejecuta la petición remota.
+   * Centraliza el manejo de errores y la notificación de éxito.
+   *
+   * @param config Configuración de la actualización (texto, estado, observable y callback).
+   */
   private confirmStatusChange(config: VehicleStatusUpdateConfig): void {
     const action = this.describeAction(config.nextStatus);
 
@@ -93,6 +122,12 @@ export class VehicleUiHelperService {
     });
   }
 
+  /**
+   * Traduce el estado destino en un verbo para usarlo en el mensaje.
+   *
+   * @param status Estado que se aplicará.
+   * @returns Verbo amigable (activar/desactivar/actualizar).
+   */
   private describeAction(status: VehicleStatus): string {
     if (status === VehicleStatus.INACTIVE) {
       return 'desactivar';
