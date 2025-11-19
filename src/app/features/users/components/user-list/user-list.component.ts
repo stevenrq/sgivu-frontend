@@ -67,13 +67,7 @@ interface UserListMetadata {
 export class UserListComponent implements OnInit, OnDestroy {
   readonly searchTermMaxLength = 80;
 
-  filters: UserSearchFilters & { enabled?: boolean | '' } = {
-    name: '',
-    username: '',
-    email: '',
-    role: '',
-    enabled: '',
-  };
+  filters: UserSearchFilters & { enabled?: boolean | null } = this.createDefaultFilters();
 
   readonly roleOptions: string[] = ['ADMIN', 'MANAGER', 'SALE', 'PURCHASE', 'USER'];
 
@@ -187,13 +181,7 @@ export class UserListComponent implements OnInit, OnDestroy {
   }
 
   protected reset(): void {
-    this.filters = {
-      name: '',
-      username: '',
-      email: '',
-      role: '',
-      enabled: '',
-    };
+    this.filters = this.createDefaultFilters();
     this.reloadCurrentPage();
   }
 
@@ -276,7 +264,9 @@ export class UserListComponent implements OnInit, OnDestroy {
       email: this.filters.email?.trim(),
       role: this.filters.role || undefined,
       enabled:
-        this.filters.enabled === '' ? undefined : Boolean(this.filters.enabled),
+        this.filters.enabled === null || this.filters.enabled === undefined
+          ? undefined
+          : this.filters.enabled,
     };
   }
 
@@ -374,6 +364,16 @@ export class UserListComponent implements OnInit, OnDestroy {
       total: 0,
       loading: false,
       error: null,
+    };
+  }
+
+  private createDefaultFilters(): UserSearchFilters & { enabled?: boolean | null } {
+    return {
+      name: '',
+      username: '',
+      email: '',
+      role: '',
+      enabled: null,
     };
   }
 

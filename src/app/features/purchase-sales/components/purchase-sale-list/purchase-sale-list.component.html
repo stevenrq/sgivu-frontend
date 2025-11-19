@@ -183,16 +183,34 @@
               placeholder="$"
             />
           </div>
-          <div class="col-12 col-md-3">
-            <label class="form-label filter-label">Búsqueda rápida</label>
+        <div class="col-12 col-md-3 position-relative">
+          <label class="form-label filter-label">Búsqueda rápida</label>
+          <div class="quick-search-wrapper">
             <input
               type="search"
               class="form-control form-control-sm"
-              [(ngModel)]="filters.term"
-              placeholder="ID, cliente, vehículo..."
+              [ngModel]="filters.term"
+              (ngModelChange)="onQuickSearchChange($event)"
+              placeholder="Filtra por cliente, usuario, vehículo, tipo o estado"
               (keyup.enter)="applyFilters()"
             />
+            <div
+              class="quick-search-dropdown"
+              *ngIf="quickSuggestions.length > 0"
+            >
+              @for (suggestion of quickSuggestions; track suggestion.value + suggestion.type) {
+                <button
+                  type="button"
+                  class="dropdown-item"
+                  (click)="selectQuickSuggestion(suggestion)"
+                >
+                  <span class="suggestion-label">{{ suggestion.label }}</span>
+                  <small class="text-muted d-block">{{ suggestion.context }}</small>
+                </button>
+              }
+            </div>
           </div>
+        </div>
           <div class="col-12 col-md-auto filter-actions mt-2 mt-md-0">
             <button class="btn btn-primary btn-sm" type="button" (click)="applyFilters()">
               <i class="bi bi-funnel me-1"></i>Aplicar filtros

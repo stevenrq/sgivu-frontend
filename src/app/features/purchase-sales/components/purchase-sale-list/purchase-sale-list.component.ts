@@ -76,6 +76,19 @@ type PurchaseSaleUiFilters = {
   maxSalePrice: string;
 };
 
+type QuickSuggestionType =
+  | 'client'
+  | 'user'
+  | 'vehicle'
+  | 'status'
+  | 'type';
+type QuickSuggestion = {
+  label: string;
+  context: string;
+  type: QuickSuggestionType;
+  value: string;
+};
+
 @Component({
   selector: 'app-purchase-sale-list',
   imports: [
@@ -145,6 +158,10 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     loading: false,
     error: null,
   };
+  quickSuggestions: QuickSuggestion[] = [];
+  private readonly linkedClientIds = new Set<number>();
+  private readonly linkedUserIds = new Set<number>();
+  private readonly linkedVehicleIds = new Set<number>();
 
   private currentPage = 0;
   private readonly subscriptions: Subscription[] = [];
@@ -346,6 +363,8 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
+    this.quickSuggestions = [];
+    this.hintQuickSearchFilters();
     const queryParams = this.buildQueryParamsFromFilters();
     void this.router.navigate(['/purchase-sales/page', 0], {
       queryParams,
@@ -354,6 +373,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
   clearFilters(): void {
     this.filters = this.getDefaultUiFilters();
+    this.quickSuggestions = [];
     void this.router.navigate(['/purchase-sales/page', 0]);
   }
 
@@ -399,6 +419,33 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
         },
         error: (error) => this.handleError(error, 'generar el reporte'),
       });
+  }
+
+  onQuickSearchChange(term: string): void {
+    this.filters.term = term;
+    this.updateQuickSuggestions(term);
+  }
+
+  selectQuickSuggestion(suggestion: QuickSuggestion): void {
+    if (suggestion.type === 'client') {
+      this.filters.clientId = suggestion.value;
+      this.filters.term = '';
+    } else if (suggestion.type === 'user') {
+      this.filters.userId = suggestion.value;
+      this.filters.term = '';
+    } else if (suggestion.type === 'vehicle') {
+      this.filters.vehicleId = suggestion.value;
+      this.filters.term = '';
+    } else if (suggestion.type === 'status') {
+      this.filters.contractStatus = suggestion.value as ContractStatusFilter;
+      this.filters.term = '';
+    } else if (suggestion.type === 'type') {
+      this.filters.contractType = suggestion.value as ContractTypeFilter;
+      this.filters.term = '';
+    }
+
+    this.quickSuggestions = [];
+    this.applyFilters();
   }
 
   private getReportObservable(
@@ -575,16 +622,40 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
           purchases,
           sales,
         });
+        this.updateLinkedEntities(contracts);
       },
-      error: () =>
+      error: () => {
         this.summaryState.set({
           total: 0,
           purchases: 0,
           sales: 0,
-        }),
+        });
+        this.updateLinkedEntities([]);
+      },
     });
 
     this.subscriptions.push(summarySub);
+  }
+
+  private updateLinkedEntities(contracts: PurchaseSale[]): void {
+    this.linkedClientIds.clear();
+    this.linkedUserIds.clear();
+    this.linkedVehicleIds.clear();
+
+    contracts.forEach((contract) => {
+      this.trackLinkedId(this.linkedClientIds, contract.clientId);
+      this.trackLinkedId(this.linkedUserIds, contract.userId);
+      this.trackLinkedId(this.linkedVehicleIds, contract.vehicleId);
+    });
+  }
+
+  private trackLinkedId(
+    target: Set<number>,
+    value: number | null | undefined,
+  ): void {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      target.add(value);
+    }
   }
 
   private navigateToPage(page: number, queryParams?: Params): void {
@@ -611,6 +682,131 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       minSalePrice: '',
       maxSalePrice: '',
     };
+  }
+
+  /**
+   * Aprovecha la búsqueda rápida para rellenar filtros específicos cuando es posible.
+   * Ejemplo: si el término coincide con un cliente/vehículo/usuario conocido, se
+   * precarga su id en el filtro correspondiente además de enviar el término libre.
+   */
+  private hintQuickSearchFilters(): void {
+    const rawTerm = (this.filters.term ?? '').trim();
+    if (!rawTerm) {
+      return;
+    }
+
+    const normalized = rawTerm.toLowerCase();
+
+    const vehicleMatch = this.vehicles().find(
+      (vehicle) =>
+        this.linkedVehicleIds.has(vehicle.id) &&
+        this.includesTerm(vehicle.label, normalized),
+    );
+    if (vehicleMatch && !this.filters.vehicleId) {
+      this.filters.vehicleId = vehicleMatch.id.toString();
+    }
+
+    const clientMatch = this.clients().find(
+      (client) =>
+        this.linkedClientIds.has(client.id) &&
+        this.includesTerm(client.label, normalized),
+    );
+    if (clientMatch && !this.filters.clientId) {
+      this.filters.clientId = clientMatch.id.toString();
+    }
+
+    const userMatch = this.users().find(
+      (user) =>
+        this.linkedUserIds.has(user.id) &&
+        this.includesTerm(user.label, normalized),
+    );
+    if (userMatch && !this.filters.userId) {
+      this.filters.userId = userMatch.id.toString();
+    }
+
+    this.filters.term = rawTerm;
+  }
+
+  private updateQuickSuggestions(term: string): void {
+    const normalized = term.trim().toLowerCase();
+    if (normalized.length < 2) {
+      this.quickSuggestions = [];
+      return;
+    }
+
+    const matches: QuickSuggestion[] = [];
+
+    this.clients()
+      .filter(
+        (client) =>
+          this.linkedClientIds.has(client.id) &&
+          this.includesTerm(client.label, normalized),
+      )
+      .slice(0, 3)
+      .forEach((client) =>
+        matches.push({
+          label: client.label,
+          context: 'Cliente con contratos',
+          type: 'client',
+          value: client.id.toString(),
+        }),
+      );
+
+    this.users()
+      .filter(
+        (user) =>
+          this.linkedUserIds.has(user.id) &&
+          this.includesTerm(user.label, normalized),
+      )
+      .slice(0, 3)
+      .forEach((user) =>
+        matches.push({
+          label: user.label,
+          context: 'Usuario con contratos',
+          type: 'user',
+          value: user.id.toString(),
+        }),
+      );
+
+    this.vehicles()
+      .filter(
+        (vehicle) =>
+          this.linkedVehicleIds.has(vehicle.id) &&
+          this.includesTerm(vehicle.label, normalized),
+      )
+      .slice(0, 3)
+      .forEach((vehicle) =>
+        matches.push({
+          label: vehicle.label,
+          context: 'Vehículo utilizado en contratos',
+          type: 'vehicle',
+          value: vehicle.id.toString(),
+        }),
+      );
+
+    this.contractStatuses
+      .filter((status) => this.matchesStatus(status, normalized))
+      .forEach((status) =>
+        matches.push({
+          label: this.getStatusLabel(status),
+          context: 'Estado de contrato',
+          type: 'status',
+          value: status,
+        }),
+      );
+
+    this.contractTypes
+      .filter((type) => this.matchesType(type, normalized))
+      .forEach((type) =>
+        matches.push({
+          label: this.getContractTypeLabel(type),
+          context: 'Tipo de contrato',
+          type: 'type',
+          value: type,
+        }),
+      );
+
+    this.quickSuggestions = matches.slice(0, 9);
   }
 
   private buildQueryParamsFromFilters(): Params | undefined {
@@ -655,6 +851,29 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     );
 
     return Object.keys(params).length ? params : undefined;
+  }
+
+  private includesTerm(value: string, normalizedTerm: string): boolean {
+    return value.toLowerCase().includes(normalizedTerm);
+  }
+
+  private matchesStatus(
+    status: ContractStatus,
+    normalizedTerm: string,
+  ): boolean {
+    const label = this.getStatusLabel(status).toLowerCase();
+    return (
+      label.includes(normalizedTerm) ||
+      status.toLowerCase().includes(normalizedTerm)
+    );
+  }
+
+  private matchesType(type: ContractType, normalizedTerm: string): boolean {
+    const label = this.getContractTypeLabel(type).toLowerCase();
+    return (
+      label.includes(normalizedTerm) ||
+      type.toLowerCase().includes(normalizedTerm)
+    );
   }
 
   private extractFiltersFromQuery(query: ParamMap): {
