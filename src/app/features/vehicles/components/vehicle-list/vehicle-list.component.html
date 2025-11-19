@@ -532,9 +532,6 @@
                 <td>{{ car.capacity }} pasajeros</td>
                 <td>{{ car.transmission }}</td>
                 <td>
-                  <span [ngClass]="badgeClass(car.status)" class="badge">
-                    {{ statusLabel(car.status) }}
-                  </span>
                   <div *appHasPermission="'car:update'" class="mt-2">
                     <select
                       (ngModelChange)="changeCarStatus(car, $event)"
@@ -627,9 +624,6 @@
                 <td>{{ motorcycle.model }}</td>
                 <td>{{ motorcycle.motorcycleType }}</td>
                 <td>
-                  <span [ngClass]="badgeClass(motorcycle.status)" class="badge">
-                    {{ statusLabel(motorcycle.status) }}
-                  </span>
                   <div *appHasPermission="'motorcycle:update'" class="mt-2">
                     <select
                       (ngModelChange)="
