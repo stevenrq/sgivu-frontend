@@ -51,7 +51,8 @@ export const vehicleRoutes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       vehicleType: 'car',
-      canActivateFn: (ps: PermissionService) => ps.hasPermission('car:update'),
+      canActivateFn: (ps: PermissionService) =>
+        ps.hasAllPermissions(['vehicle:create', 'car:update']),
     },
   },
   {
@@ -61,7 +62,7 @@ export const vehicleRoutes: Routes = [
     data: {
       vehicleType: 'motorcycle',
       canActivateFn: (ps: PermissionService) =>
-        ps.hasPermission('motorcycle:update'),
+        ps.hasAllPermissions(['vehicle:create', 'motorcycle:update']),
     },
   },
   {

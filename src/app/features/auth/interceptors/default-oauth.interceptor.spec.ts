@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpInterceptorFn } from '@angular/common/http';
 
-import { defaultOauthInterceptor } from './default-oauth.interceptor';
+import { defaultOAuthInterceptor } from './default-oauth.interceptor';
 
 describe('defaultOauthInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) => 
-    TestBed.runInInjectionContext(() => defaultOauthInterceptor(req, next));
+  const interceptor: HttpInterceptorFn = (req, next) =>
+    TestBed.runInInjectionContext(() => defaultOAuthInterceptor(req, next));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  computed,
-  signal,
-} from '@angular/core';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -12,12 +6,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgClass } from '@angular/common';
-import { finalize, Observable, Subscription } from 'rxjs';
+import { DecimalPipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { finalize, firstValueFrom, Observable, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import {
-  noWhitespaceValidator,
   lengthValidator,
+  noWhitespaceValidator,
 } from '../../../../shared/validators/form.validator';
 import { VehicleStatus } from '../../models/vehicle-status.enum';
 import { CarService } from '../../services/car.service';
@@ -25,16 +19,19 @@ import { MotorcycleService } from '../../services/motorcycle.service';
 import { Car } from '../../models/car.model';
 import { Motorcycle } from '../../models/motorcycle.model';
 import { ContractType } from '../../../purchase-sales/models/contract-type.enum';
+import { VehicleImageService } from '../../services/vehicle-image.service';
+import { VehicleImageResponse } from '../../models/vehicle-image-response';
 
 type VehicleFormType = 'CAR' | 'MOTORCYCLE';
 
 type CarPayload = Omit<Car, 'id'> & Partial<Pick<Car, 'id'>>;
-type MotorcyclePayload = Omit<Motorcycle, 'id'> & Partial<Pick<Motorcycle, 'id'>>;
+type MotorcyclePayload = Omit<Motorcycle, 'id'> &
+  Partial<Pick<Motorcycle, 'id'>>;
 
 @Component({
   selector: 'app-vehicle-form',
   standalone: true,
-  imports: [ReactiveFormsModule, NgClass],
+  imports: [ReactiveFormsModule, NgClass, NgIf, NgForOf, DecimalPipe],
   templateUrl: './vehicle-form.component.html',
   styleUrl: './vehicle-form.component.css',
 })
@@ -42,6 +39,11 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   formGroup: FormGroup;
   isEditMode = false;
   readonly statuses = Object.values(VehicleStatus);
+  readonly vehicleImages = signal<VehicleImageResponse[]>([]);
+
+  selectedFiles: File[] = [];
+  previewUrl: string | null = null; // se usa sólo para mostrar la primera seleccionada
+
   private readonly statusLabels: Record<VehicleStatus, string> = {
     [VehicleStatus.AVAILABLE]: 'Disponible',
     [VehicleStatus.SOLD]: 'Vendido',
@@ -54,7 +56,6 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   private vehicleId: number | null = null;
   private vehicleType: VehicleFormType = 'CAR';
   private readonly subscriptions: Subscription[] = [];
-
   private readonly loadingSignal = signal<boolean>(false);
   readonly isLoading = computed(() => this.loadingSignal());
 
@@ -64,8 +65,35 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
     private readonly motorcycleService: MotorcycleService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
+    private readonly vehicleImageService: VehicleImageService,
   ) {
     this.formGroup = this.buildForm();
+  }
+
+  get titleText(): string {
+    if (this.vehicleType === 'CAR') {
+      return this.isEditMode ? 'Editar automóvil' : 'Registrar automóvil';
+    }
+    return this.isEditMode ? 'Editar motocicleta' : 'Registrar motocicleta';
+  }
+
+  get subtitleText(): string {
+    if (this.vehicleType === 'CAR') {
+      return this.isEditMode
+        ? 'Actualiza la información del automóvil seleccionado.'
+        : 'Completa los datos para registrar un nuevo automóvil.';
+    }
+    return this.isEditMode
+      ? 'Actualiza la información de la motocicleta seleccionada.'
+      : 'Completa los datos para registrar una nueva motocicleta.';
+  }
+
+  get isCar(): boolean {
+    return this.vehicleType === 'CAR';
+  }
+
+  get isMotorcycle(): boolean {
+    return this.vehicleType === 'MOTORCYCLE';
   }
 
   ngOnInit(): void {
@@ -114,34 +142,8 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  get titleText(): string {
-    if (this.vehicleType === 'CAR') {
-      return this.isEditMode ? 'Editar automóvil' : 'Registrar automóvil';
-    }
-    return this.isEditMode ? 'Editar motocicleta' : 'Registrar motocicleta';
-  }
-
-  get subtitleText(): string {
-    if (this.vehicleType === 'CAR') {
-      return this.isEditMode
-        ? 'Actualiza la información del automóvil seleccionado.'
-        : 'Completa los datos para registrar un nuevo automóvil.';
-    }
-    return this.isEditMode
-      ? 'Actualiza la información de la motocicleta seleccionada.'
-      : 'Completa los datos para registrar una nueva motocicleta.';
-  }
-
   getStatusLabel(status: VehicleStatus): string {
     return this.statusLabels[status] ?? status;
-  }
-
-  get isCar(): boolean {
-    return this.vehicleType === 'CAR';
-  }
-
-  get isMotorcycle(): boolean {
-    return this.vehicleType === 'MOTORCYCLE';
   }
 
   onSubmit(): void {
@@ -186,8 +188,7 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
             void Swal.fire({
               icon: 'warning',
               title: 'Datos duplicados',
-              text:
-                'Ya existe un vehículo con la placa, número de motor, serial o chasis ingresado. Verifica que esos campos sean únicos.',
+              text: 'Ya existe un vehículo con la placa, número de motor, serial o chasis ingresado. Verifica que esos campos sean únicos.',
             });
             return;
           }
@@ -201,6 +202,182 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       });
 
     this.subscriptions.push(sub);
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      this.selectedFiles = [];
+      this.previewUrl = null;
+      return;
+    }
+
+    const files = Array.from(input.files);
+
+    const onlyImages = files.filter((f) => f.type.startsWith('image/'));
+    if (onlyImages.length !== files.length) {
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Archivo no válido',
+        text: 'Por favor selecciona imágenes (JPEG, PNG, WEBP).',
+      });
+      this.selectedFiles = [];
+      this.previewUrl = null;
+      input.value = '';
+      return;
+    }
+
+    if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
+    this.selectedFiles = onlyImages;
+    this.previewUrl = URL.createObjectURL(onlyImages[0]);
+  }
+
+  uploadSelectedImage(): void {
+    if (!this.selectedFiles.length || !this.vehicleId) {
+      void Swal.fire({
+        icon: 'info',
+        title: 'Sin imagen seleccionada',
+        text: 'Selecciona una o varias imágenes antes de subirlas.',
+      });
+      return;
+    }
+
+    const files = this.selectedFiles;
+    const hasImages = this.vehicleImages().length > 0;
+    this.loadingSignal.set(true);
+
+    const uploadFile = async (
+      file: File,
+      attempt: number,
+      primary: boolean,
+    ): Promise<void> => {
+      const contentType = this.resolveContentType(file);
+      try {
+        const presigned = await firstValueFrom(
+          this.vehicleImageService.createPresignedUploadUrl(
+            this.vehicleId!,
+            contentType,
+          ),
+        );
+
+        await firstValueFrom(
+          this.vehicleImageService.uploadToPresignedUrl(
+            presigned.uploadUrl,
+            file,
+            contentType,
+          ),
+        );
+
+        await firstValueFrom(
+          this.vehicleImageService.confirmUpload(this.vehicleId!, {
+            fileName: file.name,
+            contentType,
+            size: file.size,
+            key: presigned.key,
+            primary,
+          }),
+        );
+      } catch (err: any) {
+        if (attempt === 1 && this.shouldRetryUpload(err)) {
+          return uploadFile(file, 2, primary);
+        }
+        throw err;
+      }
+    };
+
+    (async () => {
+      try {
+        const currentCount = this.vehicleImages().length;
+        for (let idx = 0; idx < files.length; idx++) {
+          const primary = !hasImages && idx === 0 && currentCount === 0;
+          await uploadFile(files[idx], 1, primary);
+        }
+
+        void Swal.fire({
+          icon: 'success',
+          title: 'Imágenes subidas',
+          text: 'Las imágenes se han almacenado correctamente.',
+        });
+        this.selectedFiles = [];
+        if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
+        this.previewUrl = null;
+        this.loadVehicleImages(this.vehicleId!);
+      } catch (error: any) {
+        const s3Message =
+          typeof error?.error === 'string' && error.error.startsWith('<?xml')
+            ? 'El enlace de subida expiró o la firma no es válida. Genera una nueva URL e inténtalo de nuevo.'
+            : '';
+        const duplicateMessage =
+          typeof error?.error === 'string' &&
+          (error.error.includes(
+            'Ya existe una imagen con el mismo nombre de archivo',
+          ) ||
+            error.error.includes(
+              'Ya existe una imagen registrada con esta clave',
+            ))
+            ? 'Ya existe una imagen con ese nombre o clave para este vehículo.'
+            : '';
+        const text =
+          error?.status === 0
+            ? 'No se pudo contactar con el bucket de almacenamiento. Verifica la conexión y la configuración de CORS.'
+            : duplicateMessage ||
+              s3Message ||
+              'Ocurrió un problema al subir la imagen. Intenta nuevamente.';
+
+        void Swal.fire({
+          icon: 'error',
+          title: 'Error al subir la imagen',
+          text,
+        });
+      } finally {
+        this.loadingSignal.set(false);
+      }
+    })();
+  }
+
+  removeSelectedFile(index: number): void {
+    if (index < 0 || index >= this.selectedFiles.length) return;
+    this.selectedFiles.splice(index, 1);
+    if (this.previewUrl) {
+      URL.revokeObjectURL(this.previewUrl);
+      this.previewUrl = this.selectedFiles[0]
+        ? URL.createObjectURL(this.selectedFiles[0])
+        : null;
+    }
+  }
+
+  deleteImage(imageId: number): void {
+    if (!this.vehicleId) {
+      return;
+    }
+
+    void Swal.fire({
+      icon: 'warning',
+      title: 'Eliminar imagen',
+      text: '¿Estás seguro de eliminar esta imagen?',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      const sub = this.vehicleImageService
+        .deleteImage(this.vehicleId!, imageId)
+        .subscribe({
+          next: () => {
+            this.loadVehicleImages(this.vehicleId!);
+          },
+          error: () => {
+            void Swal.fire({
+              icon: 'error',
+              title: 'No se pudo eliminar',
+              text: 'Ocurrió un problema al eliminar la imagen.',
+            });
+          },
+        });
+
+      this.subscriptions.push(sub);
+    });
   }
 
   private submitCar() {
@@ -238,7 +415,9 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       serialNumber: (this.formGroup.get('serialNumber')!.value ?? '').trim(),
       chassisNumber: (this.formGroup.get('chassisNumber')!.value ?? '').trim(),
       color: (this.formGroup.get('color')!.value ?? '').trim(),
-      cityRegistered: (this.formGroup.get('cityRegistered')!.value ?? '').trim(),
+      cityRegistered: (
+        this.formGroup.get('cityRegistered')!.value ?? ''
+      ).trim(),
       year: Number(this.formGroup.get('year')!.value ?? 0),
       mileage: Number(this.formGroup.get('mileage')!.value ?? 0),
       transmission: (this.formGroup.get('transmission')!.value ?? '').trim(),
@@ -257,7 +436,10 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
         .getById(id)
         .pipe(finalize(() => this.loadingSignal.set(false)))
         .subscribe({
-          next: (vehicle) => this.patchVehicleForm(vehicle),
+          next: (vehicle) => {
+            this.patchVehicleForm(vehicle);
+            this.loadVehicleImages(id);
+          },
           error: () => this.handleLoadError(),
         });
       this.subscriptions.push(sub);
@@ -268,7 +450,10 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       .getById(id)
       .pipe(finalize(() => this.loadingSignal.set(false)))
       .subscribe({
-        next: (vehicle) => this.patchVehicleForm(vehicle),
+        next: (vehicle) => {
+          this.patchVehicleForm(vehicle);
+          this.loadVehicleImages(id);
+        },
         error: () => this.handleLoadError(),
       });
     this.subscriptions.push(sub);
@@ -401,5 +586,30 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       return 'MOTORCYCLE';
     }
     return 'CAR';
+  }
+
+  private resolveContentType(file: File): string {
+    if (file.type === 'image/jpg') {
+      return 'image/jpeg';
+    }
+    return file.type || 'image/jpeg';
+  }
+
+  private shouldRetryUpload(error: any): boolean {
+    if (error?.status === 0) return true; // preflight abortada o red bloqueada
+    const msg = typeof error?.error === 'string' ? error.error : '';
+    return (
+      msg.includes('SignatureDoesNotMatch') ||
+      msg.includes('MissingContentLength') ||
+      msg.includes('expired') ||
+      msg.includes('Request has expired')
+    );
+  }
+
+  private loadVehicleImages(vehicleId: number): void {
+    this.vehicleImageService.getImages(vehicleId).subscribe({
+      next: (images) => this.vehicleImages.set(images),
+      error: () => console.error('No se pudieron cargar las imágenes'),
+    });
   }
 }

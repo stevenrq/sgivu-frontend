@@ -11,8 +11,8 @@
     <div class="card-header bg-light border-bottom-0">
       <h1 class="h4 text-dark mb-1 d-flex align-items-center">
         <i
-          class="bi me-2"
           [ngClass]="isCar ? 'bi-car-front-fill' : 'bi-bicycle'"
+          class="bi me-2"
         ></i>
         {{ titleText }}
       </h1>
@@ -22,7 +22,7 @@
     </div>
 
     <div class="card-body p-4">
-      <form [formGroup]="formGroup" (ngSubmit)="onSubmit()" novalidate>
+      <form (ngSubmit)="onSubmit()" [formGroup]="formGroup" novalidate>
         <fieldset class="border rounded p-3 mb-4">
           <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
             <i class="bi bi-card-text me-1"></i>Información general
@@ -31,12 +31,17 @@
             <div class="col-md-4">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('brand')?.invalid &&
+                      (formGroup.get('brand')?.dirty ||
+                        formGroup.get('brand')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="brand"
                   id="brand"
                   placeholder="Marca"
-                  formControlName="brand"
-                  [ngClass]="{ 'is-invalid': formGroup.get('brand')?.invalid && (formGroup.get('brand')?.dirty || formGroup.get('brand')?.touched) }"
+                  type="text"
                 />
                 <label for="brand"><i class="bi bi-award me-2"></i>Marca</label>
                 <div class="invalid-feedback">
@@ -48,31 +53,43 @@
             <div class="col-md-4">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('model')?.invalid &&
+                      (formGroup.get('model')?.dirty ||
+                        formGroup.get('model')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="model"
                   id="model"
                   placeholder="Modelo"
-                  formControlName="model"
-                  [ngClass]="{ 'is-invalid': formGroup.get('model')?.invalid && (formGroup.get('model')?.dirty || formGroup.get('model')?.touched) }"
+                  type="text"
                 />
-                <label for="model"><i class="bi bi-speedometer2 me-2"></i>Modelo</label>
-                <div class="invalid-feedback">
-                  El modelo es requerido.
-                </div>
+                <label for="model"
+                  ><i class="bi bi-speedometer2 me-2"></i>Modelo</label
+                >
+                <div class="invalid-feedback">El modelo es requerido.</div>
               </div>
             </div>
 
             <div class="col-md-4">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('line')?.invalid &&
+                      (formGroup.get('line')?.dirty ||
+                        formGroup.get('line')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="line"
                   id="line"
                   placeholder="Línea"
-                  formControlName="line"
-                  [ngClass]="{ 'is-invalid': formGroup.get('line')?.invalid && (formGroup.get('line')?.dirty || formGroup.get('line')?.touched) }"
+                  type="text"
                 />
-                <label for="line"><i class="bi bi-diagram-3-fill me-2"></i>Línea</label>
+                <label for="line"
+                  ><i class="bi bi-diagram-3-fill me-2"></i>Línea</label
+                >
                 <div class="invalid-feedback">La línea es requerida.</div>
               </div>
             </div>
@@ -87,13 +104,18 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('plate')?.invalid &&
+                      (formGroup.get('plate')?.dirty ||
+                        formGroup.get('plate')?.touched),
+                  }"
+                  [readonly]="isEditMode"
                   class="form-control text-uppercase"
+                  formControlName="plate"
                   id="plate"
                   placeholder="Placa"
-                  formControlName="plate"
-                  [readonly]="isEditMode"
-                  [ngClass]="{ 'is-invalid': formGroup.get('plate')?.invalid && (formGroup.get('plate')?.dirty || formGroup.get('plate')?.touched) }"
+                  type="text"
                 />
                 <label for="plate"><i class="bi bi-hash me-2"></i>Placa</label>
                 <div class="invalid-feedback">
@@ -105,12 +127,17 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('motorNumber')?.invalid &&
+                      (formGroup.get('motorNumber')?.dirty ||
+                        formGroup.get('motorNumber')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="motorNumber"
                   id="motorNumber"
                   placeholder="Número de motor"
-                  formControlName="motorNumber"
-                  [ngClass]="{ 'is-invalid': formGroup.get('motorNumber')?.invalid && (formGroup.get('motorNumber')?.dirty || formGroup.get('motorNumber')?.touched) }"
+                  type="text"
                 />
                 <label for="motorNumber"
                   ><i class="bi bi-gear-wide-connected me-2"></i>Número de
@@ -125,12 +152,17 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('serialNumber')?.invalid &&
+                      (formGroup.get('serialNumber')?.dirty ||
+                        formGroup.get('serialNumber')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="serialNumber"
                   id="serialNumber"
                   placeholder="Número serial"
-                  formControlName="serialNumber"
-                  [ngClass]="{ 'is-invalid': formGroup.get('serialNumber')?.invalid && (formGroup.get('serialNumber')?.dirty || formGroup.get('serialNumber')?.touched) }"
+                  type="text"
                 />
                 <label for="serialNumber"
                   ><i class="bi bi-upc me-2"></i>Número serial</label
@@ -144,12 +176,17 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('chassisNumber')?.invalid &&
+                      (formGroup.get('chassisNumber')?.dirty ||
+                        formGroup.get('chassisNumber')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="chassisNumber"
                   id="chassisNumber"
                   placeholder="Número de chasis"
-                  formControlName="chassisNumber"
-                  [ngClass]="{ 'is-invalid': formGroup.get('chassisNumber')?.invalid && (formGroup.get('chassisNumber')?.dirty || formGroup.get('chassisNumber')?.touched) }"
+                  type="text"
                 />
                 <label for="chassisNumber"
                   ><i class="bi bi-diagram-2-fill me-2"></i>Número de
@@ -171,15 +208,21 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="number"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('capacity')?.invalid &&
+                      (formGroup.get('capacity')?.dirty ||
+                        formGroup.get('capacity')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="capacity"
                   id="capacity"
                   placeholder="Capacidad de pasajeros"
-                  formControlName="capacity"
-                  [ngClass]="{ 'is-invalid': formGroup.get('capacity')?.invalid && (formGroup.get('capacity')?.dirty || formGroup.get('capacity')?.touched) }"
+                  type="number"
                 />
                 <label for="capacity"
-                  ><i class="bi bi-people-fill me-2"></i>Capacidad de pasajeros</label
+                  ><i class="bi bi-people-fill me-2"></i>Capacidad de
+                  pasajeros</label
                 >
                 <div class="invalid-feedback">
                   Ingrese una capacidad de pasajeros válida (mínimo 1).
@@ -190,14 +233,21 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('color')?.invalid &&
+                      (formGroup.get('color')?.dirty ||
+                        formGroup.get('color')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="color"
                   id="color"
                   placeholder="Color"
-                  formControlName="color"
-                  [ngClass]="{ 'is-invalid': formGroup.get('color')?.invalid && (formGroup.get('color')?.dirty || formGroup.get('color')?.touched) }"
+                  type="text"
                 />
-                <label for="color"><i class="bi bi-palette me-2"></i>Color</label>
+                <label for="color"
+                  ><i class="bi bi-palette me-2"></i>Color</label
+                >
                 <div class="invalid-feedback">El color es requerido.</div>
               </div>
             </div>
@@ -205,33 +255,44 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('cityRegistered')?.invalid &&
+                      (formGroup.get('cityRegistered')?.dirty ||
+                        formGroup.get('cityRegistered')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="cityRegistered"
                   id="cityRegistered"
                   placeholder="Ciudad"
-                  formControlName="cityRegistered"
-                  [ngClass]="{ 'is-invalid': formGroup.get('cityRegistered')?.invalid && (formGroup.get('cityRegistered')?.dirty || formGroup.get('cityRegistered')?.touched) }"
+                  type="text"
                 />
                 <label for="cityRegistered"
-                  ><i class="bi bi-geo-alt-fill me-2"></i>Ciudad de registro</label
+                  ><i class="bi bi-geo-alt-fill me-2"></i>Ciudad de
+                  registro</label
                 >
-                <div class="invalid-feedback">
-                  La ciudad es requerida.
-                </div>
+                <div class="invalid-feedback">La ciudad es requerida.</div>
               </div>
             </div>
 
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="number"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('year')?.invalid &&
+                      (formGroup.get('year')?.dirty ||
+                        formGroup.get('year')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="year"
                   id="year"
                   placeholder="Año"
-                  formControlName="year"
-                  [ngClass]="{ 'is-invalid': formGroup.get('year')?.invalid && (formGroup.get('year')?.dirty || formGroup.get('year')?.touched) }"
+                  type="number"
                 />
-                <label for="year"><i class="bi bi-calendar3 me-2"></i>Año</label>
+                <label for="year"
+                  ><i class="bi bi-calendar3 me-2"></i>Año</label
+                >
                 <div class="invalid-feedback">
                   Ingrese un año entre 1950 y 2050.
                 </div>
@@ -241,12 +302,17 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="number"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('mileage')?.invalid &&
+                      (formGroup.get('mileage')?.dirty ||
+                        formGroup.get('mileage')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="mileage"
                   id="mileage"
                   placeholder="Kilometraje"
-                  formControlName="mileage"
-                  [ngClass]="{ 'is-invalid': formGroup.get('mileage')?.invalid && (formGroup.get('mileage')?.dirty || formGroup.get('mileage')?.touched) }"
+                  type="number"
                 />
                 <label for="mileage"
                   ><i class="bi bi-tachometer me-2"></i>Kilometraje</label
@@ -260,19 +326,22 @@
             <div class="col-md-3">
               <div class="form-floating">
                 <input
-                  type="text"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('transmission')?.invalid &&
+                      (formGroup.get('transmission')?.dirty ||
+                        formGroup.get('transmission')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="transmission"
                   id="transmission"
                   placeholder="Transmisión"
-                  formControlName="transmission"
-                  [ngClass]="{ 'is-invalid': formGroup.get('transmission')?.invalid && (formGroup.get('transmission')?.dirty || formGroup.get('transmission')?.touched) }"
+                  type="text"
                 />
                 <label for="transmission"
                   ><i class="bi bi-boxes me-2"></i>Transmisión</label
                 >
-                <div class="invalid-feedback">
-                  La transmisión es requerida.
-                </div>
+                <div class="invalid-feedback">La transmisión es requerida.</div>
               </div>
             </div>
 
@@ -280,15 +349,21 @@
               <div class="col-md-3">
                 <div class="form-floating">
                   <input
-                    type="text"
+                    [ngClass]="{
+                      'is-invalid':
+                        formGroup.get('bodyType')?.invalid &&
+                        (formGroup.get('bodyType')?.dirty ||
+                          formGroup.get('bodyType')?.touched),
+                    }"
                     class="form-control"
+                    formControlName="bodyType"
                     id="bodyType"
                     placeholder="Tipo de carrocería"
-                    formControlName="bodyType"
-                    [ngClass]="{ 'is-invalid': formGroup.get('bodyType')?.invalid && (formGroup.get('bodyType')?.dirty || formGroup.get('bodyType')?.touched) }"
+                    type="text"
                   />
                   <label for="bodyType"
-                    ><i class="bi bi-car-front me-2"></i>Tipo de carrocería</label
+                    ><i class="bi bi-car-front me-2"></i>Tipo de
+                    carrocería</label
                   >
                   <div class="invalid-feedback">
                     La carrocería es requerida.
@@ -299,15 +374,21 @@
               <div class="col-md-3">
                 <div class="form-floating">
                   <input
-                    type="text"
+                    [ngClass]="{
+                      'is-invalid':
+                        formGroup.get('fuelType')?.invalid &&
+                        (formGroup.get('fuelType')?.dirty ||
+                          formGroup.get('fuelType')?.touched),
+                    }"
                     class="form-control"
+                    formControlName="fuelType"
                     id="fuelType"
                     placeholder="Tipo de combustible"
-                    formControlName="fuelType"
-                    [ngClass]="{ 'is-invalid': formGroup.get('fuelType')?.invalid && (formGroup.get('fuelType')?.dirty || formGroup.get('fuelType')?.touched) }"
+                    type="text"
                   />
                   <label for="fuelType"
-                    ><i class="bi bi-fuel-pump me-2"></i>Tipo de combustible</label
+                    ><i class="bi bi-fuel-pump me-2"></i>Tipo de
+                    combustible</label
                   >
                   <div class="invalid-feedback">
                     El tipo de combustible es requerido.
@@ -318,12 +399,17 @@
               <div class="col-md-3">
                 <div class="form-floating">
                   <input
-                    type="number"
+                    [ngClass]="{
+                      'is-invalid':
+                        formGroup.get('numberOfDoors')?.invalid &&
+                        (formGroup.get('numberOfDoors')?.dirty ||
+                          formGroup.get('numberOfDoors')?.touched),
+                    }"
                     class="form-control"
+                    formControlName="numberOfDoors"
                     id="numberOfDoors"
                     placeholder="Número de puertas"
-                    formControlName="numberOfDoors"
-                    [ngClass]="{ 'is-invalid': formGroup.get('numberOfDoors')?.invalid && (formGroup.get('numberOfDoors')?.dirty || formGroup.get('numberOfDoors')?.touched) }"
+                    type="number"
                   />
                   <label for="numberOfDoors"
                     ><i class="bi bi-chevron-bar-contract me-2"></i>Número de
@@ -340,15 +426,21 @@
               <div class="col-md-3">
                 <div class="form-floating">
                   <input
-                    type="text"
+                    [ngClass]="{
+                      'is-invalid':
+                        formGroup.get('motorcycleType')?.invalid &&
+                        (formGroup.get('motorcycleType')?.dirty ||
+                          formGroup.get('motorcycleType')?.touched),
+                    }"
                     class="form-control"
+                    formControlName="motorcycleType"
                     id="motorcycleType"
                     placeholder="Tipo de motocicleta"
-                    formControlName="motorcycleType"
-                    [ngClass]="{ 'is-invalid': formGroup.get('motorcycleType')?.invalid && (formGroup.get('motorcycleType')?.dirty || formGroup.get('motorcycleType')?.touched) }"
+                    type="text"
                   />
                   <label for="motorcycleType"
-                    ><i class="bi bi-bicycle me-2"></i>Tipo de motocicleta</label
+                    ><i class="bi bi-bicycle me-2"></i>Tipo de
+                    motocicleta</label
                   >
                   <div class="invalid-feedback">
                     El tipo de motocicleta es requerido.
@@ -367,12 +459,17 @@
             <div class="col-md-4">
               <div class="form-floating">
                 <input
-                  type="number"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('purchasePrice')?.invalid &&
+                      (formGroup.get('purchasePrice')?.dirty ||
+                        formGroup.get('purchasePrice')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="purchasePrice"
                   id="purchasePrice"
                   placeholder="Precio de compra"
-                  formControlName="purchasePrice"
-                  [ngClass]="{ 'is-invalid': formGroup.get('purchasePrice')?.invalid && (formGroup.get('purchasePrice')?.dirty || formGroup.get('purchasePrice')?.touched) }"
+                  type="number"
                 />
                 <label for="purchasePrice"
                   ><i class="bi bi-cash me-2"></i>Precio de compra</label
@@ -386,15 +483,21 @@
             <div class="col-md-4">
               <div class="form-floating">
                 <input
-                  type="number"
+                  [ngClass]="{
+                    'is-invalid':
+                      formGroup.get('salePrice')?.invalid &&
+                      (formGroup.get('salePrice')?.dirty ||
+                        formGroup.get('salePrice')?.touched),
+                  }"
                   class="form-control"
+                  formControlName="salePrice"
                   id="salePrice"
                   placeholder="Precio de venta"
-                  formControlName="salePrice"
-                  [ngClass]="{ 'is-invalid': formGroup.get('salePrice')?.invalid && (formGroup.get('salePrice')?.dirty || formGroup.get('salePrice')?.touched) }"
+                  type="number"
                 />
                 <label for="salePrice"
-                  ><i class="bi bi-bank me-2"></i>Precio de venta (opcional)</label
+                  ><i class="bi bi-bank me-2"></i>Precio de venta
+                  (opcional)</label
                 >
                 <div class="invalid-feedback">
                   Ingrese un valor válido (>= 0).
@@ -406,11 +509,13 @@
               <div class="form-floating">
                 <select
                   class="form-select"
-                  id="status"
                   formControlName="status"
+                  id="status"
                 >
                   @for (status of statuses; track status) {
-                    <option [value]="status">{{ getStatusLabel(status) }}</option>
+                    <option [value]="status">
+                      {{ getStatusLabel(status) }}
+                    </option>
                   }
                 </select>
                 <label for="status"
@@ -419,34 +524,130 @@
               </div>
             </div>
           </div>
+        </fieldset>
 
-          <div class="row g-3 mt-0 align-items-center">
-            <div class="col-12">
-              <div class="form-floating">
-                <input
-                  type="url"
-                  class="form-control"
-                  id="photoUrl"
-                  placeholder="URL de la fotografía"
-                  formControlName="photoUrl"
-                />
-                <label for="photoUrl"
-                  ><i class="bi bi-image me-2"></i>URL de fotografía
-                  (opcional)</label
+        <fieldset *ngIf="isEditMode" class="border rounded p-3 mb-4">
+          <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+            <i class="bi bi-images me-1"></i>Fotografías del vehículo
+          </legend>
+
+          <!-- Input de subida -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="vehicleImage">
+              Seleccionar imágenes
+            </label>
+            <input
+              (change)="onImageSelected($event)"
+              accept="image/*"
+              multiple
+              class="form-control"
+              id="vehicleImage"
+              type="file"
+            />
+            <small class="text-muted d-block mt-1">
+              Puedes adjuntar varias a la vez. Si el vehículo no tiene imagen principal,
+              la primera que adjuntes se marcará como “Principal”.
+            </small>
+          </div>
+
+          <!-- Archivos seleccionados (lista) -->
+          <div *ngIf="selectedFiles.length > 0" class="mb-3">
+            <div class="d-flex align-items-center mb-1">
+              <span class="badge bg-primary me-2">
+                {{ selectedFiles.length }} seleccionada(s)
+              </span>
+              <small class="text-muted">Se subirán de forma consecutiva.</small>
+            </div>
+            <ul class="list-group list-group-flush border rounded">
+              <li
+                *ngFor="let f of selectedFiles; index as i"
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <div class="text-truncate">
+                  <span class="fw-semibold">{{ f.name }}</span>
+                  <small class="text-muted ms-2">({{ f.size / 1024 | number : '1.0-1' }} KB)</small>
+                </div>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  type="button"
+                  (click)="removeSelectedFile(i)"
+                  [disabled]="isLoading()"
+                  aria-label="Eliminar archivo seleccionado"
                 >
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Preview de imagen seleccionada -->
+          <div *ngIf="previewUrl" class="mb-3 text-center">
+            <p class="text-muted small mb-1">Vista previa</p>
+            <img
+              [src]="previewUrl"
+              alt="Preview"
+              class="img-thumbnail"
+              style="max-width: 250px"
+            />
+            <div class="mt-2">
+              <button
+                (click)="uploadSelectedImage()"
+                class="btn btn-primary btn-sm"
+                type="button"
+                [disabled]="isLoading() || selectedFiles.length === 0"
+              >
+                <i class="bi bi-cloud-upload me-1"></i>Subir imagen
+              </button>
+            </div>
+          </div>
+
+          <!-- Imágenes existentes -->
+          <div *ngIf="vehicleImages().length > 0" class="mt-4">
+            <p class="text-muted small mb-2">Imágenes almacenadas</p>
+
+            <div class="d-flex flex-wrap gap-3">
+              <div
+                *ngFor="let img of vehicleImages()"
+                class="border rounded p-2 text-center"
+                style="width: 150px"
+              >
+                <img
+                  [src]="img.url"
+                  class="img-fluid rounded mb-2"
+                  style="height: 100px; object-fit: cover"
+                  alt="vehiculo"
+                />
+
+                <span
+                  [ngClass]="img.primary ? 'bg-success' : 'bg-secondary'"
+                  class="badge"
+                >
+                  {{ img.primary ? "Principal" : "Secundaria" }}
+                </span>
+                <button
+                  (click)="deleteImage(img.id)"
+                  class="btn btn-outline-danger btn-sm w-100 mt-2"
+                  type="button"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
               </div>
             </div>
           </div>
         </fieldset>
 
         <div class="d-flex justify-content-between align-items-center mt-4">
-          <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+          <button
+            (click)="goBack()"
+            class="btn btn-outline-secondary"
+            type="button"
+          >
             <i class="bi bi-arrow-left me-2"></i>Volver al listado
           </button>
 
           <button class="btn btn-primary" type="submit">
             <i class="bi bi-save me-2"></i>
-            {{ isEditMode ? 'Guardar cambios' : 'Registrar vehículo' }}
+            {{ isEditMode ? "Guardar cambios" : "Registrar vehículo" }}
           </button>
         </div>
       </form>

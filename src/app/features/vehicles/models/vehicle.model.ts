@@ -18,7 +18,6 @@ export class Vehicle {
   status!: VehicleStatus;
   purchasePrice!: number;
   salePrice!: number;
-  photoUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }

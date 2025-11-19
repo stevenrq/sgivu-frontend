@@ -1,37 +1,37 @@
 <div class="container-fluid">
   <app-page-header
-    title="Gestión de Vehículos"
     subtitle="Administra el inventario de automóviles y motocicletas registrados en SGIVU."
+    title="Gestión de Vehículos"
   >
     <div
-      page-header-actions
       class="d-flex align-items-center gap-3 flex-wrap justify-content-end"
+      page-header-actions
     >
-      <div class="btn-group toggle-group" aria-label="Tipo de vehículo">
+      <div aria-label="Tipo de vehículo" class="btn-group toggle-group">
         <button
-          type="button"
-          class="btn btn-outline-primary me-3"
-          [class.active]="activeTab === 'car'"
           (click)="switchTab('car')"
           *appHasPermission="'car:read'"
+          [class.active]="activeTab === 'car'"
+          class="btn btn-outline-primary me-3"
+          type="button"
         >
           <i class="bi bi-car-front-fill me-2"></i>Automóviles
         </button>
         <button
-          type="button"
-          class="btn btn-outline-primary"
-          [class.active]="activeTab === 'motorcycle'"
           (click)="switchTab('motorcycle')"
           *appHasPermission="'motorcycle:read'"
+          [class.active]="activeTab === 'motorcycle'"
+          class="btn btn-outline-primary"
+          type="button"
         >
           <i class="bi bi-bicycle me-2"></i>Motocicletas
         </button>
       </div>
       <button
-        class="btn btn-primary"
-        type="button"
         (click)="startPurchaseFlow()"
         *appHasPermission="'purchase_sale:create'"
+        class="btn btn-primary"
+        type="button"
       >
         <i class="bi bi-plus-circle me-2"></i>{{ createLabel }}
       </button>
@@ -41,25 +41,25 @@
   <div class="row g-4 mb-4">
     <div class="col-md-4">
       <app-kpi-card
-        label="Inventario total"
-        [value]="totalCount"
         [icon]="activeTab === 'car' ? 'bi-car-front-fill' : 'bi-bicycle'"
+        [value]="totalCount"
+        label="Inventario total"
         variant="primary"
       ></app-kpi-card>
     </div>
     <div class="col-md-4">
       <app-kpi-card
-        label="Disponibles"
         [value]="availableCount"
         icon="bi-check-circle-fill"
+        label="Disponibles"
         variant="success"
       ></app-kpi-card>
     </div>
     <div class="col-md-4">
       <app-kpi-card
-        label="No disponibles"
         [value]="unavailableCount"
         icon="bi-exclamation-triangle-fill"
+        label="No disponibles"
         variant="warning"
       ></app-kpi-card>
     </div>
@@ -83,107 +83,111 @@
         </p>
       </div>
 
-      <div class="filters-panel" aria-label="Filtros">
+      <div aria-label="Filtros" class="filters-panel">
         @if (activeTab === "car") {
           <div class="row g-2 g-md-3 align-items-end">
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="carPlate" class="form-label filter-label"
+              <label class="form-label filter-label" for="carPlate"
                 >Placa</label
               >
               <input
-                id="carPlate"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="carFilters.plate"
+                class="form-control form-control-sm"
+                id="carPlate"
                 placeholder="Ej: ABC123"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="carBrand" class="form-label filter-label"
+              <label class="form-label filter-label" for="carBrand"
                 >Marca</label
               >
               <input
-                id="carBrand"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="carFilters.brand"
-                placeholder="Toyota"
-              />
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-              <label for="carLine" class="form-label filter-label">Línea</label>
-              <input
-                id="carLine"
-                type="search"
                 class="form-control form-control-sm"
-                [(ngModel)]="carFilters.line"
-                placeholder="SE"
+                id="carBrand"
+                placeholder="Toyota"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="carModel" class="form-label filter-label"
+              <label class="form-label filter-label" for="carLine">Línea</label>
+              <input
+                [(ngModel)]="carFilters.line"
+                class="form-control form-control-sm"
+                id="carLine"
+                placeholder="SE"
+                type="search"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="carModel"
                 >Modelo</label
               >
               <input
-                id="carModel"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="carFilters.model"
+                class="form-control form-control-sm"
+                id="carModel"
                 placeholder="Corolla"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="carFuel" class="form-label filter-label"
+              <label class="form-label filter-label" for="carFuel"
                 >Combustible</label
               >
               <input
-                id="carFuel"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="carFilters.fuelType"
+                class="form-control form-control-sm"
+                id="carFuel"
                 placeholder="Gasolina"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="carBody" class="form-label filter-label"
+              <label class="form-label filter-label" for="carBody"
                 >Carrocería</label
               >
               <input
-                id="carBody"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="carFilters.bodyType"
+                class="form-control form-control-sm"
+                id="carBody"
                 placeholder="Sedán"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="carTransmission" class="form-label filter-label"
+              <label class="form-label filter-label" for="carTransmission"
                 >Transmisión</label
               >
               <input
-                id="carTransmission"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="carFilters.transmission"
-                placeholder="Automática"
-              />
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-              <label for="carCity" class="form-label filter-label">Ciudad</label>
-              <input
-                id="carCity"
-                type="search"
                 class="form-control form-control-sm"
-                [(ngModel)]="carFilters.cityRegistered"
-                placeholder="Bogotá"
+                id="carTransmission"
+                placeholder="Automática"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label class="form-label filter-label" for="carStatus">Estado</label>
+              <label class="form-label filter-label" for="carCity"
+                >Ciudad</label
+              >
+              <input
+                [(ngModel)]="carFilters.cityRegistered"
+                class="form-control form-control-sm"
+                id="carCity"
+                placeholder="Bogotá"
+                type="search"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="carStatus"
+                >Estado</label
+              >
               <select
-                id="carStatus"
-                class="form-select form-select-sm"
                 [(ngModel)]="carFilters.status"
+                class="form-select form-select-sm"
+                id="carStatus"
               >
                 <option value="">Todos</option>
                 @for (status of vehicleStatuses; track status) {
@@ -198,12 +202,12 @@
                 >Año desde</label
               >
               <input
-                id="carYearFrom"
-                type="number"
-                min="1950"
-                class="form-control form-control-sm"
-                [ngModel]="carFilters.minYear"
                 (ngModelChange)="carFilters.minYear = toNumber($event)"
+                [ngModel]="carFilters.minYear"
+                class="form-control form-control-sm"
+                id="carYearFrom"
+                min="1950"
+                type="number"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -211,12 +215,12 @@
                 >Año hasta</label
               >
               <input
-                id="carYearTo"
-                type="number"
-                min="1950"
-                class="form-control form-control-sm"
-                [ngModel]="carFilters.maxYear"
                 (ngModelChange)="carFilters.maxYear = toNumber($event)"
+                [ngModel]="carFilters.maxYear"
+                class="form-control form-control-sm"
+                id="carYearTo"
+                min="1950"
+                type="number"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -224,13 +228,13 @@
                 >Precio mínimo</label
               >
               <input
-                id="carMinPrice"
-                type="number"
-                min="0"
-                class="form-control form-control-sm"
-                [ngModel]="carFilters.minSalePrice"
                 (ngModelChange)="carFilters.minSalePrice = toNumber($event)"
+                [ngModel]="carFilters.minSalePrice"
+                class="form-control form-control-sm"
+                id="carMinPrice"
+                min="0"
                 placeholder="COP"
+                type="number"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -238,29 +242,29 @@
                 >Precio máximo</label
               >
               <input
-                id="carMaxPrice"
-                type="number"
-                min="0"
-                class="form-control form-control-sm"
-                [ngModel]="carFilters.maxSalePrice"
                 (ngModelChange)="carFilters.maxSalePrice = toNumber($event)"
+                [ngModel]="carFilters.maxSalePrice"
+                class="form-control form-control-sm"
+                id="carMaxPrice"
+                min="0"
                 placeholder="COP"
+                type="number"
               />
             </div>
             <div
               class="col-12 col-md-auto d-flex gap-2 justify-content-end mt-2 mt-md-3"
             >
               <button
+                (click)="onCarSearch()"
                 class="btn btn-primary btn-sm px-3"
                 type="button"
-                (click)="onCarSearch()"
               >
                 <i class="bi bi-search me-1"></i>Filtrar
               </button>
               <button
+                (click)="clearFilters('car')"
                 class="btn btn-outline-secondary btn-sm px-3"
                 type="button"
-                (click)="clearFilters('car')"
               >
                 <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
               </button>
@@ -269,91 +273,95 @@
         } @else {
           <div class="row g-2 g-md-3 align-items-end">
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="motoPlate" class="form-label filter-label"
+              <label class="form-label filter-label" for="motoPlate"
                 >Placa</label
               >
               <input
-                id="motoPlate"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="motorcycleFilters.plate"
+                class="form-control form-control-sm"
+                id="motoPlate"
                 placeholder="Ej: ABC12D"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="motoBrand" class="form-label filter-label"
+              <label class="form-label filter-label" for="motoBrand"
                 >Marca</label
               >
               <input
-                id="motoBrand"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="motorcycleFilters.brand"
+                class="form-control form-control-sm"
+                id="motoBrand"
                 placeholder="Honda"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="motoLine" class="form-label filter-label"
+              <label class="form-label filter-label" for="motoLine"
                 >Línea</label
               >
               <input
-                id="motoLine"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="motorcycleFilters.line"
+                class="form-control form-control-sm"
+                id="motoLine"
                 placeholder="Repsol Edition"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="motoModel" class="form-label filter-label"
+              <label class="form-label filter-label" for="motoModel"
                 >Modelo</label
               >
               <input
-                id="motoModel"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="motorcycleFilters.model"
-                placeholder="CB160F"
-              />
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-              <label for="motoType" class="form-label filter-label">Tipo</label>
-              <input
-                id="motoType"
-                type="search"
                 class="form-control form-control-sm"
-                [(ngModel)]="motorcycleFilters.motorcycleType"
-                placeholder="Sport"
+                id="motoModel"
+                placeholder="CB160F"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label for="motoTransmission" class="form-label filter-label"
+              <label class="form-label filter-label" for="motoType">Tipo</label>
+              <input
+                [(ngModel)]="motorcycleFilters.motorcycleType"
+                class="form-control form-control-sm"
+                id="motoType"
+                placeholder="Sport"
+                type="search"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="motoTransmission"
                 >Transmisión</label
               >
               <input
-                id="motoTransmission"
-                type="search"
-                class="form-control form-control-sm"
                 [(ngModel)]="motorcycleFilters.transmission"
-                placeholder="Manual"
-              />
-            </div>
-            <div class="col-6 col-md-3 col-xl-2">
-              <label for="motoCity" class="form-label filter-label">Ciudad</label>
-              <input
-                id="motoCity"
-                type="search"
                 class="form-control form-control-sm"
-                [(ngModel)]="motorcycleFilters.cityRegistered"
-                placeholder="Medellín"
+                id="motoTransmission"
+                placeholder="Manual"
+                type="search"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
-              <label class="form-label filter-label" for="motoStatus">Estado</label>
+              <label class="form-label filter-label" for="motoCity"
+                >Ciudad</label
+              >
+              <input
+                [(ngModel)]="motorcycleFilters.cityRegistered"
+                class="form-control form-control-sm"
+                id="motoCity"
+                placeholder="Medellín"
+                type="search"
+              />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+              <label class="form-label filter-label" for="motoStatus"
+                >Estado</label
+              >
               <select
-                id="motoStatus"
-                class="form-select form-select-sm"
                 [(ngModel)]="motorcycleFilters.status"
+                class="form-select form-select-sm"
+                id="motoStatus"
               >
                 <option value="">Todos</option>
                 @for (status of vehicleStatuses; track status) {
@@ -368,14 +376,12 @@
                 >Año desde</label
               >
               <input
-                id="motoYearFrom"
-                type="number"
-                min="1950"
-                class="form-control form-control-sm"
+                (ngModelChange)="motorcycleFilters.minYear = toNumber($event)"
                 [ngModel]="motorcycleFilters.minYear"
-                (ngModelChange)="
-                  motorcycleFilters.minYear = toNumber($event)
-                "
+                class="form-control form-control-sm"
+                id="motoYearFrom"
+                min="1950"
+                type="number"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -383,14 +389,12 @@
                 >Año hasta</label
               >
               <input
-                id="motoYearTo"
-                type="number"
-                min="1950"
-                class="form-control form-control-sm"
+                (ngModelChange)="motorcycleFilters.maxYear = toNumber($event)"
                 [ngModel]="motorcycleFilters.maxYear"
-                (ngModelChange)="
-                  motorcycleFilters.maxYear = toNumber($event)
-                "
+                class="form-control form-control-sm"
+                id="motoYearTo"
+                min="1950"
+                type="number"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -398,14 +402,14 @@
                 >Precio mínimo</label
               >
               <input
-                id="motoMinPrice"
-                type="number"
-                min="0"
-                class="form-control form-control-sm"
-                [ngModel]="motorcycleFilters.minSalePrice"
                 (ngModelChange)="
                   motorcycleFilters.minSalePrice = toNumber($event)
                 "
+                [ngModel]="motorcycleFilters.minSalePrice"
+                class="form-control form-control-sm"
+                id="motoMinPrice"
+                min="0"
+                type="number"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -413,30 +417,30 @@
                 >Precio máximo</label
               >
               <input
-                id="motoMaxPrice"
-                type="number"
-                min="0"
-                class="form-control form-control-sm"
-                [ngModel]="motorcycleFilters.maxSalePrice"
                 (ngModelChange)="
                   motorcycleFilters.maxSalePrice = toNumber($event)
                 "
+                [ngModel]="motorcycleFilters.maxSalePrice"
+                class="form-control form-control-sm"
+                id="motoMaxPrice"
+                min="0"
+                type="number"
               />
             </div>
             <div
               class="col-12 col-md-auto d-flex gap-2 justify-content-end mt-2 mt-md-0"
             >
               <button
+                (click)="onMotorcycleSearch()"
                 class="btn btn-primary btn-sm px-3"
                 type="button"
-                (click)="onMotorcycleSearch()"
               >
                 <i class="bi bi-search me-1"></i>Filtrar
               </button>
               <button
+                (click)="clearFilters('motorcycle')"
                 class="btn btn-outline-secondary btn-sm px-3"
                 type="button"
-                (click)="clearFilters('motorcycle')"
               >
                 <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
               </button>
@@ -459,7 +463,7 @@
         loadingLabel="Cargando vehículos..."
       >
         <ng-container table-head>
-          @if (activeTab === 'car') {
+          @if (activeTab === "car") {
             <tr>
               <th scope="col">Placa</th>
               <th scope="col">Marca / Línea</th>
@@ -467,13 +471,11 @@
               <th scope="col">Capacidad de pasajeros</th>
               <th scope="col">Transmisión</th>
               <th scope="col">Estado</th>
-              <th scope="col" class="text-end">Precio venta</th>
+              <th class="text-end" scope="col">Precio venta</th>
               <th
-                scope="col"
+                *appHasPermission="['car:update', 'car:delete']; logic: 'OR'"
                 class="text-center"
-                *appHasPermission="
-                  ['car:update', 'car:delete']; appHasPermissionLogic: 'OR'
-                "
+                scope="col"
               >
                 Acciones
               </th>
@@ -485,11 +487,11 @@
               <th scope="col">Modelo</th>
               <th scope="col">Tipo</th>
               <th scope="col">Estado</th>
-              <th scope="col" class="text-end">Precio venta</th>
+              <th class="text-end" scope="col">Precio venta</th>
               <th
-                scope="col"
-                class="text-center"
                 *appHasPermission="'motorcycle:update'"
+                class="text-center"
+                scope="col"
               >
                 Acciones
               </th>
@@ -497,7 +499,7 @@
           }
         </ng-container>
         <ng-container table-body>
-          @if (activeTab === 'car') {
+          @if (activeTab === "car") {
             @if (!activeState.loading && carState.items.length === 0) {
               <tr>
                 <td class="text-center text-muted py-4" colspan="9">
@@ -516,14 +518,14 @@
                 <td>{{ car.capacity }} pasajeros</td>
                 <td>{{ car.transmission }}</td>
                 <td>
-                  <span class="badge" [ngClass]="badgeClass(car.status)">
+                  <span [ngClass]="badgeClass(car.status)" class="badge">
                     {{ statusLabel(car.status) }}
                   </span>
-                  <div class="mt-2" *appHasPermission="'car:update'">
+                  <div *appHasPermission="'car:update'" class="mt-2">
                     <select
-                      class="form-select form-select-sm"
-                      [ngModel]="car.status"
                       (ngModelChange)="changeCarStatus(car, $event)"
+                      [ngModel]="car.status"
+                      class="form-select form-select-sm"
                     >
                       @for (status of vehicleStatuses; track status) {
                         <option [value]="status">
@@ -535,46 +537,46 @@
                 </td>
                 <td class="text-end">
                   {{
-                    car.salePrice | currency: 'COP': 'symbol-narrow': '1.0-0'
+                    car.salePrice | currency: "COP" : "symbol-narrow" : "1.0-0"
                   }}
                 </td>
-                <td class="text-center" *appHasPermission="'car:update'">
+                <td *appHasPermission="'car:update'" class="text-center">
                   <div class="dropdown">
                     <button
-                      class="btn btn-outline-secondary btn-sm btn-icon"
-                      type="button"
-                      data-bs-toggle="dropdown"
                       aria-expanded="false"
+                      class="btn btn-outline-secondary btn-sm btn-icon"
+                      data-bs-toggle="dropdown"
+                      type="button"
                     >
                       <i class="bi bi-three-dots"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li>
                         <a
-                          class="dropdown-item"
                           [routerLink]="['/vehicles/cars', car.id]"
+                          class="dropdown-item"
                         >
                           <i class="bi bi-pencil-square me-2"></i>Editar
                         </a>
                       </li>
                       <li>
                         <button
+                          (click)="toggleCarAvailability(car)"
                           class="dropdown-item d-flex align-items-center"
                           type="button"
-                          (click)="toggleCarAvailability(car)"
                         >
                           <i
-                            class="bi me-2"
                             [ngClass]="
                               car.status === VehicleStatus.INACTIVE
                                 ? 'bi-toggle-off'
                                 : 'bi-toggle-on'
                             "
+                            class="bi me-2"
                           ></i>
                           {{
                             car.status === VehicleStatus.INACTIVE
-                              ? 'Activar'
-                              : 'Desactivar'
+                              ? "Activar"
+                              : "Desactivar"
                           }}
                         </button>
                       </li>
@@ -601,16 +603,16 @@
                 <td>{{ motorcycle.model }}</td>
                 <td>{{ motorcycle.motorcycleType }}</td>
                 <td>
-                  <span class="badge" [ngClass]="badgeClass(motorcycle.status)">
+                  <span [ngClass]="badgeClass(motorcycle.status)" class="badge">
                     {{ statusLabel(motorcycle.status) }}
                   </span>
-                  <div class="mt-2" *appHasPermission="'motorcycle:update'">
+                  <div *appHasPermission="'motorcycle:update'" class="mt-2">
                     <select
-                      class="form-select form-select-sm"
-                      [ngModel]="motorcycle.status"
                       (ngModelChange)="
                         changeMotorcycleStatus(motorcycle, $event)
                       "
+                      [ngModel]="motorcycle.status"
+                      class="form-select form-select-sm"
                     >
                       @for (status of vehicleStatuses; track status) {
                         <option [value]="status">
@@ -623,46 +625,49 @@
                 <td class="text-end">
                   {{
                     motorcycle.salePrice
-                      | currency: 'COP': 'symbol-narrow': '1.0-0'
+                      | currency: "COP" : "symbol-narrow" : "1.0-0"
                   }}
                 </td>
-                <td class="text-center" *appHasPermission="'motorcycle:update'">
+                <td *appHasPermission="'motorcycle:update'" class="text-center">
                   <div class="dropdown">
                     <button
-                      class="btn btn-outline-secondary btn-sm btn-icon"
-                      type="button"
-                      data-bs-toggle="dropdown"
                       aria-expanded="false"
+                      class="btn btn-outline-secondary btn-sm btn-icon"
+                      data-bs-toggle="dropdown"
+                      type="button"
                     >
                       <i class="bi bi-three-dots"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li>
                         <a
+                          [routerLink]="[
+                            '/vehicles/motorcycles',
+                            motorcycle.id,
+                          ]"
                           class="dropdown-item"
-                          [routerLink]="['/vehicles/motorcycles', motorcycle.id]"
                         >
                           <i class="bi bi-pencil-square me-2"></i>Editar
                         </a>
                       </li>
                       <li>
                         <button
+                          (click)="toggleMotorcycleAvailability(motorcycle)"
                           class="dropdown-item d-flex align-items-center"
                           type="button"
-                          (click)="toggleMotorcycleAvailability(motorcycle)"
                         >
                           <i
-                            class="bi me-2"
                             [ngClass]="
                               motorcycle.status === VehicleStatus.INACTIVE
                                 ? 'bi-toggle-off'
                                 : 'bi-toggle-on'
                             "
+                            class="bi me-2"
                           ></i>
                           {{
                             motorcycle.status === VehicleStatus.INACTIVE
-                              ? 'Activar'
-                              : 'Desactivar'
+                              ? "Activar"
+                              : "Desactivar"
                           }}
                         </button>
                       </li>
