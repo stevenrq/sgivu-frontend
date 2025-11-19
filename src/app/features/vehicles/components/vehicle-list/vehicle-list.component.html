@@ -83,7 +83,7 @@
         </p>
       </div>
 
-      <div aria-label="Filtros" class="filters-panel">
+      <div aria-label="Filtros" class="filters-panel mt-3">
         @if (activeTab === "car") {
           <div class="row g-2 g-md-3 align-items-end">
             <div class="col-6 col-md-3 col-xl-2">
@@ -253,15 +253,13 @@
                 type="text"
               />
             </div>
-            <div
-              class="col-12 col-md-auto d-flex gap-2 justify-content-end mt-2 mt-md-3"
-            >
+            <div class="col-12 col-md-auto filter-actions mt-2 mt-md-3">
               <button
                 (click)="onCarSearch()"
                 class="btn btn-primary btn-sm px-3"
                 type="button"
               >
-                <i class="bi bi-search me-1"></i>Filtrar
+                <i class="bi bi-funnel me-1"></i>Aplicar filtros
               </button>
               <button
                 (click)="clearFilters('car')"
@@ -433,15 +431,13 @@
                 type="text"
               />
             </div>
-            <div
-              class="col-12 col-md-auto d-flex gap-2 justify-content-end mt-2 mt-md-0"
-            >
+            <div class="col-12 col-md-auto filter-actions mt-2 mt-md-0">
               <button
                 (click)="onMotorcycleSearch()"
                 class="btn btn-primary btn-sm px-3"
                 type="button"
               >
-                <i class="bi bi-search me-1"></i>Filtrar
+                <i class="bi bi-funnel me-1"></i>Aplicar filtros
               </button>
               <button
                 (click)="clearFilters('motorcycle')"

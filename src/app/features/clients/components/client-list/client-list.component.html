@@ -93,158 +93,158 @@
       </div>
 
       @if (activeTab === 'person') {
-        <div class="row g-2 g-md-3 mt-3 align-items-end">
-          <div class="col-12 col-md-3">
-            <label class="form-label form-label-sm">Nombre o apellido</label>
-            <input
-              type="search"
-              class="form-control form-control-sm"
-              [(ngModel)]="personFilters.name"
-              (keyup.enter)="applyFilters()"
-              [placeholder]="searchPlaceholder"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Documento</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              [(ngModel)]="personFilters.nationalId"
-              (keyup.enter)="applyFilters()"
-              placeholder="Cédula"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Correo</label>
-            <input
-              type="email"
-              class="form-control form-control-sm"
-              [(ngModel)]="personFilters.email"
-              (keyup.enter)="applyFilters()"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Teléfono</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              [(ngModel)]="personFilters.phoneNumber"
-              (keyup.enter)="applyFilters()"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Ciudad</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              [(ngModel)]="personFilters.city"
-              (keyup.enter)="applyFilters()"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Estado</label>
-            <select
-              class="form-select form-select-sm"
-              [(ngModel)]="personFilters.enabled"
-            >
-              <option value="">Todos</option>
-              <option value="true">Activos</option>
-              <option value="false">Inactivos</option>
-            </select>
-          </div>
-          <div class="col-12 col-md-auto">
-            <div class="d-flex gap-2 justify-content-end">
+        <div class="filters-panel mt-3">
+          <div class="row g-2 g-md-3 align-items-end">
+            <div class="col-12 col-md-3">
+              <label class="form-label filter-label">Nombre o apellido</label>
+              <input
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="personFilters.name"
+                (keyup.enter)="applyFilters()"
+                [placeholder]="searchPlaceholder"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Documento</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="personFilters.nationalId"
+                (keyup.enter)="applyFilters()"
+                placeholder="Cédula"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Correo</label>
+              <input
+                type="email"
+                class="form-control form-control-sm"
+                [(ngModel)]="personFilters.email"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Teléfono</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="personFilters.phoneNumber"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Ciudad</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="personFilters.city"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Estado</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="personFilters.enabled"
+              >
+                <option value="">Todos</option>
+                <option value="true">Activos</option>
+                <option value="false">Inactivos</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-auto filter-actions mt-2 mt-md-0">
               <button
                 class="btn btn-primary btn-sm"
                 type="button"
                 (click)="applyFilters()"
               >
-                <i class="bi bi-funnel me-1"></i>Filtrar
+                <i class="bi bi-funnel me-1"></i>Aplicar filtros
               </button>
               <button
                 class="btn btn-outline-secondary btn-sm"
                 type="button"
                 (click)="clearFilters()"
               >
-                <i class="bi bi-eraser me-1"></i>Limpiar
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
               </button>
             </div>
           </div>
         </div>
       } @else {
-        <div class="row g-2 g-md-3 mt-3 align-items-end">
-          <div class="col-12 col-md-3">
-            <label class="form-label form-label-sm">Razón social</label>
-            <input
-              type="search"
-              class="form-control form-control-sm"
-              [(ngModel)]="companyFilters.companyName"
-              (keyup.enter)="applyFilters()"
-              [placeholder]="searchPlaceholder"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">NIT</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              [(ngModel)]="companyFilters.taxId"
-              (keyup.enter)="applyFilters()"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Correo</label>
-            <input
-              type="email"
-              class="form-control form-control-sm"
-              [(ngModel)]="companyFilters.email"
-              (keyup.enter)="applyFilters()"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Teléfono</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              [(ngModel)]="companyFilters.phoneNumber"
-              (keyup.enter)="applyFilters()"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Ciudad</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              [(ngModel)]="companyFilters.city"
-              (keyup.enter)="applyFilters()"
-            />
-          </div>
-          <div class="col-6 col-md-2">
-            <label class="form-label form-label-sm">Estado</label>
-            <select
-              class="form-select form-select-sm"
-              [(ngModel)]="companyFilters.enabled"
-            >
-              <option value="">Todos</option>
-              <option value="true">Activas</option>
-              <option value="false">Inactivas</option>
-            </select>
-          </div>
-          <div class="col-12 col-md-auto">
-            <div class="d-flex gap-2 justify-content-end">
+        <div class="filters-panel mt-3">
+          <div class="row g-2 g-md-3 align-items-end">
+            <div class="col-12 col-md-3">
+              <label class="form-label filter-label">Razón social</label>
+              <input
+                type="search"
+                class="form-control form-control-sm"
+                [(ngModel)]="companyFilters.companyName"
+                (keyup.enter)="applyFilters()"
+                [placeholder]="searchPlaceholder"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">NIT</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="companyFilters.taxId"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Correo</label>
+              <input
+                type="email"
+                class="form-control form-control-sm"
+                [(ngModel)]="companyFilters.email"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Teléfono</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="companyFilters.phoneNumber"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Ciudad</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="companyFilters.city"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label filter-label">Estado</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="companyFilters.enabled"
+              >
+                <option value="">Todos</option>
+                <option value="true">Activas</option>
+                <option value="false">Inactivas</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-auto filter-actions mt-2 mt-md-0">
               <button
                 class="btn btn-primary btn-sm"
                 type="button"
                 (click)="applyFilters()"
               >
-                <i class="bi bi-funnel me-1"></i>Filtrar
+                <i class="bi bi-funnel me-1"></i>Aplicar filtros
               </button>
               <button
                 class="btn btn-outline-secondary btn-sm"
                 type="button"
                 (click)="clearFilters()"
               >
-                <i class="bi bi-eraser me-1"></i>Limpiar
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
               </button>
             </div>
           </div>

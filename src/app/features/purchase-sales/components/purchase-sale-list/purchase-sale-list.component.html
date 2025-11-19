@@ -53,152 +53,156 @@
           >
         </div>
       </div>
-      <div class="row g-2 g-md-3 mt-3 align-items-end">
-        <div class="col-6 col-md-3">
-          <label class="form-label form-label-sm">Tipo de contrato</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.contractType"
-          >
-            <option value="ALL">Todos</option>
-            @for (type of contractTypes; track type) {
-              <option [ngValue]="type">{{ getContractTypeLabel(type) }}</option>
-            }
-          </select>
-        </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label form-label-sm">Estado</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.contractStatus"
-          >
-            <option value="ALL">Todos</option>
-            @for (status of contractStatuses; track status) {
-              <option [ngValue]="status">{{ getStatusLabel(status) }}</option>
-            }
-          </select>
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label form-label-sm">Cliente</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.clientId"
-          >
-            <option value="">Todos</option>
-            @for (client of clients(); track client.id) {
-              <option [ngValue]="client.id.toString()">{{ client.label }}</option>
-            }
-          </select>
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label form-label-sm">Usuario</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.userId"
-          >
-            <option value="">Todos</option>
-            @for (user of users(); track user.id) {
-              <option [ngValue]="user.id.toString()">{{ user.label }}</option>
-            }
-          </select>
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label form-label-sm">Vehículo</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.vehicleId"
-          >
-            <option value="">Todos</option>
-            @for (vehicle of vehicles(); track vehicle.id) {
-              <option [ngValue]="vehicle.id.toString()">
-                {{ vehicle.label }}
-              </option>
-            }
-          </select>
-        </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label form-label-sm">Medio de pago</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.paymentMethod"
-          >
-            <option value="">Todos</option>
-            @for (method of paymentMethods; track method) {
-              <option [ngValue]="method">
-                {{ getPaymentMethodLabel(method) }}
-              </option>
-            }
-          </select>
-        </div>
-            <div class="col-6 col-md-3">
-              <label class="form-label form-label-sm">Compra desde</label>
-              <input
-                type="text"
-                inputmode="decimal"
-                class="form-control form-control-sm"
-                [ngModel]="filters.minPurchasePrice"
-                (ngModelChange)="onPriceFilterChange('minPurchasePrice', $event)"
-                pattern="^[0-9.,\\s$]*$"
-                placeholder="$"
-              />
-            </div>
-            <div class="col-6 col-md-3">
-              <label class="form-label form-label-sm">Compra hasta</label>
-              <input
-                type="text"
-                inputmode="decimal"
-                class="form-control form-control-sm"
-                [ngModel]="filters.maxPurchasePrice"
-                (ngModelChange)="onPriceFilterChange('maxPurchasePrice', $event)"
-                pattern="^[0-9.,\\s$]*$"
-                placeholder="$"
-              />
-            </div>
-            <div class="col-6 col-md-3">
-              <label class="form-label form-label-sm">Venta desde</label>
-              <input
-                type="text"
-                inputmode="decimal"
-                class="form-control form-control-sm"
-                [ngModel]="filters.minSalePrice"
-                (ngModelChange)="onPriceFilterChange('minSalePrice', $event)"
-                pattern="^[0-9.,\\s$]*$"
-                placeholder="$"
-              />
-            </div>
-            <div class="col-6 col-md-3">
-              <label class="form-label form-label-sm">Venta hasta</label>
-              <input
-                type="text"
-                inputmode="decimal"
-                class="form-control form-control-sm"
-                [ngModel]="filters.maxSalePrice"
-                (ngModelChange)="onPriceFilterChange('maxSalePrice', $event)"
-                pattern="^[0-9.,\\s$]*$"
-                placeholder="$"
-              />
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label form-label-sm">Búsqueda rápida</label>
-          <input
-            type="search"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.term"
-            placeholder="ID, cliente, vehículo..."
-            (keyup.enter)="applyFilters()"
-          />
-        </div>
-        <div class="col-12 col-md-auto">
-          <div class="d-flex gap-2 justify-content-end">
+      <div class="filters-panel mt-3">
+        <div class="row g-2 g-md-3 align-items-end">
+          <div class="col-6 col-md-3">
+            <label class="form-label filter-label">Tipo de contrato</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.contractType"
+            >
+              <option value="ALL">Todos</option>
+              @for (type of contractTypes; track type) {
+                <option [ngValue]="type">
+                  {{ getContractTypeLabel(type) }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label filter-label">Estado</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.contractStatus"
+            >
+              <option value="ALL">Todos</option>
+              @for (status of contractStatuses; track status) {
+                <option [ngValue]="status">{{ getStatusLabel(status) }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label filter-label">Cliente</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.clientId"
+            >
+              <option value="">Todos</option>
+              @for (client of clients(); track client.id) {
+                <option [ngValue]="client.id.toString()">
+                  {{ client.label }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label filter-label">Usuario</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.userId"
+            >
+              <option value="">Todos</option>
+              @for (user of users(); track user.id) {
+                <option [ngValue]="user.id.toString()">{{ user.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label filter-label">Vehículo</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.vehicleId"
+            >
+              <option value="">Todos</option>
+              @for (vehicle of vehicles(); track vehicle.id) {
+                <option [ngValue]="vehicle.id.toString()">
+                  {{ vehicle.label }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label filter-label">Medio de pago</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.paymentMethod"
+            >
+              <option value="">Todos</option>
+              @for (method of paymentMethods; track method) {
+                <option [ngValue]="method">
+                  {{ getPaymentMethodLabel(method) }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label filter-label">Compra desde</label>
+            <input
+              type="text"
+              inputmode="decimal"
+              class="form-control form-control-sm"
+              [ngModel]="filters.minPurchasePrice"
+              (ngModelChange)="onPriceFilterChange('minPurchasePrice', $event)"
+              pattern="^[0-9.,\\s$]*$"
+              placeholder="$"
+            />
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label filter-label">Compra hasta</label>
+            <input
+              type="text"
+              inputmode="decimal"
+              class="form-control form-control-sm"
+              [ngModel]="filters.maxPurchasePrice"
+              (ngModelChange)="onPriceFilterChange('maxPurchasePrice', $event)"
+              pattern="^[0-9.,\\s$]*$"
+              placeholder="$"
+            />
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label filter-label">Venta desde</label>
+            <input
+              type="text"
+              inputmode="decimal"
+              class="form-control form-control-sm"
+              [ngModel]="filters.minSalePrice"
+              (ngModelChange)="onPriceFilterChange('minSalePrice', $event)"
+              pattern="^[0-9.,\\s$]*$"
+              placeholder="$"
+            />
+          </div>
+          <div class="col-6 col-md-3">
+            <label class="form-label filter-label">Venta hasta</label>
+            <input
+              type="text"
+              inputmode="decimal"
+              class="form-control form-control-sm"
+              [ngModel]="filters.maxSalePrice"
+              (ngModelChange)="onPriceFilterChange('maxSalePrice', $event)"
+              pattern="^[0-9.,\\s$]*$"
+              placeholder="$"
+            />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label filter-label">Búsqueda rápida</label>
+            <input
+              type="search"
+              class="form-control form-control-sm"
+              [(ngModel)]="filters.term"
+              placeholder="ID, cliente, vehículo..."
+              (keyup.enter)="applyFilters()"
+            />
+          </div>
+          <div class="col-12 col-md-auto filter-actions mt-2 mt-md-0">
             <button class="btn btn-primary btn-sm" type="button" (click)="applyFilters()">
-              <i class="bi bi-funnel me-1"></i>Aplicar
+              <i class="bi bi-funnel me-1"></i>Aplicar filtros
             </button>
             <button
               class="btn btn-outline-secondary btn-sm"
               type="button"
               (click)="clearFilters()"
             >
-              <i class="bi bi-eraser me-1"></i>Limpiar
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
             </button>
           </div>
         </div>

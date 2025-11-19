@@ -49,63 +49,63 @@
           </p>
         </div>
       </div>
-      <div class="row g-2 g-md-3 mt-3 align-items-end">
-        <div class="col-12 col-md-3">
-          <label class="form-label form-label-sm">Nombre o apellido</label>
-          <input
-            type="search"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.name"
-            (keyup.enter)="search()"
-            [placeholder]="searchPlaceholder"
-            maxlength="{{ searchTermMaxLength }}"
-          />
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label form-label-sm">Nombre de usuario</label>
-          <input
-            type="search"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.username"
-            (keyup.enter)="search()"
-            placeholder="&#64;username"
-          />
-        </div>
-        <div class="col-12 col-md-3">
-          <label class="form-label form-label-sm">Correo electrónico</label>
-          <input
-            type="email"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.email"
-            (keyup.enter)="search()"
-            placeholder="usuario@correo.com"
-          />
-        </div>
-        <div class="col-6 col-md-2">
-          <label class="form-label form-label-sm">Rol</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.role"
-          >
-            <option value="">Todos</option>
-            @for (role of roleOptions; track role) {
-              <option [ngValue]="role">{{ role }}</option>
-            }
-          </select>
-        </div>
-        <div class="col-6 col-md-2">
-          <label class="form-label form-label-sm">Estado</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.enabled"
-          >
-            <option value="">Todos</option>
-            <option value="true">Activos</option>
-            <option value="false">Inactivos</option>
-          </select>
-        </div>
-        <div class="col-12 col-md-auto">
-          <div class="d-flex gap-2 justify-content-end">
+      <div class="filters-panel mt-3">
+        <div class="row g-2 g-md-3 align-items-end">
+          <div class="col-12 col-md-3">
+            <label class="form-label filter-label">Nombre o apellido</label>
+            <input
+              type="search"
+              class="form-control form-control-sm"
+              [(ngModel)]="filters.name"
+              (keyup.enter)="search()"
+              [placeholder]="searchPlaceholder"
+              maxlength="{{ searchTermMaxLength }}"
+            />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label filter-label">Nombre de usuario</label>
+            <input
+              type="search"
+              class="form-control form-control-sm"
+              [(ngModel)]="filters.username"
+              (keyup.enter)="search()"
+              placeholder="&#64;username"
+            />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label filter-label">Correo electrónico</label>
+            <input
+              type="email"
+              class="form-control form-control-sm"
+              [(ngModel)]="filters.email"
+              (keyup.enter)="search()"
+              placeholder="usuario@correo.com"
+            />
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label filter-label">Rol</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.role"
+            >
+              <option value="">Todos</option>
+              @for (role of roleOptions; track role) {
+                <option [ngValue]="role">{{ role }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label filter-label">Estado</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.enabled"
+            >
+              <option value="">Todos</option>
+              <option value="true">Activos</option>
+              <option value="false">Inactivos</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-auto filter-actions mt-2 mt-md-0">
             <button class="btn btn-primary btn-sm" type="button" (click)="search()">
               <i class="bi bi-funnel me-1"></i>Aplicar filtros
             </button>
@@ -114,7 +114,7 @@
               type="button"
               (click)="reset()"
             >
-              <i class="bi bi-eraser me-1"></i>Limpiar
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
             </button>
           </div>
         </div>
