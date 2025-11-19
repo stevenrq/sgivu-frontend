@@ -1,61 +1,160 @@
-<header class="d-flex justify-content-center align-items-center mb mt-4 mx-5">
-  <div class="d-flex align-items-center w-100 justify-content-between">
-    <p class="h3 mb-0">SGIVU</p>
-    <form class="d-none d-md-inline-block w-25">
-      <div class="input-group">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar vehículo..."
-        />
-        <button class="btn btn-outline-secondary" type="button">
-          <i class="bi bi-search"></i>
-        </button>
+<nav
+  class="navbar navbar-expand-lg navbar-sgivu shadow-sm mt-3 mx-3 mx-lg-4 px-3 px-lg-4 py-2 py-lg-3"
+>
+  <div class="container-fluid px-0">
+    <div class="navbar-brand d-flex align-items-center gap-3 m-0">
+      <div class="brand-badge">
+        <i class="bi bi-ev-front-fill"></i>
       </div>
-    </form>
+      <div class="brand-copy">
+        <span class="brand-title">SGIVU</span>
+      </div>
+    </div>
 
-    @if (isAuthenticated$ | async) {
-      @if (user$ | async; as user) {
-        <div class="dropdown">
-          <a
-            href="#"
-            class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <img
-              src="https://placehold.co/120x120/EFEFEF/333333?text={{
-                user.firstName.charAt(0)
-              }}{{ user.lastName.charAt(0) }}"
-              alt="Avatar del usuario"
-              width="32"
-              height="32"
-              class="rounded-circle me-2"
-            />
-            <strong>{{ user.username }}</strong>
-          </a>
-          <ul class="dropdown-menu text-small shadow">
-            <li>
-              <a class="dropdown-item" routerLink="/users/profile">Mi Perfil</a>
-            </li>
-            <li>
-              <a class="dropdown-item" routerLink="/settings">Configuración</a>
-            </li>
-            <li>
-              <hr class="dropdown-divider" />
-            </li>
-            <li>
-              <a class="dropdown-item" type="button" (click)="logout()"
-                >Cerrar Sesión</a
+    <div class="d-flex align-items-center gap-2 d-lg-none">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#sgivuNavbar"
+        aria-controls="sgivuNavbar"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+
+    <div
+      #navbarCollapse
+      class="collapse navbar-collapse mt-3 mt-lg-0"
+      id="sgivuNavbar"
+    >
+      <div
+        class="w-100 d-flex flex-column flex-lg-row align-items-lg-center gap-3 justify-content-lg-between"
+      >
+        <ul
+          class="navbar-nav flex-wrap gap-1 gap-lg-2 main-links justify-content-center w-100 w-lg-auto mx-lg-auto text-center"
+        >
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/dashboard"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              (click)="handleNavigation()"
+            >
+              <i class="bi bi-speedometer2 me-2"></i>
+              Tablero
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/vehicles"
+              routerLinkActive="active"
+              (click)="handleNavigation()"
+            >
+              <i class="bi bi-truck-front me-2"></i>
+              Flota
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/clients"
+              routerLinkActive="active"
+              (click)="handleNavigation()"
+            >
+              <i class="bi bi-people me-2"></i>
+              Clientes
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/purchase-sales"
+              routerLinkActive="active"
+              (click)="handleNavigation()"
+            >
+              <i class="bi bi-receipt-cutoff me-2"></i>
+              Operaciones
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/roles-permissions"
+              routerLinkActive="active"
+              (click)="handleNavigation()"
+            >
+              <i class="bi bi-shield-check me-2"></i>
+              Permisos
+            </a>
+          </li>
+        </ul>
+
+        @if (isAuthenticated$ | async) {
+          @if (user$ | async; as user) {
+            <div class="dropdown user-chip ms-lg-auto">
+              <button
+                class="btn user-chip-toggle dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-            </li>
-          </ul>
-        </div>
-      }
-    } @else {
-      <div class="spinner-border">
-        <span class="visually-hidden">Loading...</span>
+                <div class="d-flex align-items-center gap-2">
+                  <img
+                    src="https://placehold.co/120x120/EFEFEF/333333?text={{
+                      user.firstName.charAt(0)
+                    }}{{ user.lastName.charAt(0) }}"
+                    alt="Avatar del usuario"
+                    width="32"
+                    height="32"
+                    class="rounded-circle flex-shrink-0"
+                  />
+                  <div class="user-info text-start">
+                    <strong class="d-block">{{ user.username }}</strong>
+                    <small class="text-muted">Coordinación de flota</small>
+                  </div>
+                </div>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    routerLink="/users/profile"
+                    (click)="handleNavigation()"
+                    >Mi Perfil</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    routerLink="/settings"
+                    (click)="handleNavigation()"
+                    >Configuración</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    (click)="logout()"
+                  >
+                    Cerrar sesión
+                  </button>
+                </li>
+              </ul>
+            </div>
+          }
+        } @else {
+          <div class="spinner-border text-primary ms-lg-auto" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        }
       </div>
-    }
+    </div>
   </div>
-</header>
+</nav>
