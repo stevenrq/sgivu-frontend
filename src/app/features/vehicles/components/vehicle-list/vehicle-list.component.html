@@ -228,13 +228,14 @@
                 >Precio mínimo</label
               >
               <input
-                (ngModelChange)="carFilters.minSalePrice = toNumber($event)"
-                [ngModel]="carFilters.minSalePrice"
+                (ngModelChange)="onCarPriceInput('minSalePrice', $event)"
+                [ngModel]="carPriceInputs.minSalePrice"
                 class="form-control form-control-sm"
                 id="carMinPrice"
-                min="0"
-                placeholder="COP"
-                type="number"
+                placeholder="$"
+                inputmode="decimal"
+                pattern="^[0-9.,\\s$]*$"
+                type="text"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -242,13 +243,14 @@
                 >Precio máximo</label
               >
               <input
-                (ngModelChange)="carFilters.maxSalePrice = toNumber($event)"
-                [ngModel]="carFilters.maxSalePrice"
+                (ngModelChange)="onCarPriceInput('maxSalePrice', $event)"
+                [ngModel]="carPriceInputs.maxSalePrice"
                 class="form-control form-control-sm"
                 id="carMaxPrice"
-                min="0"
-                placeholder="COP"
-                type="number"
+                placeholder="$"
+                inputmode="decimal"
+                pattern="^[0-9.,\\s$]*$"
+                type="text"
               />
             </div>
             <div
@@ -403,13 +405,15 @@
               >
               <input
                 (ngModelChange)="
-                  motorcycleFilters.minSalePrice = toNumber($event)
+                  onMotorcyclePriceInput('minSalePrice', $event)
                 "
-                [ngModel]="motorcycleFilters.minSalePrice"
+                [ngModel]="motorcyclePriceInputs.minSalePrice"
                 class="form-control form-control-sm"
                 id="motoMinPrice"
-                min="0"
-                type="number"
+                placeholder="$"
+                inputmode="decimal"
+                pattern="^[0-9.,\\s$]*$"
+                type="text"
               />
             </div>
             <div class="col-6 col-md-3 col-xl-2">
@@ -418,13 +422,15 @@
               >
               <input
                 (ngModelChange)="
-                  motorcycleFilters.maxSalePrice = toNumber($event)
+                  onMotorcyclePriceInput('maxSalePrice', $event)
                 "
-                [ngModel]="motorcycleFilters.maxSalePrice"
+                [ngModel]="motorcyclePriceInputs.maxSalePrice"
                 class="form-control form-control-sm"
                 id="motoMaxPrice"
-                min="0"
-                type="number"
+                placeholder="$"
+                inputmode="decimal"
+                pattern="^[0-9.,\\s$]*$"
+                type="text"
               />
             </div>
             <div
@@ -536,9 +542,7 @@
                   </div>
                 </td>
                 <td class="text-end">
-                  {{
-                    car.salePrice | currency: "COP" : "symbol-narrow" : "1.0-0"
-                  }}
+                  {{ car.salePrice | copCurrency }}
                 </td>
                 <td *appHasPermission="'car:update'" class="text-center">
                   <div class="dropdown">
@@ -623,10 +627,7 @@
                   </div>
                 </td>
                 <td class="text-end">
-                  {{
-                    motorcycle.salePrice
-                      | currency: "COP" : "symbol-narrow" : "1.0-0"
-                  }}
+                  {{ motorcycle.salePrice | copCurrency }}
                 </td>
                 <td *appHasPermission="'motorcycle:update'" class="text-center">
                   <div class="dropdown">

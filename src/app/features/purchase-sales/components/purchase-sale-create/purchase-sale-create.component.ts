@@ -50,6 +50,12 @@ import {
 } from '../../models/purchase-sale-reference.model';
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import {
+  formatCopCurrency,
+  formatCopNumber,
+  normalizeMoneyInput,
+  parseCopCurrency,
+} from '../../../../shared/utils/currency.utils';
 
 interface ContractFormModel {
   clientId: number | null;
@@ -108,13 +114,6 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
   readonly vehicleKinds = Object.values(VehicleKind);
   readonly ContractStatus = ContractStatus;
   readonly ContractType = ContractType;
-
-  private readonly currencyFormatter = new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
   private readonly mileageFormatter = new Intl.NumberFormat('es-CO', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -169,6 +168,7 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
   );
 
   formLoading = false;
+  private readonly priceDecimals = 0;
   private readonly salePurchaseCache = new Map<number, number>();
   private readonly statusLabels: Record<ContractStatus, string> = {
     [ContractStatus.PENDING]: 'Pendiente',
@@ -261,16 +261,20 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const purchasePrice = this.contractForm.purchasePrice ?? 0;
+    const purchasePrice = this.contractForm.purchasePrice;
     const salePrice = this.isSaleType
-      ? (this.contractForm.salePrice ?? 0)
-      : (this.vehicleForm.salePrice ?? 0);
+      ? this.contractForm.salePrice
+      : this.vehicleForm.salePrice;
+    if (!this.isPriceInputValid(purchasePrice, salePrice)) {
+      this.showPriceError();
+      return;
+    }
 
     const payload: PurchaseSale = {
       clientId: Number(this.contractForm.clientId),
       userId: Number(this.contractForm.userId),
-      purchasePrice,
-      salePrice,
+      purchasePrice: purchasePrice ?? 0,
+      salePrice: salePrice ?? 0,
       contractStatus: this.contractForm.contractStatus,
       contractType: this.contractForm.contractType,
       paymentLimitations: this.contractForm.paymentLimitations.trim(),
@@ -380,10 +384,10 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(value: number | null | undefined): string {
-    if (value === null || value === undefined) {
-      return '';
-    }
-    return this.currencyFormatter.format(value);
+    return formatCopCurrency(value, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
   }
 
   formatMileage(value: number | null | undefined): string {
@@ -393,30 +397,40 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     return this.mileageFormatter.format(value);
   }
 
+  private formatPriceInput(value: number | null | undefined): string {
+    return formatCopNumber(value, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+  }
+
   onPriceInput(
     value: string,
     field: 'purchasePrice' | 'salePrice' | 'vehicleSalePrice',
   ): void {
-    const numericValue = this.parseCurrencyInput(value);
+    const { numericValue, displayValue } = normalizeMoneyInput(
+      value,
+      this.priceDecimals,
+    );
 
     switch (field) {
       case 'purchasePrice':
-        this.purchasePriceInput = value;
+        this.purchasePriceInput = displayValue;
         this.contractForm.purchasePrice = numericValue;
         break;
       case 'salePrice':
-        this.salePriceInput = value;
+        this.salePriceInput = displayValue;
         this.contractForm.salePrice = numericValue;
         break;
       case 'vehicleSalePrice':
-        this.vehicleSalePriceInput = value;
+        this.vehicleSalePriceInput = displayValue;
         this.vehicleForm.salePrice = numericValue;
         break;
     }
   }
 
   onMileageInput(value: string): void {
-    const numericValue = this.parseCurrencyInput(value);
+    const numericValue = parseCopCurrency(value);
     if (numericValue === null) {
       this.vehicleForm.mileage = null;
       this.vehicleMileageInput = '';
@@ -551,7 +565,7 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
   private applyPrefilledPurchasePrice(value: number | null | undefined): void {
     const normalized = value ?? 0;
     this.contractForm.purchasePrice = normalized;
-    this.purchasePriceInput = normalized ? normalized.toString() : '';
+    this.purchasePriceInput = this.formatPriceInput(normalized);
   }
 
   private findEligiblePurchase(contracts: PurchaseSale[]): PurchaseSale | null {
@@ -678,19 +692,6 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     };
   }
 
-  private parseCurrencyInput(value: string): number | null {
-    if (!value) {
-      return null;
-    }
-    const sanitized = value.replace(/\s+/g, '').replace(/[^0-9,\.]/g, '');
-    if (!sanitized) {
-      return null;
-    }
-    const normalized = sanitized.replace(/\./g, '').replace(',', '.');
-    const numeric = Number(normalized);
-    return Number.isNaN(numeric) ? null : numeric;
-  }
-
   private buildVehiclePayload(): VehicleCreationPayload {
     const salePrice =
       this.vehicleForm.salePrice !== null &&
@@ -739,11 +740,38 @@ export class PurchaseSaleCreateComponent implements OnInit, OnDestroy {
     return value ? value.trim() : '';
   }
 
+  private isPriceInputValid(
+    purchasePrice: number | null | undefined,
+    salePrice: number | null | undefined,
+  ): boolean {
+    if (!purchasePrice || purchasePrice <= 0) {
+      return false;
+    }
+
+    if (this.isSaleType) {
+      return !!salePrice && salePrice > 0;
+    }
+
+    if (salePrice !== null && salePrice !== undefined && salePrice < 0) {
+      return false;
+    }
+
+    return true;
+  }
+
   private showValidationError(): void {
     void Swal.fire({
       icon: 'warning',
       title: 'Formulario incompleto',
       text: 'Por favor, completa todos los campos obligatorios antes de continuar.',
+    });
+  }
+
+  private showPriceError(): void {
+    void Swal.fire({
+      icon: 'warning',
+      title: 'Precios inválidos',
+      text: 'El precio de compra y el precio de venta deben ser valores en COP mayores a cero.',
     });
   }
 

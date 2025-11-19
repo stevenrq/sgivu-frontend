@@ -21,6 +21,10 @@ import { Motorcycle } from '../../models/motorcycle.model';
 import { ContractType } from '../../../purchase-sales/models/contract-type.enum';
 import { VehicleImageService } from '../../services/vehicle-image.service';
 import { VehicleImageResponse } from '../../models/vehicle-image-response';
+import {
+  formatCopNumber,
+  normalizeMoneyInput,
+} from '../../../../shared/utils/currency.utils';
 
 type VehicleFormType = 'CAR' | 'MOTORCYCLE';
 
@@ -43,6 +47,9 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
 
   selectedFiles: File[] = [];
   previewUrl: string | null = null; // se usa sólo para mostrar la primera seleccionada
+  purchasePriceInput = '';
+  salePriceInput = '';
+  mileageInput = '';
 
   private readonly statusLabels: Record<VehicleStatus, string> = {
     [VehicleStatus.AVAILABLE]: 'Disponible',
@@ -58,6 +65,7 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   private readonly subscriptions: Subscription[] = [];
   private readonly loadingSignal = signal<boolean>(false);
   readonly isLoading = computed(() => this.loadingSignal());
+  private readonly priceDecimals = 0;
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -429,6 +437,33 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
     };
   }
 
+  onPriceInput(
+    field: 'purchasePrice' | 'salePrice',
+    rawValue: string | null | undefined,
+  ): void {
+    const safeValue = rawValue ?? '';
+    const { numericValue, displayValue } = normalizeMoneyInput(
+      safeValue,
+      this.priceDecimals,
+    );
+
+    if (field === 'purchasePrice') {
+      this.purchasePriceInput = displayValue;
+      this.formGroup.get('purchasePrice')?.setValue(numericValue);
+      return;
+    }
+
+    this.salePriceInput = displayValue;
+    this.formGroup.get('salePrice')?.setValue(numericValue);
+  }
+
+  onMileageInput(rawValue: string | null | undefined): void {
+    const safeValue = rawValue ?? '';
+    const { numericValue, displayValue } = normalizeMoneyInput(safeValue, 0);
+    this.mileageInput = displayValue;
+    this.formGroup.get('mileage')?.setValue(numericValue);
+  }
+
   private loadVehicle(id: number): void {
     this.loadingSignal.set(true);
     if (this.vehicleType === 'CAR') {
@@ -463,6 +498,9 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
     this.formGroup.patchValue({
       ...vehicle,
     });
+    this.purchasePriceInput = this.formatPriceInput(vehicle.purchasePrice);
+    this.salePriceInput = this.formatPriceInput(vehicle.salePrice);
+    this.mileageInput = this.formatMileage(vehicle.mileage);
   }
 
   private handleLoadError(): void {
@@ -472,6 +510,20 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
       text: 'Verifica el identificador e intenta nuevamente.',
     });
     void this.router.navigate(['/vehicles']);
+  }
+
+  private formatPriceInput(value: number | null | undefined): string {
+    return formatCopNumber(value, {
+      minimumFractionDigits: this.priceDecimals,
+      maximumFractionDigits: this.priceDecimals,
+    });
+  }
+
+  private formatMileage(value: number | null | undefined): string {
+    return formatCopNumber(value, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
   }
 
   private buildForm(): FormGroup {

@@ -31,6 +31,11 @@ import { MotorcycleService } from '../../../vehicles/services/motorcycle.service
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { CopCurrencyPipe } from '../../../../shared/pipes/cop-currency.pipe';
+import {
+  normalizeMoneyInput,
+  parseCopCurrency,
+} from '../../../../shared/utils/currency.utils';
 import {
   ClientOption,
   UserOption,
@@ -51,6 +56,11 @@ interface PurchaseSaleListState {
 
 type ContractTypeFilter = ContractType | 'ALL';
 type ContractStatusFilter = ContractStatus | 'ALL';
+type PriceFilterKey =
+  | 'minPurchasePrice'
+  | 'maxPurchasePrice'
+  | 'minSalePrice'
+  | 'maxSalePrice';
 
 type PurchaseSaleUiFilters = {
   contractType: ContractTypeFilter;
@@ -77,6 +87,7 @@ type PurchaseSaleUiFilters = {
     PageHeaderComponent,
     KpiCardComponent,
     DataTableComponent,
+    CopCurrencyPipe,
   ],
   templateUrl: './purchase-sale-list.component.html',
   styleUrl: './purchase-sale-list.component.css',
@@ -139,6 +150,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   private readonly subscriptions: Subscription[] = [];
   private activeSearchFilters: PurchaseSaleSearchFilters | null = null;
   pagerQueryParams: Params | null = null;
+  private readonly priceDecimals = 0;
   private readonly statusLabels: Record<ContractStatus, string> = {
     [ContractStatus.PENDING]: 'Pendiente',
     [ContractStatus.ACTIVE]: 'Activo',
@@ -343,6 +355,11 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   clearFilters(): void {
     this.filters = this.getDefaultUiFilters();
     void this.router.navigate(['/purchase-sales/page', 0]);
+  }
+
+  onPriceFilterChange(field: PriceFilterKey, rawValue: string): void {
+    const { displayValue } = normalizeMoneyInput(rawValue, this.priceDecimals);
+    this.filters[field] = displayValue;
   }
 
   downloadReport(format: 'pdf' | 'excel' | 'csv'): void {
@@ -616,15 +633,26 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       ['userId', this.filters.userId],
       ['vehicleId', this.filters.vehicleId],
       ['term', this.filters.term],
-      ['minPurchasePrice', this.filters.minPurchasePrice],
-      ['maxPurchasePrice', this.filters.maxPurchasePrice],
-      ['minSalePrice', this.filters.minSalePrice],
-      ['maxSalePrice', this.filters.maxSalePrice],
     ].forEach(([key, value]) => {
       if (value) {
         params[key] = value;
       }
     });
+
+    const parsedPriceFilters: Partial<Record<PriceFilterKey, number | null>> = {
+      minPurchasePrice: this.parsePriceFilter(this.filters.minPurchasePrice),
+      maxPurchasePrice: this.parsePriceFilter(this.filters.maxPurchasePrice),
+      minSalePrice: this.parsePriceFilter(this.filters.minSalePrice),
+      maxSalePrice: this.parsePriceFilter(this.filters.maxSalePrice),
+    };
+
+    (Object.entries(parsedPriceFilters) as Array<[PriceFilterKey, number | null]>).forEach(
+      ([key, value]) => {
+        if (value !== null) {
+          params[key] = value;
+        }
+      },
+    );
 
     return Object.keys(params).length ? params : undefined;
   }
@@ -684,37 +712,49 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
     const minPurchase = query.get('minPurchasePrice');
     if (minPurchase) {
-      uiFilters.minPurchasePrice = minPurchase;
-      const parsed = this.parseNumberParam(minPurchase);
-      if (parsed !== undefined) {
-        requestFilters.minPurchasePrice = parsed;
+      const { numericValue, displayValue } = normalizeMoneyInput(
+        minPurchase,
+        this.priceDecimals,
+      );
+      uiFilters.minPurchasePrice = displayValue;
+      if (numericValue !== null) {
+        requestFilters.minPurchasePrice = numericValue;
       }
     }
 
     const maxPurchase = query.get('maxPurchasePrice');
     if (maxPurchase) {
-      uiFilters.maxPurchasePrice = maxPurchase;
-      const parsed = this.parseNumberParam(maxPurchase);
-      if (parsed !== undefined) {
-        requestFilters.maxPurchasePrice = parsed;
+      const { numericValue, displayValue } = normalizeMoneyInput(
+        maxPurchase,
+        this.priceDecimals,
+      );
+      uiFilters.maxPurchasePrice = displayValue;
+      if (numericValue !== null) {
+        requestFilters.maxPurchasePrice = numericValue;
       }
     }
 
     const minSale = query.get('minSalePrice');
     if (minSale) {
-      uiFilters.minSalePrice = minSale;
-      const parsed = this.parseNumberParam(minSale);
-      if (parsed !== undefined) {
-        requestFilters.minSalePrice = parsed;
+      const { numericValue, displayValue } = normalizeMoneyInput(
+        minSale,
+        this.priceDecimals,
+      );
+      uiFilters.minSalePrice = displayValue;
+      if (numericValue !== null) {
+        requestFilters.minSalePrice = numericValue;
       }
     }
 
     const maxSale = query.get('maxSalePrice');
     if (maxSale) {
-      uiFilters.maxSalePrice = maxSale;
-      const parsed = this.parseNumberParam(maxSale);
-      if (parsed !== undefined) {
-        requestFilters.maxSalePrice = parsed;
+      const { numericValue, displayValue } = normalizeMoneyInput(
+        maxSale,
+        this.priceDecimals,
+      );
+      uiFilters.maxSalePrice = displayValue;
+      if (numericValue !== null) {
+        requestFilters.maxSalePrice = numericValue;
       }
     }
 
@@ -743,6 +783,20 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       }
     });
     return Object.keys(params).length ? params : null;
+  }
+
+  private parsePriceFilter(value: string): number | null {
+    const parsed = parseCopCurrency(value);
+    if (parsed === null) {
+      return null;
+    }
+    const factor = Math.pow(10, this.priceDecimals);
+    const normalized =
+      this.priceDecimals > 0
+        ? Math.round(parsed * factor) / factor
+        : Math.round(parsed);
+    const sanitized = Math.max(0, normalized);
+    return Number.isFinite(sanitized) ? sanitized : null;
   }
 
   private parseNumberParam(value: string | null): number | undefined {

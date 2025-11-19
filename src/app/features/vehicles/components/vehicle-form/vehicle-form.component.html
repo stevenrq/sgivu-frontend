@@ -312,7 +312,11 @@
                   formControlName="mileage"
                   id="mileage"
                   placeholder="Kilometraje"
-                  type="number"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="^[0-9.,\\s$]*$"
+                  [value]="mileageInput"
+                  (input)="onMileageInput($any($event.target).value)"
                 />
                 <label for="mileage"
                   ><i class="bi bi-tachometer me-2"></i>Kilometraje</label
@@ -469,7 +473,11 @@
                   formControlName="purchasePrice"
                   id="purchasePrice"
                   placeholder="Precio de compra"
-                  type="number"
+                  type="text"
+                  inputmode="decimal"
+                  pattern="^[0-9.,\\s$]*$"
+                  [value]="purchasePriceInput"
+                  (input)="onPriceInput('purchasePrice', $any($event.target).value)"
                 />
                 <label for="purchasePrice"
                   ><i class="bi bi-cash me-2"></i>Precio de compra</label
@@ -493,7 +501,11 @@
                   formControlName="salePrice"
                   id="salePrice"
                   placeholder="Precio de venta"
-                  type="number"
+                  type="text"
+                  inputmode="decimal"
+                  pattern="^[0-9.,\\s$]*$"
+                  [value]="salePriceInput"
+                  (input)="onPriceInput('salePrice', $any($event.target).value)"
                 />
                 <label for="salePrice"
                   ><i class="bi bi-bank me-2"></i>Precio de venta

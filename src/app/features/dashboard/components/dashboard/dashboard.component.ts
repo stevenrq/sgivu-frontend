@@ -16,6 +16,7 @@ import { PurchaseSaleService } from '../../../purchase-sales/services/purchase-s
 import { ContractType } from '../../../purchase-sales/models/contract-type.enum';
 import { PurchaseSale } from '../../../purchase-sales/models/purchase-sale.model';
 import { VehicleCount } from '../../../vehicles/interfaces/vehicle-count.interface';
+import { formatCopCurrency } from '../../../../shared/utils/currency.utils';
 
 @Component({
   selector: 'app-dashboard',
@@ -235,11 +236,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
+    return formatCopCurrency(value, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
+    });
   }
 }

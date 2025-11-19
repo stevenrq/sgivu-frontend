@@ -29,6 +29,8 @@ import { VehicleUiHelperService } from '../../../../shared/services/vehicle-ui-h
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { CopCurrencyPipe } from '../../../../shared/pipes/cop-currency.pipe';
+import { normalizeMoneyInput } from '../../../../shared/utils/currency.utils';
 
 type VehicleTab = 'car' | 'motorcycle';
 type VehicleEntity = Car | Motorcycle;
@@ -73,6 +75,7 @@ interface VehicleFallbackResult<T extends VehicleEntity> {
     PageHeaderComponent,
     KpiCardComponent,
     DataTableComponent,
+    CopCurrencyPipe,
   ],
   templateUrl: './vehicle-list.component.html',
   styleUrl: './vehicle-list.component.css',
@@ -81,6 +84,14 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   activeTab: VehicleTab = 'car';
   carFilters: CarSearchFilters = this.createCarFilterState();
   motorcycleFilters: MotorcycleSearchFilters = this.createMotorcycleFilterState();
+  carPriceInputs: Record<'minSalePrice' | 'maxSalePrice', string> = {
+    minSalePrice: '',
+    maxSalePrice: '',
+  };
+  motorcyclePriceInputs: Record<'minSalePrice' | 'maxSalePrice', string> = {
+    minSalePrice: '',
+    maxSalePrice: '',
+  };
 
   readonly vehicleStatuses = Object.values(VehicleStatus);
   readonly VehicleStatus = VehicleStatus;
@@ -91,6 +102,7 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   private currentCarPage = 0;
   private currentMotorcyclePage = 0;
   private readonly subscriptions: Subscription[] = [];
+  private readonly priceDecimals = 0;
 
   constructor(
     private readonly carService: CarService,
@@ -192,10 +204,12 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   }
 
   onCarSearch(): void {
+    this.syncPriceFilters('car');
     this.performSearch('car');
   }
 
   onMotorcycleSearch(): void {
+    this.syncPriceFilters('motorcycle');
     this.performSearch('motorcycle');
   }
 
@@ -546,9 +560,48 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   private resetSearchFilters(tab: VehicleTab): void {
     if (tab === 'car') {
       this.carFilters = this.createCarFilterState();
+      this.carPriceInputs = { minSalePrice: '', maxSalePrice: '' };
       return;
     }
     this.motorcycleFilters = this.createMotorcycleFilterState();
+    this.motorcyclePriceInputs = { minSalePrice: '', maxSalePrice: '' };
+  }
+
+  onCarPriceInput(field: 'minSalePrice' | 'maxSalePrice', rawValue: string): void {
+    const { numericValue, displayValue } = normalizeMoneyInput(
+      rawValue,
+      this.priceDecimals,
+    );
+    this.carPriceInputs[field] = displayValue;
+    this.carFilters[field] = numericValue;
+  }
+
+  onMotorcyclePriceInput(
+    field: 'minSalePrice' | 'maxSalePrice',
+    rawValue: string,
+  ): void {
+    const { numericValue, displayValue } = normalizeMoneyInput(
+      rawValue,
+      this.priceDecimals,
+    );
+    this.motorcyclePriceInputs[field] = displayValue;
+    this.motorcycleFilters[field] = numericValue;
+  }
+
+  private syncPriceFilters(tab: VehicleTab): void {
+    if (tab === 'car') {
+      this.onCarPriceInput('minSalePrice', this.carPriceInputs.minSalePrice);
+      this.onCarPriceInput('maxSalePrice', this.carPriceInputs.maxSalePrice);
+      return;
+    }
+    this.onMotorcyclePriceInput(
+      'minSalePrice',
+      this.motorcyclePriceInputs.minSalePrice,
+    );
+    this.onMotorcyclePriceInput(
+      'maxSalePrice',
+      this.motorcyclePriceInputs.maxSalePrice,
+    );
   }
 
   private createInitialState<T extends VehicleEntity>(): VehicleListState<T> {

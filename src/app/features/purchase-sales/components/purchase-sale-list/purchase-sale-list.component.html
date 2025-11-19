@@ -130,45 +130,53 @@
             }
           </select>
         </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label form-label-sm">Compra desde</label>
-          <input
-            type="number"
-            min="0"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.minPurchasePrice"
-            placeholder="COP"
-          />
-        </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label form-label-sm">Compra hasta</label>
-          <input
-            type="number"
-            min="0"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.maxPurchasePrice"
-            placeholder="COP"
-          />
-        </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label form-label-sm">Venta desde</label>
-          <input
-            type="number"
-            min="0"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.minSalePrice"
-            placeholder="COP"
-          />
-        </div>
-        <div class="col-6 col-md-3">
-          <label class="form-label form-label-sm">Venta hasta</label>
-          <input
-            type="number"
-            min="0"
-            class="form-control form-control-sm"
-            [(ngModel)]="filters.maxSalePrice"
-            placeholder="COP"
-          />
+            <div class="col-6 col-md-3">
+              <label class="form-label form-label-sm">Compra desde</label>
+              <input
+                type="text"
+                inputmode="decimal"
+                class="form-control form-control-sm"
+                [ngModel]="filters.minPurchasePrice"
+                (ngModelChange)="onPriceFilterChange('minPurchasePrice', $event)"
+                pattern="^[0-9.,\\s$]*$"
+                placeholder="$"
+              />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label form-label-sm">Compra hasta</label>
+              <input
+                type="text"
+                inputmode="decimal"
+                class="form-control form-control-sm"
+                [ngModel]="filters.maxPurchasePrice"
+                (ngModelChange)="onPriceFilterChange('maxPurchasePrice', $event)"
+                pattern="^[0-9.,\\s$]*$"
+                placeholder="$"
+              />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label form-label-sm">Venta desde</label>
+              <input
+                type="text"
+                inputmode="decimal"
+                class="form-control form-control-sm"
+                [ngModel]="filters.minSalePrice"
+                (ngModelChange)="onPriceFilterChange('minSalePrice', $event)"
+                pattern="^[0-9.,\\s$]*$"
+                placeholder="$"
+              />
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label form-label-sm">Venta hasta</label>
+              <input
+                type="text"
+                inputmode="decimal"
+                class="form-control form-control-sm"
+                [ngModel]="filters.maxSalePrice"
+                (ngModelChange)="onPriceFilterChange('maxSalePrice', $event)"
+                pattern="^[0-9.,\\s$]*$"
+                placeholder="$"
+              />
         </div>
         <div class="col-12 col-md-3">
           <label class="form-label form-label-sm">Búsqueda rápida</label>
@@ -324,17 +332,11 @@
                 <div>{{ getVehicleLabel(contract) }}</div>
               </td>
               <td>
-                {{
-                  contract.purchasePrice
-                    | currency: "COP" : "symbol-narrow" : "1.0-0"
-                }}
+                {{ contract.purchasePrice | copCurrency }}
               </td>
               <td>
                 @if (contract.salePrice > 0) {
-                  {{
-                    contract.salePrice
-                      | currency: "COP" : "symbol-narrow" : "1.0-0"
-                  }}
+                  {{ contract.salePrice | copCurrency }}
                 } @else {
                   <span class="text-muted">—</span>
                 }
