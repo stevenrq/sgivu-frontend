@@ -314,6 +314,8 @@
             <th scope="col">Vehículo</th>
             <th scope="col">Precio compra</th>
             <th scope="col">Precio venta</th>
+            <th scope="col">Fecha compra</th>
+            <th scope="col">Fecha venta</th>
             <th scope="col">Estado</th>
             <th scope="col">Última actualización</th>
             <th
@@ -328,7 +330,7 @@
         <ng-container table-body>
           @if (!contracts.length && !isListLoading) {
             <tr>
-              <td colspan="10" class="text-center py-4 text-muted">
+              <td colspan="11" class="text-center py-4 text-muted">
                 No hay contratos que coincidan con los filtros seleccionados.
               </td>
             </tr>
@@ -364,6 +366,26 @@
                 }
               </td>
               <td>
+                <ng-container
+                  *ngIf="getPurchaseDate(contract) as purchaseDate; else noPurchaseDate"
+                >
+                  {{ purchaseDate | utcToGmtMinus5 }}
+                </ng-container>
+                <ng-template #noPurchaseDate>
+                  <span class="text-muted">—</span>
+                </ng-template>
+              </td>
+              <td>
+                <ng-container
+                  *ngIf="getSaleDate(contract) as saleDate; else noSaleDate"
+                >
+                  {{ saleDate | utcToGmtMinus5 }}
+                </ng-container>
+                <ng-template #noSaleDate>
+                  <span class="text-muted">—</span>
+                </ng-template>
+              </td>
+              <td>
                 <span
                   class="badge rounded-pill"
                   [ngClass]="getStatusBadgeClass(contract.contractStatus)"
@@ -386,6 +408,14 @@
                     <i class="bi bi-three-dots"></i>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        [routerLink]="['/purchase-sales/details', contract.id]"
+                      >
+                        <i class="bi bi-eye me-2"></i>Ver detalle
+                      </a>
+                    </li>
                     <li>
                       <button
                         class="dropdown-item"

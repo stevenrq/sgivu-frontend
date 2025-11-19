@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Params, Router, RouterLink } from '@angular/router';
 import { Subscription, combineLatest, finalize, forkJoin, map, tap } from 'rxjs';
 import Swal from 'sweetalert2';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -101,6 +101,7 @@ type QuickSuggestion = {
     KpiCardComponent,
     DataTableComponent,
     CopCurrencyPipe,
+    RouterLink,
   ],
   templateUrl: './purchase-sale-list.component.html',
   styleUrl: './purchase-sale-list.component.css',
@@ -285,6 +286,15 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       : 'bg-success-subtle text-success-emphasis';
   }
 
+  private getVehicleOption(
+    contract: PurchaseSale,
+  ): VehicleOption | undefined {
+    if (!contract.vehicleId) {
+      return undefined;
+    }
+    return this.vehicleMap().get(contract.vehicleId);
+  }
+
   getStatusBadgeClass(status: ContractStatus): string {
     switch (status) {
       case ContractStatus.ACTIVE:
@@ -308,6 +318,30 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
   getPaymentMethodLabel(method: PaymentMethod): string {
     return this.paymentMethodLabels[method] ?? method;
+  }
+
+  getPurchaseDate(contract: PurchaseSale): string | null {
+    if (contract.contractType !== ContractType.PURCHASE) {
+      return null;
+    }
+    const vehicle = this.getVehicleOption(contract);
+    return (
+      vehicle?.createdAt ??
+      contract.createdAt ??
+      null
+    );
+  }
+
+  getSaleDate(contract: PurchaseSale): string | null {
+    if (contract.contractType !== ContractType.SALE) {
+      return null;
+    }
+    const vehicle = this.getVehicleOption(contract);
+    return (
+      contract.createdAt ??
+      vehicle?.updatedAt ??
+      null
+    );
   }
 
   getClientLabel(contract: PurchaseSale): string {

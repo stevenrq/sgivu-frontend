@@ -29,3 +29,13 @@
 .card-title {
   font-weight: 600;
 }
+
+.user-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.user-link:hover {
+  color: #0d6efd;
+  text-decoration: underline;
+}

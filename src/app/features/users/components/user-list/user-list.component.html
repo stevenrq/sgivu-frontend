@@ -162,7 +162,12 @@
                     class="rounded-circle me-3"
                   />
                   <div>
-                    {{ user.firstName }} {{ user.lastName }}
+                    <a
+                      class="user-link fw-semibold d-inline-flex flex-column"
+                      [routerLink]="['/users/profile', user.id]"
+                    >
+                      <span>{{ user.firstName }} {{ user.lastName }}</span>
+                    </a>
                     <div class="text-muted small">
                       {{ user.address.city }}
                     </div>
@@ -222,14 +227,6 @@
                     <i class="bi bi-three-dots"></i>
                   </button>
                   <ul class="dropdown-menu">
-                    <li>
-                      <a
-                        class="dropdown-item"
-                        [routerLink]="['/users/profile', user.id]"
-                      >
-                        <i class="bi bi-eye me-2"></i>Ver Detalles
-                      </a>
-                    </li>
                     <li>
                       <a
                         class="dropdown-item"

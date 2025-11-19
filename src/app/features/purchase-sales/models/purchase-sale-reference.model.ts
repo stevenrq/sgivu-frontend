@@ -22,6 +22,8 @@ export interface VehicleOption {
   status: VehicleStatus;
   type: 'CAR' | 'MOTORCYCLE';
   purchasePrice?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }
 
 export function mapPersonsToClients(persons: Person[]): ClientOption[] {
@@ -62,6 +64,8 @@ export function mapCarsToVehicles(cars: Car[]): VehicleOption[] {
       status: car.status,
       type: 'CAR' as const,
       purchasePrice: car.purchasePrice,
+      createdAt: car.createdAt ?? null,
+      updatedAt: car.updatedAt ?? null,
     }));
 }
 
@@ -76,5 +80,7 @@ export function mapMotorcyclesToVehicles(
       status: motorcycle.status,
       type: 'MOTORCYCLE' as const,
       purchasePrice: motorcycle.purchasePrice,
+      createdAt: motorcycle.createdAt ?? null,
+      updatedAt: motorcycle.updatedAt ?? null,
     }));
 }

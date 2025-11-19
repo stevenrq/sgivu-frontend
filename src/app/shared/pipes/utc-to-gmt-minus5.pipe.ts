@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import {
   DateInput,
-  formatUtcToGmtMinus5,
+  DEFAULT_DISPLAY_DATE_FORMAT,
+  formatDisplayDate,
 } from '../utils/date.utils';
 
 @Pipe({
@@ -11,9 +12,9 @@ import {
 export class UtcToGmtMinus5Pipe implements PipeTransform {
   transform(
     value: DateInput,
-    format?: string,
+    format: string = DEFAULT_DISPLAY_DATE_FORMAT,
     locale?: string,
   ): string {
-    return formatUtcToGmtMinus5(value, format, locale);
+    return formatDisplayDate(value, format, locale);
   }
 }

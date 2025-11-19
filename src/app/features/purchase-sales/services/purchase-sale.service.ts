@@ -88,6 +88,10 @@ export class PurchaseSaleService {
     return this.http.get<PurchaseSale[]>(`${this.apiUrl}/vehicle/${vehicleId}`);
   }
 
+  getById(id: number): Observable<PurchaseSale> {
+    return this.http.get<PurchaseSale>(`${this.apiUrl}/${id}`);
+  }
+
   downloadPdf(startDate?: string | null, endDate?: string | null): Observable<Blob> {
     const params = this.buildReportParams(startDate, endDate);
     return this.http.get<Blob>(`${this.apiUrl}/report/pdf`, {

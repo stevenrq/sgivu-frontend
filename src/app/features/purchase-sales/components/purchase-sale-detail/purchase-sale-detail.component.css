@@ -1,0 +1,11 @@
+.detail-stat {
+  border: 1px solid var(--detail-border-color);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+}
+
+.detail-actions .btn {
+  width: 100%;
+}

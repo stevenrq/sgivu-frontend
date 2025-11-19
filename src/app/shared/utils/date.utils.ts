@@ -4,6 +4,7 @@ export type DateInput = string | number | Date | null | undefined;
 
 const DEFAULT_FORMAT = 'short';
 const DEFAULT_LOCALE = 'es-CO';
+export const DEFAULT_DISPLAY_DATE_FORMAT = 'dd MMM yyyy, HH:mm';
 export const GMT_MINUS_5_TIMEZONE = 'America/Bogota';
 
 const UTC_GUARD_REGEX = /[zZ]|[+-]\d{2}:?\d{2}$/;
@@ -58,4 +59,19 @@ export function formatUtcToGmtMinus5(
   }
 
   return formatDate(normalizedDate, format, locale, GMT_MINUS_5_TIMEZONE);
+}
+
+/**
+ * Formatea una fecha al formato de visualización estándar de SGIVU (GMT-5).
+ *
+ * @param dateValue - Fecha proveniente del backend (UTC o ISO).
+ * @param format - Formato opcional; por defecto usa `dd MMM yyyy, HH:mm`.
+ * @param locale - Locale opcional; por defecto `es-CO`.
+ */
+export function formatDisplayDate(
+  dateValue: DateInput,
+  format: string = DEFAULT_DISPLAY_DATE_FORMAT,
+  locale: string = DEFAULT_LOCALE,
+): string {
+  return formatUtcToGmtMinus5(dateValue, format, locale);
 }

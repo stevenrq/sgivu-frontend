@@ -13,7 +13,10 @@ import { UserUiHelperService } from '../../../../shared/services/user-ui-helper.
   selector: 'app-user-profile',
   imports: [CommonModule, RouterLink, HasPermissionDirective],
   templateUrl: './user-profile.component.html',
-  styleUrls: ['./user-profile.component.css'],
+  styleUrls: [
+    '../../../../shared/styles/entity-detail-page.css',
+    './user-profile.component.css',
+  ],
 })
 export class UserProfileComponent implements OnInit {
   protected user: User | null = null;

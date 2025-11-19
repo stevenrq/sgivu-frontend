@@ -1,0 +1,386 @@
+<div class="container detail-container mt-5 mb-5">
+  @if (isLoading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Cargando información del vehículo...</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="alert alert-danger" role="alert">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+          <h5 class="alert-heading mb-1">Error al cargar el vehículo</h5>
+          <p class="mb-0">{{ errorMessage }}</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-outline-danger" type="button" (click)="reload()">
+            <i class="bi bi-arrow-clockwise me-2"></i>Reintentar
+          </button>
+          <a class="btn btn-primary" [routerLink]="inventoryLink">
+            <i class="bi bi-arrow-left me-2"></i>Volver al inventario
+          </a>
+        </div>
+      </div>
+    </div>
+  } @else if (vehicle) {
+    <div>
+      <div class="detail-header text-center">
+        <img
+          [alt]="'Imagen principal de ' + vehicle.brand"
+          [src]="heroImageUrl"
+          class="detail-avatar vehicle-avatar mb-3"
+          loading="lazy"
+        />
+        <h1 class="detail-title">
+          {{ vehicle.brand }} {{ vehicle.line }} {{ vehicle.model }}
+        </h1>
+        <p class="detail-subtitle">Placa {{ vehicle.plate }} · {{ typeLabel }}</p>
+        <div class="mt-3 d-flex flex-wrap justify-content-center gap-2">
+          <span
+            class="badge detail-status-pill"
+            [ngClass]="statusBadgeClass(vehicle.status)"
+          >
+            {{ statusLabel(vehicle.status) }}
+          </span>
+          <span class="badge rounded-pill bg-light text-dark detail-status-pill">
+            {{ vehicle.year }} · {{ vehicle.cityRegistered }}
+          </span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-images me-2"></i>Galería del vehículo
+            </div>
+            <div class="card-body detail-card-body">
+              @if (vehicleImages.length > 0) {
+                <div class="gallery-grid">
+                  @for (image of vehicleImages; track image.id) {
+                    <figure
+                      class="gallery-item"
+                      [class.gallery-item-primary]="image.primary"
+                    >
+                      <img [src]="image.url" alt="Imagen del vehículo" loading="lazy" />
+                      @if (image.primary) {
+                        <figcaption class="gallery-badge">
+                          <i class="bi bi-star-fill me-1"></i>Principal
+                        </figcaption>
+                      }
+                    </figure>
+                  }
+                </div>
+              } @else {
+                <div class="text-center text-muted py-4">
+                  <i class="bi bi-image-alt fs-2 d-block mb-2"></i>
+                  Sin imágenes registradas para este vehículo.
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-info-circle me-2"></i>Información general
+            </div>
+            <div class="card-body detail-card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <p class="detail-info-label">Marca</p>
+                  <p class="detail-info-value">{{ vehicle.brand }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Línea</p>
+                  <p class="detail-info-value">{{ vehicle.line }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Modelo</p>
+                  <p class="detail-info-value">{{ vehicle.model }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Año</p>
+                  <p class="detail-info-value">{{ vehicle.year }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Color</p>
+                  <p class="detail-info-value">{{ vehicle.color }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Ciudad de registro</p>
+                  <p class="detail-info-value">
+                    <i class="bi bi-geo-alt-fill"></i>{{ vehicle.cityRegistered }}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Placa</p>
+                  <p class="detail-info-value">
+                    <span class="badge bg-primary detail-chip">{{ vehicle.plate }}</span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Capacidad</p>
+                  <p class="detail-info-value">
+                    <i class="bi bi-people-fill"></i>{{ vehicle.capacity }} pasajeros
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-speedometer me-2"></i>Especificaciones técnicas
+            </div>
+            <div class="card-body detail-card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <p class="detail-info-label">Transmisión</p>
+                  <p class="detail-info-value">{{ vehicle.transmission }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Kilometraje</p>
+                  <p class="detail-info-value">
+                    <i class="bi bi-speedometer2"></i>{{ vehicle.mileage | number: '1.0-0' }} km
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Número de motor</p>
+                  <p class="detail-info-value">{{ vehicle.motorNumber }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Número de serie</p>
+                  <p class="detail-info-value">{{ vehicle.serialNumber }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Número de chasis</p>
+                  <p class="detail-info-value">{{ vehicle.chassisNumber }}</p>
+                </div>
+                @if (isCar && currentCar) {
+                  <div class="col-md-6">
+                    <p class="detail-info-label">Tipo de carrocería</p>
+                    <p class="detail-info-value">{{ currentCar.bodyType }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="detail-info-label">Combustible</p>
+                    <p class="detail-info-value">{{ currentCar.fuelType }}</p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="detail-info-label">Número de puertas</p>
+                    <p class="detail-info-value">{{ currentCar.numberOfDoors }}</p>
+                  </div>
+                } @else if (isMotorcycle && currentMotorcycle) {
+                  <div class="col-md-6">
+                    <p class="detail-info-label">Tipo de motocicleta</p>
+                    <p class="detail-info-value">{{ currentMotorcycle.motorcycleType }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-currency-dollar me-2"></i>Valores comerciales
+            </div>
+            <div class="card-body detail-card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <p class="detail-info-label">Precio de compra</p>
+                  <p class="detail-info-value">
+                    {{ vehicle.purchasePrice | copCurrency }}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p class="detail-info-label">Precio de venta</p>
+                  <p class="detail-info-value">
+                    {{ vehicle.salePrice | copCurrency }}
+                  </p>
+                </div>
+                <div class="col-12">
+                  <p class="detail-info-label">Estado comercial</p>
+                  <p class="detail-info-value">
+                    <span
+                      class="badge detail-status-pill"
+                      [ngClass]="statusBadgeClass(vehicle.status)"
+                    >
+                      {{ statusLabel(vehicle.status) }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-journal-text me-2"></i>Resumen
+            </div>
+            <div class="card-body detail-card-body">
+              <div class="summary-item">
+                <p class="detail-info-label mb-1">Tipo</p>
+                <p class="detail-info-value mb-2">{{ typeLabel }}</p>
+              </div>
+              <div class="summary-item">
+                <p class="detail-info-label mb-1">Estado</p>
+                <p class="detail-info-value">
+                  <span
+                    class="badge detail-status-pill"
+                    [ngClass]="statusBadgeClass(vehicle.status)"
+                  >
+                    {{ statusLabel(vehicle.status) }}
+                  </span>
+                </p>
+              </div>
+              <div class="summary-item">
+                <p class="detail-info-label mb-1">Ciudad</p>
+                <p class="detail-info-value">{{ vehicle.cityRegistered }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-gear-fill me-2"></i>Acciones
+            </div>
+            <div class="card-body detail-card-body detail-actions">
+              <a
+                *appHasPermission="updatePermission"
+                [routerLink]="editLink"
+                class="btn btn-primary"
+              >
+                <i class="bi bi-pencil-square me-2"></i>Editar vehículo
+              </a>
+              <button
+                *appHasPermission="updatePermission"
+                class="btn"
+                [ngClass]="
+                  vehicle.status === VehicleStatus.INACTIVE
+                    ? 'btn-success'
+                    : 'btn-outline-danger'
+                "
+                type="button"
+                (click)="toggleAvailability()"
+              >
+                <i
+                  class="bi me-2"
+                  [ngClass]="
+                    vehicle.status === VehicleStatus.INACTIVE
+                      ? 'bi-toggle-on'
+                      : 'bi-toggle-off'
+                  "
+                ></i>
+                {{
+                  vehicle.status === VehicleStatus.INACTIVE
+                    ? 'Activar vehículo'
+                    : 'Desactivar vehículo'
+                }}
+              </button>
+              <a class="btn btn-outline-secondary" [routerLink]="inventoryLink">
+                <i class="bi bi-box-arrow-in-left me-2"></i>Volver al inventario
+              </a>
+            </div>
+          </div>
+
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-clock-history me-2"></i>Historial
+            </div>
+            <div class="card-body detail-card-body">
+              @if (historyLoading) {
+                <div class="text-center text-muted py-3">
+                  <div
+                    class="spinner-border text-primary mb-3"
+                    role="status"
+                    style="width: 2.5rem; height: 2.5rem"
+                  >
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <div>Cargando historial de transacciones...</div>
+                </div>
+              } @else if (historyError) {
+                <div class="alert alert-warning mb-0" role="alert">
+                  {{ historyError }}
+                </div>
+              } @else if (purchaseHistory.length > 0) {
+                <ul class="history-timeline">
+                  @for (
+                    contract of purchaseHistory;
+                    track contract.id ?? contract.createdAt ?? contract.updatedAt
+                  ) {
+                    <li class="history-item">
+                      <div
+                        class="history-item-header d-flex justify-content-between align-items-start flex-wrap gap-2"
+                      >
+                        <div>
+                          <p class="detail-info-label mb-1">
+                            {{ contractTypeLabel(contract.contractType) }}
+                          </p>
+                          <ng-container
+                            *ngIf="
+                              getHistoryTimestamp(contract) as timestamp;
+                              else noTimestamp
+                            "
+                          >
+                            <p class="detail-info-value mb-1">
+                              {{ timestamp | utcToGmtMinus5 }}
+                            </p>
+                          </ng-container>
+                          <ng-template #noTimestamp>
+                            <p class="detail-info-value mb-1 text-muted mb-0">
+                              Fecha no disponible
+                            </p>
+                          </ng-template>
+                          <small class="text-muted d-block">
+                            Responsable: {{ getHistoryUserLabel(contract) }}
+                          </small>
+                        </div>
+                        <span
+                          class="badge detail-status-pill history-status"
+                          [ngClass]="
+                            contractStatusClass(contract.contractStatus)
+                          "
+                        >
+                          {{ contractStatusLabel(contract.contractStatus) }}
+                        </span>
+                      </div>
+                      <div class="mt-3">
+                        <p class="detail-info-label mb-1">
+                          {{ historyAmountLabel(contract) }}
+                        </p>
+                        <ng-container
+                          *ngIf="historyAmount(contract) as amount; else noAmount"
+                        >
+                          <p class="detail-info-value mb-1">
+                            {{ amount | copCurrency }}
+                          </p>
+                        </ng-container>
+                        <ng-template #noAmount>
+                          <p class="detail-info-value mb-1">No disponible</p>
+                        </ng-template>
+                        <small class="text-muted d-block">
+                          Cliente: {{ getHistoryClientLabel(contract) }}
+                        </small>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <div class="text-center text-muted py-3">
+                  No hay transacciones registradas para este vehículo.
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="text-center py-5 text-muted">
+      No se encontró información para el vehículo solicitado.
+    </div>
+  }
+</div>

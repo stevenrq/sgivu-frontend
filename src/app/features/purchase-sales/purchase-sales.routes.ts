@@ -4,6 +4,7 @@ import { PurchaseSaleCreateComponent } from './components/purchase-sale-create/p
 import { authGuard } from '../auth/guards/auth.guard';
 import { permissionGuard } from '../auth/guards/permission.guard';
 import { PermissionService } from '../auth/services/permission.service';
+import { PurchaseSaleDetailComponent } from './components/purchase-sale-detail/purchase-sale-detail.component';
 
 export const purchaseSalesRoutes: Routes = [
   {
@@ -27,6 +28,15 @@ export const purchaseSalesRoutes: Routes = [
     data: {
       canActivateFn: (ps: PermissionService) =>
         ps.hasPermission('purchase_sale:create'),
+    },
+  },
+  {
+    path: 'details/:id',
+    component: PurchaseSaleDetailComponent,
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      canActivateFn: (ps: PermissionService) =>
+        ps.hasPermission('purchase_sale:read'),
     },
   },
   {

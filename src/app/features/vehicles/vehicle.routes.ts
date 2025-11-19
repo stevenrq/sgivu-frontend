@@ -4,6 +4,7 @@ import { permissionGuard } from '../auth/guards/permission.guard';
 import { PermissionService } from '../auth/services/permission.service';
 import { VehicleListComponent } from './components/vehicle-list/vehicle-list.component';
 import { VehicleFormComponent } from './components/vehicle-form/vehicle-form.component';
+import { VehicleDetailComponent } from './components/vehicle-detail/vehicle-detail.component';
 
 export const vehicleRoutes: Routes = [
   {
@@ -63,6 +64,25 @@ export const vehicleRoutes: Routes = [
       vehicleType: 'motorcycle',
       canActivateFn: (ps: PermissionService) =>
         ps.hasAllPermissions(['vehicle:create', 'motorcycle:update']),
+    },
+  },
+  {
+    path: 'cars/:id/details',
+    component: VehicleDetailComponent,
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      vehicleType: 'car',
+      canActivateFn: (ps: PermissionService) => ps.hasPermission('car:read'),
+    },
+  },
+  {
+    path: 'motorcycles/:id/details',
+    component: VehicleDetailComponent,
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      vehicleType: 'motorcycle',
+      canActivateFn: (ps: PermissionService) =>
+        ps.hasPermission('motorcycle:read'),
     },
   },
   {

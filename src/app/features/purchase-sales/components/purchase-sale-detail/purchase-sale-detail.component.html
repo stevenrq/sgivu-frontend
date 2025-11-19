@@ -1,0 +1,162 @@
+@if (loading) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Cargando contrato...</p>
+  </div>
+} @else if (error) {
+  <div class="container detail-container mt-5 mb-5">
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+    <a class="btn btn-outline-primary" routerLink="/purchase-sales/page/0">
+      <i class="bi bi-arrow-left me-2"></i>Volver a la lista
+    </a>
+  </div>
+} @else if (contract) {
+  <div class="container detail-container mt-5 mb-5">
+    <div class="detail-header text-center">
+      <h1 class="detail-title">{{ typeLabel }}</h1>
+      <p class="detail-subtitle">
+        Contrato #{{ contract.id }} · Última actualización:
+        {{ contract.updatedAt | utcToGmtMinus5 }}
+      </p>
+      <div class="mt-3 d-flex flex-wrap justify-content-center gap-2">
+        <span class="badge detail-status-pill" [ngClass]="statusBadgeClass">
+          {{ statusLabel }}
+        </span>
+        <span class="badge rounded-pill bg-light text-dark detail-status-pill">
+          Método de pago: {{ paymentMethodLabel }}
+        </span>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="card detail-card mb-4">
+          <div class="card-header detail-card-header">
+            <i class="bi bi-currency-dollar me-2"></i>Valores del contrato
+          </div>
+          <div class="card-body detail-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <p class="detail-info-label mb-1">Precio de compra</p>
+                <p class="detail-info-value">
+                  {{ contract.purchasePrice | copCurrency }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="detail-info-label mb-1">Precio de venta</p>
+                <p class="detail-info-value">
+                  @if (contract.salePrice > 0) {
+                    {{ contract.salePrice | copCurrency }}
+                  } @else {
+                    <span class="text-muted">No registrado</span>
+                  }
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="detail-info-label mb-1">Limitaciones de pago</p>
+                <p class="detail-info-value">
+                  {{ contract.paymentLimitations }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="detail-info-label mb-1">Términos de pago</p>
+                <p class="detail-info-value">
+                  {{ contract.paymentTerms }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card detail-card mb-4">
+          <div class="card-header detail-card-header">
+            <i class="bi bi-people-fill me-2"></i>Participantes
+          </div>
+          <div class="card-body detail-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <p class="detail-info-label mb-1">Cliente asociado</p>
+                <p class="detail-info-value mb-0">
+                  {{ clientName }}
+                </p>
+                <small class="text-muted">{{ clientIdentifier }}</small>
+              </div>
+              <div class="col-md-6">
+                <p class="detail-info-label mb-1">Usuario responsable</p>
+                <p class="detail-info-value mb-0">
+                  {{ userName }}
+                </p>
+              </div>
+              <div class="col-md-12">
+                <p class="detail-info-label mb-1">Vehículo</p>
+                <p class="detail-info-value mb-0">
+                  {{ vehicleLabel }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card detail-card mb-4">
+          <div class="card-header detail-card-header">
+            <i class="bi bi-card-text me-2"></i>Observaciones
+          </div>
+          <div class="card-body detail-card-body">
+            <p class="mb-0">
+              {{ contract.observations || 'No se registraron observaciones.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card detail-card mb-4">
+          <div class="card-header detail-card-header">
+            <i class="bi bi-info-circle me-2"></i>Información general
+          </div>
+          <div class="card-body detail-card-body">
+            <p class="detail-info-label mb-1">Estado actual</p>
+            <p class="detail-info-value">{{ statusLabel }}</p>
+
+            <p class="detail-info-label mb-1">Tipo de contrato</p>
+            <p class="detail-info-value">{{ typeLabel }}</p>
+
+            <p class="detail-info-label mb-1">Método de pago</p>
+            <p class="detail-info-value">{{ paymentMethodLabel }}</p>
+
+            <p class="detail-info-label mb-1">Creado el</p>
+            <p class="detail-info-value">
+              {{ contract.createdAt | utcToGmtMinus5 }}
+            </p>
+
+            <p class="detail-info-label mb-1">Actualizado el</p>
+            <p class="detail-info-value">
+              {{ contract.updatedAt | utcToGmtMinus5 }}
+            </p>
+          </div>
+        </div>
+
+        <div class="card detail-card">
+          <div class="card-header detail-card-header">
+            <i class="bi bi-gear me-2"></i>Acciones
+          </div>
+          <div class="card-body detail-card-body detail-actions">
+            <a class="btn btn-outline-primary" routerLink="/purchase-sales/page/0">
+              <i class="bi bi-arrow-left me-2"></i>Volver al listado
+            </a>
+            <a
+              class="btn btn-primary"
+              [routerLink]="['/purchase-sales/register']"
+            >
+              <i class="bi bi-plus-circle me-2"></i>Registrar nuevo contrato
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
