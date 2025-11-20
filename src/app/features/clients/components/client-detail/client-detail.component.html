@@ -1,20 +1,29 @@
 <div class="container detail-container mt-5 mb-5">
   @if (isLoading) {
     <div class="text-center py-5">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem">
+      <div
+        class="spinner-border text-primary"
+        style="width: 3rem; height: 3rem"
+      >
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="mt-3">Cargando información del cliente...</p>
     </div>
   } @else if (errorMessage) {
     <div class="alert alert-danger" role="alert">
-      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+      <div
+        class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3"
+      >
         <div>
           <h5 class="alert-heading mb-1">No se pudo cargar el detalle</h5>
           <p class="mb-0">{{ errorMessage }}</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <button class="btn btn-outline-danger" type="button" (click)="reload()">
+          <button
+            class="btn btn-outline-danger"
+            type="button"
+            (click)="reload()"
+          >
             <i class="bi bi-arrow-clockwise me-2"></i>Reintentar
           </button>
           <a class="btn btn-primary" [routerLink]="listLink">
@@ -38,7 +47,9 @@
           <span class="badge detail-status-pill" [ngClass]="statusBadgeClass">
             {{ statusLabel }}
           </span>
-          <span class="badge rounded-pill bg-light text-dark detail-status-pill">
+          <span
+            class="badge rounded-pill bg-light text-dark detail-status-pill"
+          >
             ID #{{ entity.id }}
           </span>
         </div>
@@ -66,27 +77,27 @@
                   <p class="detail-info-label">{{ documentLabel }}</p>
                   <p class="detail-info-value mb-0">
                     <i class="bi bi-person-vcard me-2"></i
-                    >{{ documentValue ?? 'Sin registro' }}
+                    >{{ documentValue ?? "Sin registro" }}
                   </p>
                 </div>
                 @if (isPerson) {
                   <div class="col-md-6">
                     <p class="detail-info-label">Nombres</p>
                     <p class="detail-info-value">
-                      {{ person?.firstName || 'No registrado' }}
+                      {{ person?.firstName || "No registrado" }}
                     </p>
                   </div>
                   <div class="col-md-6">
                     <p class="detail-info-label">Apellidos</p>
                     <p class="detail-info-value">
-                      {{ person?.lastName || 'No registrado' }}
+                      {{ person?.lastName || "No registrado" }}
                     </p>
                   </div>
                 } @else {
                   <div class="col-md-12">
                     <p class="detail-info-label">Razón social</p>
                     <p class="detail-info-value">
-                      {{ company?.companyName || 'No registrada' }}
+                      {{ company?.companyName || "No registrada" }}
                     </p>
                   </div>
                 }
@@ -94,7 +105,7 @@
                   <p class="detail-info-label">Correo electrónico</p>
                   <p class="detail-info-value mb-0">
                     <i class="bi bi-envelope-at me-2"></i
-                    >{{ entity.email || 'Sin correo registrado' }}
+                    >{{ entity.email || "Sin correo registrado" }}
                   </p>
                 </div>
                 <div class="col-md-6">
@@ -124,14 +135,17 @@
                   <p class="detail-info-label">Ciudad</p>
                   <p class="detail-info-value mb-0">
                     <i class="bi bi-building me-2"></i
-                    >{{ entity.address?.city || 'Pendiente' }}
+                    >{{ entity.address.city || "Pendiente" }}
                   </p>
                 </div>
                 <div class="col-md-6">
                   <p class="detail-info-label">Canal recomendado</p>
                   <p class="detail-info-value mb-0">
-                    <span class="badge bg-primary-subtle text-primary-emphasis detail-chip">
-                      <i class="bi bi-chat-dots me-2"></i>{{ bestContactChannel }}
+                    <span
+                      class="badge bg-primary-subtle text-primary-emphasis detail-chip"
+                    >
+                      <i class="bi bi-chat-dots me-2"></i
+                      >{{ bestContactChannel }}
                     </span>
                   </p>
                 </div>
@@ -146,7 +160,7 @@
                           : 'bg-warning-subtle text-warning-emphasis'
                       "
                     >
-                      {{ entity.phoneNumber ? 'Registrado' : 'Pendiente' }}
+                      {{ entity.phoneNumber ? "Registrado" : "Pendiente" }}
                     </span>
                   </p>
                 </div>
@@ -174,9 +188,7 @@
               <i class="bi bi-check-circle me-2"></i>Salud de los datos
             </div>
             <div class="card-body detail-card-body">
-              <p class="detail-section-title mb-3">
-                Validaciones automáticas
-              </p>
+              <p class="detail-section-title mb-3">Validaciones automáticas</p>
               <ul class="detail-list checklist">
                 @for (item of contactChecklist; track item.label) {
                   <li>
@@ -214,16 +226,20 @@
               </a>
               <button
                 class="btn"
-                [ngClass]="entity.enabled ? 'btn-outline-danger' : 'btn-outline-success'"
+                [ngClass]="
+                  entity.enabled ? 'btn-outline-danger' : 'btn-outline-success'
+                "
                 type="button"
                 (click)="toggleStatus()"
                 *appHasPermission="updatePermission"
               >
                 <i
                   class="bi me-2"
-                  [ngClass]="entity.enabled ? 'bi-pause-circle' : 'bi-play-circle'"
+                  [ngClass]="
+                    entity.enabled ? 'bi-pause-circle' : 'bi-play-circle'
+                  "
                 ></i
-                >{{ entity.enabled ? 'Desactivar cliente' : 'Activar cliente' }}
+                >{{ entity.enabled ? "Desactivar cliente" : "Activar cliente" }}
               </button>
               <a class="btn btn-outline-secondary" [routerLink]="listLink">
                 <i class="bi bi-arrow-left me-2"></i>Volver al listado
@@ -261,12 +277,18 @@
                 </div>
                 <i
                   class="bi fs-4"
-                  [ngClass]="isPerson ? 'bi-person-circle text-info' : 'bi-building text-info'"
+                  [ngClass]="
+                    isPerson
+                      ? 'bi-person-circle text-info'
+                      : 'bi-building text-info'
+                  "
                 ></i>
               </div>
               <div class="summary-item">
                 <div>
-                  <p class="detail-info-label mb-1">Recomendación de contacto</p>
+                  <p class="detail-info-label mb-1">
+                    Recomendación de contacto
+                  </p>
                   <p class="detail-info-value mb-0">{{ bestContactChannel }}</p>
                 </div>
                 <i class="bi bi-headset text-success fs-4"></i>
@@ -286,7 +308,11 @@
                 >
                   <i
                     class="bi me-1"
-                    [ngClass]="entity.email ? 'bi-check-circle-fill text-success' : 'bi-dot'"
+                    [ngClass]="
+                      entity.email
+                        ? 'bi-check-circle-fill text-success'
+                        : 'bi-dot'
+                    "
                   ></i
                   >Correo
                 </span>
@@ -296,7 +322,11 @@
                 >
                   <i
                     class="bi me-1"
-                    [ngClass]="entity.phoneNumber ? 'bi-check-circle-fill text-success' : 'bi-dot'"
+                    [ngClass]="
+                      entity.phoneNumber
+                        ? 'bi-check-circle-fill text-success'
+                        : 'bi-dot'
+                    "
                   ></i
                   >Teléfono
                 </span>
@@ -306,7 +336,11 @@
                 >
                   <i
                     class="bi me-1"
-                    [ngClass]="entity.address ? 'bi-check-circle-fill text-success' : 'bi-dot'"
+                    [ngClass]="
+                      entity.address
+                        ? 'bi-check-circle-fill text-success'
+                        : 'bi-dot'
+                    "
                   ></i
                   >Dirección
                 </span>
@@ -316,9 +350,13 @@
                 >
                   <i
                     class="bi me-1"
-                    [ngClass]="documentValue ? 'bi-check-circle-fill text-success' : 'bi-dot'"
+                    [ngClass]="
+                      documentValue
+                        ? 'bi-check-circle-fill text-success'
+                        : 'bi-dot'
+                    "
                   ></i
-                  >{{ isPerson ? 'Documento' : 'NIT' }}
+                  >{{ isPerson ? "Documento" : "NIT" }}
                 </span>
               </div>
             </div>
