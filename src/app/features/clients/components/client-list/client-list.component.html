@@ -275,7 +275,7 @@
               <th
                 scope="col"
                 class="text-center"
-                *appHasPermission="'person:update'"
+                *appHasPermission="'person:read'"
               >
                 Acciones
               </th>
@@ -290,7 +290,7 @@
               <th
                 scope="col"
                 class="text-center"
-                *appHasPermission="'company:update'"
+                *appHasPermission="'company:read'"
               >
                 Acciones
               </th>
@@ -317,9 +317,12 @@
                         }}{{ person.lastName.charAt(0) || "" }}
                       </div>
                       <div>
-                        <div class="fw-semibold">
-                          {{ person.firstName }} {{ person.lastName }}
-                        </div>
+                        <a
+                          class="client-link fw-semibold d-inline-flex flex-column"
+                          [routerLink]="['/clients/persons', person.id, 'detail']"
+                        >
+                          <span>{{ person.firstName }} {{ person.lastName }}</span>
+                        </a>
                         <div class="text-muted small">
                           <i class="bi bi-geo-alt me-1"></i>
                           {{ person.address.city || "Ciudad no definida" }}
@@ -345,7 +348,7 @@
                       </span>
                     }
                   </td>
-                  <td class="text-center" *appHasPermission="'person:update'">
+                  <td class="text-center" *appHasPermission="'person:read'">
                     <div class="dropdown">
                       <button
                         class="btn btn-outline-secondary btn-sm btn-icon"
@@ -359,12 +362,20 @@
                         <li>
                           <a
                             class="dropdown-item"
+                            [routerLink]="['/clients/persons', person.id, 'detail']"
+                          >
+                            <i class="bi bi-eye me-2"></i>Ver detalle
+                          </a>
+                        </li>
+                        <li *appHasPermission="'person:update'">
+                          <a
+                            class="dropdown-item"
                             [routerLink]="['/clients/persons', person.id]"
                           >
                             <i class="bi bi-pencil-square me-2"></i>Editar
                           </a>
                         </li>
-                        <li>
+                        <li *appHasPermission="'person:update'">
                           <button
                             class="dropdown-item d-flex align-items-center"
                             type="button"
@@ -397,9 +408,12 @@
                         {{ company.companyName.charAt(0) || "E" }}
                       </div>
                       <div>
-                        <div class="fw-semibold">
-                          {{ company.companyName }}
-                        </div>
+                        <a
+                          class="client-link fw-semibold d-inline-flex flex-column"
+                          [routerLink]="['/clients/companies', company.id, 'detail']"
+                        >
+                          <span>{{ company.companyName }}</span>
+                        </a>
                         <div class="text-muted small">
                           <i class="bi bi-geo-alt me-1"></i>
                           {{ company.address.city || "Ciudad no definida" }}
@@ -427,7 +441,7 @@
                   </td>
                   <td
                     class="text-center"
-                    *appHasPermission="'company:update'"
+                    *appHasPermission="'company:read'"
                   >
                     <div class="dropdown">
                       <button
@@ -442,12 +456,20 @@
                         <li>
                           <a
                             class="dropdown-item"
+                            [routerLink]="['/clients/companies', company.id, 'detail']"
+                          >
+                            <i class="bi bi-eye me-2"></i>Ver detalle
+                          </a>
+                        </li>
+                        <li *appHasPermission="'company:update'">
+                          <a
+                            class="dropdown-item"
                             [routerLink]="['/clients/companies', company.id]"
                           >
                             <i class="bi bi-pencil-square me-2"></i>Editar
                           </a>
                         </li>
-                        <li>
+                        <li *appHasPermission="'company:update'">
                           <button
                             class="dropdown-item d-flex align-items-center"
                             type="button"

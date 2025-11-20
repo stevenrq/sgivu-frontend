@@ -64,3 +64,14 @@
 .search-group .form-control {
   min-width: 230px;
 }
+
+.client-link {
+  text-decoration: none;
+  color: inherit;
+  transition: none;
+}
+
+.client-link:hover {
+  color: var(--bs-primary);
+  text-decoration: underline;
+}

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ClientListComponent } from './components/client-list/client-list.component';
 import { ClientFormComponent } from './components/client-form/client-form.component';
+import { ClientDetailComponent } from './components/client-detail/client-detail.component';
 import { authGuard } from '../auth/guards/auth.guard';
 import { permissionGuard } from '../auth/guards/permission.guard';
 import { PermissionService } from '../auth/services/permission.service';
@@ -76,6 +77,15 @@ export const clientRoutes: Routes = [
     },
   },
   {
+    path: 'persons/:id/detail',
+    component: ClientDetailComponent,
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      clientType: 'person',
+      canActivateFn: (ps: PermissionService) => ps.hasPermission('person:read'),
+    },
+  },
+  {
     path: 'persons/:id',
     component: ClientFormComponent,
     canActivate: [authGuard, permissionGuard],
@@ -83,6 +93,16 @@ export const clientRoutes: Routes = [
       clientType: 'person',
       canActivateFn: (ps: PermissionService) =>
         ps.hasPermission('person:update'),
+    },
+  },
+  {
+    path: 'companies/:id/detail',
+    component: ClientDetailComponent,
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      clientType: 'company',
+      canActivateFn: (ps: PermissionService) =>
+        ps.hasPermission('company:read'),
     },
   },
   {
