@@ -30,14 +30,14 @@
 }
 
 .gallery-item-primary {
-  box-shadow: 0 8px 20px rgba(47, 111, 237, 0.25);
+  box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.25);
 }
 
 .gallery-badge {
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
-  background-color: rgba(13, 110, 253, 0.9);
+  background-color: rgba(var(--accent-rgb), 0.9);
   color: #fff;
   font-size: 0.8rem;
   border-radius: 999px;

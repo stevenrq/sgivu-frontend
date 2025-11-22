@@ -35,9 +35,9 @@
 
 .toggle-group .btn.active {
   color: #ffffff !important;
-  background: linear-gradient(135deg, #2f6fed, #1f4bd8) !important;
-  border-color: #1f4bd8 !important;
-  box-shadow: 0 0.35rem 1rem rgba(47, 111, 237, 0.2);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong)) !important;
+  border-color: var(--accent-strong) !important;
+  box-shadow: 0 0.35rem 1rem rgba(var(--accent-rgb), 0.2);
 }
 
 .toggle-group .btn:not(.active):hover {

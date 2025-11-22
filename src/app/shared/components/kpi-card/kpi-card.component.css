@@ -9,7 +9,11 @@
   box-shadow: var(--shadow-soft);
   overflow: hidden;
   background:
-    linear-gradient(145deg, rgba(47, 111, 237, 0.05), rgba(31, 75, 216, 0)),
+    linear-gradient(
+      145deg,
+      rgba(var(--accent-rgb), 0.05),
+      rgba(var(--accent-strong-rgb), 0)
+    ),
     var(--surface);
   --tone-bg: var(--accent-soft);
   --tone-color: var(--accent);
@@ -33,7 +37,11 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 20% 20%, rgba(47, 111, 237, 0.06), transparent 28%);
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(var(--accent-rgb), 0.06),
+    transparent 28%
+  );
   opacity: 0.9;
 }
 
@@ -52,7 +60,7 @@
 .kpi-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 18px 44px rgba(15, 23, 42, 0.12);
-  border-color: rgba(47, 111, 237, 0.35);
+  border-color: rgba(var(--accent-rgb), 0.35);
 }
 
 .card-subtitle {
@@ -86,6 +94,6 @@
 }
 
 .kpi-card--dark {
-  --tone-bg: rgba(15, 23, 42, 0.12);
-  --tone-color: #0f172a;
+  --tone-bg: rgba(255, 255, 255, 0.12);
+  --tone-color: var(--text);
 }

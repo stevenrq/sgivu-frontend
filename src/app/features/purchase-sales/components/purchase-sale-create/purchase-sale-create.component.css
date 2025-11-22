@@ -77,10 +77,10 @@
 }
 
 .contract-type-card.active {
-  border-color: #1f4bd8;
-  box-shadow: 0 0 0 0.25rem rgba(47, 111, 237, 0.16);
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 0.25rem rgba(var(--accent-rgb), 0.16);
   background-color: var(--accent-soft);
-  color: #1f4bd8;
+  color: var(--accent-strong);
 }
 
 .contract-type-card.active small {
@@ -88,7 +88,7 @@
 }
 
 .vehicle-selector-card {
-  border: 1px solid rgba(47, 111, 237, 0.25);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
   border-radius: var(--radius-md);
   padding: 1.25rem;
   background-color: var(--accent-soft);

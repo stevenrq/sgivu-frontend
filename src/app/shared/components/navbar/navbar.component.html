@@ -84,54 +84,82 @@
       </li>
     </ul>
 
-    @if (isAuthenticated$ | async) {
-      @if (user$ | async; as user) {
-        <div class="dropdown topbar__profile">
-          <button
-            class="topbar__profile-btn dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <div class="avatar" aria-hidden="true">
-              {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
-            </div>
-            <div class="user-info">
-              <strong>{{ user.username }}</strong>
-            </div>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a
-                class="dropdown-item"
-                routerLink="/users/profile"
-                (click)="handleNavigation()"
-                >Mi Perfil</a
-              >
-            </li>
-            <li>
-              <a
-                class="dropdown-item"
-                routerLink="/settings"
-                (click)="handleNavigation()"
-                >Configuración</a
-              >
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <button class="dropdown-item" type="button" (click)="logout()">
-                Cerrar sesión
-              </button>
-            </li>
-          </ul>
+    <div class="topbar__actions">
+      @if (activeTheme$ | async; as theme) {
+        <button
+          type="button"
+          class="theme-toggle"
+          (click)="toggleTheme()"
+          [attr.aria-pressed]="theme === 'dark'"
+          [attr.aria-label]="
+            theme === 'dark'
+              ? 'Cambiar a modo claro'
+              : 'Cambiar a modo oscuro'
+          "
+        >
+          <i
+            class="bi"
+            [ngClass]="
+              theme === 'dark'
+                ? 'bi-brightness-high-fill'
+                : 'bi-moon-stars-fill'
+            "
+          ></i>
+          <span class="theme-toggle__label">
+            {{ theme === 'dark' ? "Modo claro" : "Modo oscuro" }}
+          </span>
+        </button>
+      }
+
+      @if (isAuthenticated$ | async) {
+        @if (user$ | async; as user) {
+          <div class="dropdown topbar__profile">
+            <button
+              class="topbar__profile-btn dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <div class="avatar" aria-hidden="true">
+                {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+              </div>
+              <div class="user-info">
+                <strong>{{ user.username }}</strong>
+              </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a
+                  class="dropdown-item"
+                  routerLink="/users/profile"
+                  (click)="handleNavigation()"
+                  >Mi Perfil</a
+                >
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  routerLink="/settings"
+                  (click)="handleNavigation()"
+                  >Configuración</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <button class="dropdown-item" type="button" (click)="logout()">
+                  Cerrar sesión
+                </button>
+              </li>
+            </ul>
+          </div>
+        }
+      } @else {
+        <div class="topbar__loading" role="status" aria-label="Cargando">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
         </div>
       }
-    } @else {
-      <div class="topbar__loading" role="status" aria-label="Cargando">
-        <span class="dot"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-      </div>
-    }
+    </div>
   </div>
 </nav>

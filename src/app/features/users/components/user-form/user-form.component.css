@@ -8,6 +8,40 @@
   border-bottom-right-radius: 0;
 }
 
+:host {
+  display: block;
+  background: var(--bg-page);
+}
+
+.user-form-page {
+  background: var(--surface);
+  overflow-y: auto;
+}
+
+.user-form-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.user-form-header {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.user-form-title {
+  color: var(--text);
+}
+
+.user-form-subtitle {
+  color: var(--muted);
+}
+
+.user-form-footer {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 fieldset legend {
   font-size: 0.9rem;
   font-weight: 600;

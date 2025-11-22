@@ -16,18 +16,30 @@
   background-color: var(--surface);
 }
 
+.vehicle-form__header {
+  background: var(--surface);
+}
+
+.vehicle-form__title {
+  color: var(--text);
+}
+
+.vehicle-form__subtitle {
+  color: var(--muted);
+}
+
 .card-body {
   padding: 2rem;
 }
 
 .form-floating > label {
-  color: #6c757d;
+  color: var(--muted);
 }
 
 .form-floating .form-control:focus,
 .form-floating .form-select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 0.2rem rgba(47, 111, 237, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.15);
 }
 
 .form-check-input:checked {
@@ -40,13 +52,13 @@ fieldset {
 }
 
 legend {
-  color: #6c757d;
+  color: var(--muted);
 }
 
 .loading-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;

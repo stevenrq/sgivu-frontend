@@ -16,6 +16,7 @@ import Collapse from 'bootstrap/js/dist/collapse';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { User } from '../../../features/users/models/user.model';
 import { UserService } from '../../../features/users/services/user.service';
+import { Theme, ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -27,6 +28,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
   protected user$!: Observable<User | null>;
 
   protected isAuthenticated$: Observable<boolean>;
+  protected activeTheme$: Observable<Theme>;
 
   private readonly desktopBreakpoint = 992;
   protected isMobileView = false;
@@ -39,9 +41,11 @@ export class NavbarComponent implements OnInit, AfterViewInit {
   constructor(
     readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly themeService: ThemeService,
     @Inject(PLATFORM_ID) private readonly platformId: object,
   ) {
     this.isAuthenticated$ = this.authService.isReadyAndAuthenticated$;
+    this.activeTheme$ = this.themeService.activeTheme$;
   }
 
   ngOnInit(): void {
@@ -72,6 +76,10 @@ export class NavbarComponent implements OnInit, AfterViewInit {
   logout(): void {
     this.authService.logout();
     this.handleNavigation();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   toggleMenu(): void {

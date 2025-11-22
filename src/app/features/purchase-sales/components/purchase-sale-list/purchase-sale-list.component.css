@@ -52,7 +52,7 @@
   text-align: left;
   padding: 0.4rem 0.85rem;
   font-size: 0.85rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border);
 }
 
 .quick-search-dropdown .dropdown-item:last-child {
@@ -65,5 +65,5 @@
 
 .suggestion-label {
   font-weight: 600;
-  color: #1f2933;
+  color: var(--text);
 }

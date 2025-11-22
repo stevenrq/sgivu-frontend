@@ -27,11 +27,17 @@
 .table-container thead th {
   font-weight: 700;
   font-size: 0.8rem;
-  color: var(--muted);
+  color: var(--table-head-color);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border: none;
-  background: transparent;
+  background: var(--table-head-bg);
+}
+
+.table-container table > :not(caption) > * > * {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
 }
 
 .table-container tbody tr:hover {

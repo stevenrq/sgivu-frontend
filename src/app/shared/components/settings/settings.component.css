@@ -14,7 +14,7 @@
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
 .card-header {
@@ -23,7 +23,7 @@
 }
 
 .nav-pills .nav-link {
-  color: #495057;
+  color: var(--muted);
   border-radius: 0.5rem;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
@@ -36,7 +36,7 @@
 }
 
 .nav-pills .nav-link.active {
-  box-shadow: 0 0.125rem 0.25rem rgba(47, 111, 237, 0.2);
+  box-shadow: 0 0.125rem 0.25rem rgba(var(--accent-rgb), 0.2);
 }
 
 .nav-pills .nav-link i {

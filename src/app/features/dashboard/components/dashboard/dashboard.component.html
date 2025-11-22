@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container-fluid dashboard-page">
   @if (loadError) {
     <div class="alert alert-danger mb-4" role="alert">{{ loadError }}</div>
   }
@@ -94,7 +94,7 @@
         <div class="card-header">
           <h5 class="card-title mb-0">Actividad Reciente</h5>
         </div>
-        <div class="table-responsive">
+        <div class="recent-table-container table-responsive">
           <table class="table table-hover mb-0">
             <thead>
               <tr>
@@ -145,11 +145,12 @@
       </div>
     </div>
     <div class="col-lg-5">
-      <div class="card">
+      <div class="card alerts-card h-100">
         <div class="card-header">
           <h5 class="card-title mb-0">Alertas Importantes</h5>
         </div>
-        <div class="list-group list-group-flush">
+        <div class="card-body alerts-card__body">
+          <div class="list-group alerts-list">
           <a
             href="#"
             class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
@@ -182,6 +183,7 @@
             </div>
             <span class="badge bg-danger rounded-pill">Vence en 10 días</span>
           </a>
+          </div>
         </div>
       </div>
     </div>

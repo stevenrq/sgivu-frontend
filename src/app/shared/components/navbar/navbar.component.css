@@ -7,7 +7,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: #ffffff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 18px;
   box-shadow: var(--shadow-soft);
@@ -34,10 +34,10 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #2f6fed, #1f4bd8);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
   font-size: 1.1rem;
-  box-shadow: 0 10px 30px rgba(47, 111, 237, 0.35);
+  box-shadow: 0 10px 30px rgba(var(--accent-rgb), 0.35);
 }
 
 .brand-copy {
@@ -89,7 +89,7 @@
   z-index: 1;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--surface);
   padding: 0.5rem 0.35rem;
   opacity: 0;
   transform: translateY(-6px);
@@ -158,13 +158,21 @@
 .topbar__link.active {
   color: var(--text);
   background: var(--accent-soft);
-  border-color: rgba(47, 111, 237, 0.4);
-  box-shadow: 0 12px 30px rgba(47, 111, 237, 0.2);
+  border-color: rgba(var(--accent-rgb), 0.4);
+  box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.2);
   transform: translateX(3px);
 }
 
-.topbar__profile {
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
   margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.topbar__profile {
   flex-shrink: 0;
   position: relative;
 }
@@ -175,7 +183,7 @@
   gap: 0.7rem;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: #fdfdff;
+  background: var(--input-bg);
   padding: 0.45rem 0.75rem;
   color: var(--text);
   font-weight: 700;
@@ -194,7 +202,7 @@
   width: 36px;
   height: 36px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #2f6fed, #1f4bd8);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   display: grid;
   place-items: center;
   color: #fff;
@@ -224,7 +232,7 @@
   box-shadow: var(--shadow-soft);
   padding: 0.35rem;
   z-index: 1300;
-  background: #fff;
+  background: var(--surface);
 }
 
 .dropdown-item {
@@ -243,8 +251,43 @@
   margin: 0.35rem 0.5rem;
 }
 
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-muted);
+  padding: 0.55rem 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.theme-toggle i {
+  font-size: 1rem;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  background: var(--accent-soft);
+  border-color: rgba(var(--accent-rgb), 0.45);
+  color: var(--accent-strong);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+}
+
+.theme-toggle__label {
+  white-space: nowrap;
+}
+
 .topbar__loading {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -335,8 +378,8 @@
     padding: 0.5rem 0.35rem;
     border-color: var(--border);
     border-radius: 12px;
-    background: #ffffff;
-    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     position: absolute;
@@ -360,9 +403,9 @@
     position: absolute;
     top: 0.85rem;
     right: 0.85rem;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    background: linear-gradient(180deg, #f4f7ff, #e8edfa);
-    border-color: rgba(47, 111, 237, 0.15);
+    box-shadow: var(--shadow-soft);
+    background: var(--surface-muted);
+    border-color: rgba(var(--accent-rgb), 0.2);
   }
 
   .topbar__links {
@@ -383,5 +426,17 @@
   .topbar__profile-btn {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .topbar__actions {
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .theme-toggle {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -2,11 +2,46 @@ form {
   position: relative;
 }
 
+:host {
+  display: block;
+  background: var(--bg-page);
+}
+
+.client-form-page {
+  background: var(--surface);
+  overflow-y: auto;
+}
+
+.client-form-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.client-form-header {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.client-form-title {
+  color: var(--text);
+}
+
+.client-form-subtitle {
+  color: var(--muted);
+}
+
+.client-form-footer {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 .client-type-toggle {
-  background-color: var(--surface-muted);
+  background-color: var(--surface);
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
 }
 
 .client-type-toggle .btn-group {
@@ -17,23 +52,29 @@ form {
   font-weight: 600;
   border-radius: 999px;
   padding: 0.5rem 1.5rem;
+  color: var(--text) !important;
+  border-color: var(--border);
+  background-color: var(--surface);
 }
 
 .client-type-toggle .btn.active {
-  background-color: #1f4bd8;
-  color: #ffffff;
-  border-color: #1f4bd8;
-  box-shadow: 0 0.25rem 0.75rem rgba(47, 111, 237, 0.25);
+  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong)) !important;
+  border-color: var(--accent-strong) !important;
+  box-shadow: 0 0.35rem 1rem rgba(var(--accent-rgb), 0.2);
 }
 
 .client-type-toggle .btn:not(.active):hover {
-  background-color: var(--surface);
+  background-color: var(--surface-muted);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
 }
 
 .loading-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,5 +89,5 @@ fieldset legend {
 }
 
 .form-check-input:focus {
-  box-shadow: 0 0 0 0.25rem rgba(47, 111, 237, 0.25);
+  box-shadow: 0 0 0 0.25rem rgba(var(--accent-rgb), 0.25);
 }

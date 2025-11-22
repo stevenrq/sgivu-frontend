@@ -317,41 +317,46 @@
                   <div class="d-flex">
                     <div class="form-check me-3">
                       <input
-                        class="form-check-input"
-                        type="radio"
-                        name="theme"
-                        id="lightTheme"
-                        value="light"
-                        checked
-                      />
-                      <label class="form-check-label" for="lightTheme"
-                        >Claro</label
-                      >
-                    </div>
+                    class="form-check-input"
+                    type="radio"
+                    name="theme"
+                    id="lightTheme"
+                    value="light"
+                    [checked]="selectedTheme === 'light'"
+                    (change)="onThemePreferenceChange('light')"
+                  />
+                  <label class="form-check-label" for="lightTheme"
+                    >Claro</label
+                  >
+                </div>
                     <div class="form-check me-3">
                       <input
-                        class="form-check-input"
-                        type="radio"
-                        name="theme"
-                        id="darkTheme"
-                        value="dark"
-                      />
-                      <label class="form-check-label" for="darkTheme"
-                        >Oscuro</label
-                      >
-                    </div>
+                    class="form-check-input"
+                    type="radio"
+                    name="theme"
+                    id="darkTheme"
+                    value="dark"
+                    [checked]="selectedTheme === 'dark'"
+                    (change)="onThemePreferenceChange('dark')"
+                  />
+                  <label class="form-check-label" for="darkTheme"
+                    >Oscuro</label
+                  >
+                </div>
                     <div class="form-check">
                       <input
-                        class="form-check-input"
-                        type="radio"
-                        name="theme"
-                        id="systemTheme"
-                        value="system"
-                      />
-                      <label class="form-check-label" for="systemTheme"
-                        >Sistema</label
-                      >
-                    </div>
+                    class="form-check-input"
+                    type="radio"
+                    name="theme"
+                    id="systemTheme"
+                    value="system"
+                    [checked]="selectedTheme === 'system'"
+                    (change)="onThemePreferenceChange('system')"
+                  />
+                  <label class="form-check-label" for="systemTheme"
+                    >Sistema</label
+                  >
+                </div>
                   </div>
                 </div>
                 <div class="mb-4">
