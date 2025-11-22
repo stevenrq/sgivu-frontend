@@ -3,54 +3,75 @@
 }
 
 .kpi-card {
-  border-radius: 1rem;
-  border: 1px solid var(--bs-border-color, #dee2e6);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--surface-color);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .kpi-card .card-body {
   display: flex;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  gap: 1rem;
+  padding: 1.5rem;
+  gap: 1.25rem;
 }
 
 .icon-circle {
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .icon-primary {
-  background-color: rgba(13, 110, 253, 0.12);
-  color: #0d6efd;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
 .icon-success {
-  background-color: rgba(25, 135, 84, 0.12);
-  color: #198754;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
 }
 
 .icon-warning {
-  background-color: rgba(255, 193, 7, 0.15);
-  color: #c28100;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
 }
 
 .icon-danger {
-  background-color: rgba(220, 53, 69, 0.12);
-  color: #dc3545;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
 }
 
 .icon-info {
-  background-color: rgba(13, 202, 240, 0.15);
-  color: #0dcaf0;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
 }
 
 .icon-dark {
-  background-color: rgba(52, 58, 64, 0.15);
-  color: #343a40;
+  background-color: rgba(15, 23, 42, 0.1);
+  color: var(--text-main);
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.card-title {
+  color: var(--text-main);
+  letter-spacing: -0.02em;
 }

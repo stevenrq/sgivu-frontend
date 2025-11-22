@@ -1,72 +1,62 @@
 .container-fluid {
-  background-color: var(--bs-body-bg);
+  background-color: transparent;
   min-height: 100%;
 }
 
+/* Card overrides if necessary, otherwise rely on global styles */
 .card {
-  background-color: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.75rem;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
+  border: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  transform: none; /* Disable hover lift for the main container card */
+  box-shadow: var(--shadow-sm);
 }
 
 .card-header {
-  background-color: var(--bs-tertiary-bg);
-  border-bottom: 1px solid var(--bs-border-color);
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem;
 }
 
 .card-footer {
-  background-color: var(--bs-tertiary-bg);
-  border-top: 1px solid var(--bs-border-color);
+  background-color: var(--surface-color);
+  border-top: 1px solid var(--border-color);
+  padding: 1rem 1.5rem;
 }
 
 .toggle-group .btn {
   font-weight: 600;
-  border-radius: 999px;
-  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  background: var(--surface-color);
+}
+
+.toggle-group .btn:hover {
+  background-color: var(--background-color);
+  color: var(--text-main);
 }
 
 .toggle-group .btn.active {
-  color: #ffffff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-  box-shadow: 0 0.35rem 1rem rgba(13, 110, 253, 0.2);
-}
-
-.toggle-group .btn:not(.active):hover {
-  background-color: rgba(13, 110, 253, 0.08);
-}
-
-.form-select-sm {
-  padding-right: 1.75rem;
-}
-
-.form-check-input:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
-
-@media (max-width: 992px) {
-  .filter-group .form-control {
-    min-width: 140px;
-  }
+  color: white;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
 .vehicle-link {
   text-decoration: none;
-  color: inherit;
+  color: var(--text-main);
+  transition: color 0.2s ease;
 }
 
 .vehicle-link:hover {
-  color: #0d6efd;
-  text-decoration: underline;
+  color: var(--primary-color);
+}
+
+.vehicle-link small {
+  color: var(--text-muted);
 }
