@@ -359,8 +359,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
   getUserLabel(contract: PurchaseSale): string {
     const summary = contract.userSummary;
     if (summary) {
-      const username = summary.username ? `@${summary.username}` : null;
-      return [summary.fullName ?? `Usuario #${summary.id}`, username]
+      return [summary.fullName ?? `Usuario #${summary.id}`]
         .filter(Boolean)
         .join(' ');
     }
