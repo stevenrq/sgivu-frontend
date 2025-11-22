@@ -22,7 +22,11 @@
           </div>
 
           <div class="card-body p-4">
-            <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+            <form
+              class="floating-google"
+              [formGroup]="formGroup"
+              (ngSubmit)="onSubmit()"
+            >
               <fieldset class="border p-3 pt-2 rounded">
                 <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
                   <i class="bi bi-person-badge me-1"></i>Datos Personales

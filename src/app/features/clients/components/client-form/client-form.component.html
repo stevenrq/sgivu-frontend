@@ -22,7 +22,11 @@
           </div>
 
           <div class="card-body p-4">
-            <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+            <form
+              class="floating-google"
+              [formGroup]="formGroup"
+              (ngSubmit)="onSubmit()"
+            >
               <div class="client-type-toggle d-flex align-items-center mb-4">
                 <span class="text-muted me-3 fw-semibold">Tipo de cliente</span>
                 <div class="btn-group" aria-label="Selector de tipo de cliente">

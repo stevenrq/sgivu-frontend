@@ -45,4 +45,21 @@
 fieldset legend {
   font-size: 0.9rem;
   font-weight: 600;
+  color: var(--muted);
+}
+
+fieldset {
+  border-color: var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem 1.1rem;
+  background: var(--surface);
+}
+
+.form-floating {
+  margin-bottom: 0.35rem;
+}
+
+.form-floating .invalid-feedback {
+  margin-left: 0.15rem;
+  margin-top: 0.1rem;
 }
