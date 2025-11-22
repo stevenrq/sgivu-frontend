@@ -18,7 +18,7 @@ import {
 } from 'rxjs';
 import Swal from 'sweetalert2';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
-import { PagerComponent } from '../../../pager/components/pager/pager.component';
+import { PagerComponent } from '../../../../shared/components/pager/pager.component';
 import { CarService, CarSearchFilters } from '../../services/car.service';
 import {
   MotorcycleService,
@@ -97,7 +97,8 @@ interface VehicleFallbackResult<T extends VehicleEntity> {
 export class VehicleListComponent implements OnInit, OnDestroy {
   activeTab: VehicleTab = 'car';
   carFilters: CarSearchFilters = this.createCarFilterState();
-  motorcycleFilters: MotorcycleSearchFilters = this.createMotorcycleFilterState();
+  motorcycleFilters: MotorcycleSearchFilters =
+    this.createMotorcycleFilterState();
   carPriceInputs: Record<'minSalePrice' | 'maxSalePrice', string> = {
     minSalePrice: '',
     maxSalePrice: '',
@@ -246,9 +247,7 @@ export class VehicleListComponent implements OnInit, OnDestroy {
 
   onCarSearch(): void {
     this.syncPriceFilters('car');
-    if (
-      this.areFiltersEmpty(this.carFilters as Record<string, unknown>)
-    ) {
+    if (this.areFiltersEmpty(this.carFilters as Record<string, unknown>)) {
       this.clearFilters('car');
       return;
     }
@@ -264,9 +263,7 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       this.clearFilters('motorcycle');
       return;
     }
-    const queryParams = this.buildMotorcycleQueryParams(
-      this.motorcycleFilters,
-    );
+    const queryParams = this.buildMotorcycleQueryParams(this.motorcycleFilters);
     this.navigateToPage(0, 'motorcycle', queryParams ?? undefined);
   }
 
@@ -463,7 +460,9 @@ export class VehicleListComponent implements OnInit, OnDestroy {
    * @typeParam T - Tipo de entidad que se está consultando (auto o moto).
    * @param config - Estrategia de carga, callbacks de resolución y fallback.
    */
-  private loadVehicles<T extends VehicleEntity>(config: VehicleLoadConfig<T>): void {
+  private loadVehicles<T extends VehicleEntity>(
+    config: VehicleLoadConfig<T>,
+  ): void {
     const { state, page, fetchPager, fetchCounts, type, onPageResolved } =
       config;
     state.loading = true;
@@ -597,8 +596,8 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     if (tab === 'car') {
       this.carFilters = this.createCarFilterState();
       this.carPriceInputs = { minSalePrice: '', maxSalePrice: '' };
-       this.activeCarFilters = null;
-       this.carQueryParams = null;
+      this.activeCarFilters = null;
+      this.carQueryParams = null;
       return;
     }
     this.motorcycleFilters = this.createMotorcycleFilterState();
@@ -607,7 +606,10 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     this.motorcycleQueryParams = null;
   }
 
-  onCarPriceInput(field: 'minSalePrice' | 'maxSalePrice', rawValue: string): void {
+  onCarPriceInput(
+    field: 'minSalePrice' | 'maxSalePrice',
+    rawValue: string,
+  ): void {
     const { numericValue, displayValue } = normalizeMoneyInput(
       rawValue,
       this.priceDecimals,
@@ -766,7 +768,9 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       priceInputs.maxSalePrice = '';
     }
 
-    const hasFilters = !this.areFiltersEmpty(filters as Record<string, unknown>);
+    const hasFilters = !this.areFiltersEmpty(
+      filters as Record<string, unknown>,
+    );
 
     return {
       filters: hasFilters ? filters : null,
@@ -893,7 +897,9 @@ export class VehicleListComponent implements OnInit, OnDestroy {
       priceInputs.maxSalePrice = '';
     }
 
-    const hasFilters = !this.areFiltersEmpty(filters as Record<string, unknown>);
+    const hasFilters = !this.areFiltersEmpty(
+      filters as Record<string, unknown>,
+    );
 
     return {
       filters: hasFilters ? filters : null,

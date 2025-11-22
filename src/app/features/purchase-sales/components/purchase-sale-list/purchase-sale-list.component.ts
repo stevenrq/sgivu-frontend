@@ -8,11 +8,24 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Params, Router, RouterLink } from '@angular/router';
-import { Subscription, combineLatest, finalize, forkJoin, map, tap } from 'rxjs';
+import {
+  ActivatedRoute,
+  ParamMap,
+  Params,
+  Router,
+  RouterLink,
+} from '@angular/router';
+import {
+  Subscription,
+  combineLatest,
+  finalize,
+  forkJoin,
+  map,
+  tap,
+} from 'rxjs';
 import Swal from 'sweetalert2';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
-import { PagerComponent } from '../../../pager/components/pager/pager.component';
+import { PagerComponent } from '../../../../shared/components/pager/pager.component';
 import { UtcToGmtMinus5Pipe } from '../../../../shared/pipes/utc-to-gmt-minus5.pipe';
 import {
   PurchaseSaleSearchFilters,
@@ -76,12 +89,7 @@ type PurchaseSaleUiFilters = {
   maxSalePrice: string;
 };
 
-type QuickSuggestionType =
-  | 'client'
-  | 'user'
-  | 'vehicle'
-  | 'status'
-  | 'type';
+type QuickSuggestionType = 'client' | 'user' | 'vehicle' | 'status' | 'type';
 type QuickSuggestion = {
   label: string;
   context: string;
@@ -286,9 +294,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       : 'bg-success-subtle text-success-emphasis';
   }
 
-  private getVehicleOption(
-    contract: PurchaseSale,
-  ): VehicleOption | undefined {
+  private getVehicleOption(contract: PurchaseSale): VehicleOption | undefined {
     if (!contract.vehicleId) {
       return undefined;
     }
@@ -325,11 +331,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       return null;
     }
     const vehicle = this.getVehicleOption(contract);
-    return (
-      vehicle?.createdAt ??
-      contract.createdAt ??
-      null
-    );
+    return vehicle?.createdAt ?? contract.createdAt ?? null;
   }
 
   getSaleDate(contract: PurchaseSale): string | null {
@@ -337,11 +339,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       return null;
     }
     const vehicle = this.getVehicleOption(contract);
-    return (
-      contract.createdAt ??
-      vehicle?.updatedAt ??
-      null
-    );
+    return contract.createdAt ?? vehicle?.updatedAt ?? null;
   }
 
   getClientLabel(contract: PurchaseSale): string {
@@ -497,7 +495,11 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
    * @param end Fecha final del reporte (opcional).
    * @returns Observable que emite el archivo generado.
    */
-  private getReportObservable(format: 'pdf' | 'excel' | 'csv', start?: string, end?: string) {
+  private getReportObservable(
+    format: 'pdf' | 'excel' | 'csv',
+    start?: string,
+    end?: string,
+  ) {
     switch (format) {
       case 'pdf':
         return this.purchaseSaleService.downloadPdf(start, end);
@@ -515,7 +517,9 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
    * @param format Identificador del formato (pdf/excel/csv).
    * @returns Extensión asociada al archivo descargado.
    */
-  private getExtension(format: 'pdf' | 'excel' | 'csv'): 'pdf' | 'xlsx' | 'csv' {
+  private getExtension(
+    format: 'pdf' | 'excel' | 'csv',
+  ): 'pdf' | 'xlsx' | 'csv' {
     if (format === 'pdf') {
       return 'pdf';
     }
@@ -599,7 +603,10 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
    * @param page - Índice actual solicitado por la ruta.
    * @param filters - Filtros efectivos que ya pasaron por `extractFiltersFromQuery`.
    */
-  private loadContracts(page: number, filters?: PurchaseSaleSearchFilters): void {
+  private loadContracts(
+    page: number,
+    filters?: PurchaseSaleSearchFilters,
+  ): void {
     this.listState.loading = true;
     this.listState.error = null;
 
@@ -611,20 +618,18 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
         })
       : this.purchaseSaleService.getAllPaginated(page);
 
-    request$
-      .pipe(finalize(() => (this.listState.loading = false)))
-      .subscribe({
-        next: (pager) => {
-          this.listState.items = pager.content;
-          this.listState.pager = pager;
-          this.currentPage = pager.number;
-        },
-        error: (error) => {
-          this.listState.error =
-            'No se pudieron cargar los contratos de compra/venta.';
-          this.handleError(error, 'cargar los contratos', false);
-        },
-      });
+    request$.pipe(finalize(() => (this.listState.loading = false))).subscribe({
+      next: (pager) => {
+        this.listState.items = pager.content;
+        this.listState.pager = pager;
+        this.currentPage = pager.number;
+      },
+      error: (error) => {
+        this.listState.error =
+          'No se pudieron cargar los contratos de compra/venta.';
+        this.handleError(error, 'cargar los contratos', false);
+      },
+    });
   }
 
   /**
@@ -944,13 +949,15 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
       maxSalePrice: this.parsePriceFilter(this.filters.maxSalePrice),
     };
 
-    (Object.entries(parsedPriceFilters) as Array<[PriceFilterKey, number | null]>).forEach(
-      ([key, value]) => {
-        if (value !== null) {
-          params[key] = value;
-        }
-      },
-    );
+    (
+      Object.entries(parsedPriceFilters) as Array<
+        [PriceFilterKey, number | null]
+      >
+    ).forEach(([key, value]) => {
+      if (value !== null) {
+        params[key] = value;
+      }
+    });
 
     return Object.keys(params).length ? params : undefined;
   }
@@ -1153,8 +1160,7 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
 
   private isValidPaymentMethod(value: string | null): value is PaymentMethod {
     return (
-      !!value &&
-      Object.values(PaymentMethod).includes(value as PaymentMethod)
+      !!value && Object.values(PaymentMethod).includes(value as PaymentMethod)
     );
   }
 

@@ -9,7 +9,7 @@ import {
   Params,
 } from '@angular/router';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
-import { PagerComponent } from '../../../pager/components/pager/pager.component';
+import { PagerComponent } from '../../../../shared/components/pager/pager.component';
 import {
   PersonSearchFilters,
   PersonService,
@@ -100,12 +100,12 @@ interface ClientCountsResult<T extends ClientEntity = ClientEntity> {
  * estrategias de fallback para cuando la API no entrega datos consistentes.
  */
 export class ClientListComponent implements OnInit, OnDestroy {
-  personFilters: PersonSearchFilters & { enabled?: boolean | '' | 'true' | 'false' } =
-    this.createPersonFilterState();
+  personFilters: PersonSearchFilters & {
+    enabled?: boolean | '' | 'true' | 'false';
+  } = this.createPersonFilterState();
   companyFilters: CompanySearchFilters & {
     enabled?: boolean | '' | 'true' | 'false';
-  } =
-    this.createCompanyFilterState();
+  } = this.createCompanyFilterState();
 
   activeTab: ClientTab = 'person';
 
@@ -190,7 +190,11 @@ export class ClientListComponent implements OnInit, OnDestroy {
       }
 
       if (page < 0) {
-        this.navigateToPage(0, this.activeTab, filterInfo.queryParams ?? undefined);
+        this.navigateToPage(
+          0,
+          this.activeTab,
+          filterInfo.queryParams ?? undefined,
+        );
         return;
       }
 
@@ -276,7 +280,11 @@ export class ClientListComponent implements OnInit, OnDestroy {
       return;
     }
     const targetPage = this.getCurrentPage(tab);
-    this.navigateToPage(targetPage, tab, this.getQueryParamsForTab(tab) ?? undefined);
+    this.navigateToPage(
+      targetPage,
+      tab,
+      this.getQueryParamsForTab(tab) ?? undefined,
+    );
   }
 
   protected goToPage(page: number): void {
@@ -456,7 +464,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
    * @typeParam T - Entidad objetivo (persona o empresa).
    * @param config - Callbacks y metadatos necesarios para la carga.
    */
-  private loadClients<T extends ClientEntity>(config: ClientLoadConfig<T>): void {
+  private loadClients<T extends ClientEntity>(
+    config: ClientLoadConfig<T>,
+  ): void {
     const { state, page, fetchPager, fetchCounts, type, onPageResolved } =
       config;
     state.loading = true;
@@ -843,7 +853,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
    */
   private extractPersonFiltersFromQuery(map: ParamMap): {
     filters: PersonSearchFilters | null;
-    uiState: PersonSearchFilters & { enabled?: boolean | '' | 'true' | 'false' };
+    uiState: PersonSearchFilters & {
+      enabled?: boolean | '' | 'true' | 'false';
+    };
     queryParams: Params | null;
   } {
     const uiState = this.createPersonFilterState();
@@ -872,7 +884,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
       uiState.enabled = enabledValue === 'true' ? 'true' : 'false';
     }
 
-    const hasFilters = !this.areFiltersEmpty(filters as Record<string, unknown>);
+    const hasFilters = !this.areFiltersEmpty(
+      filters as Record<string, unknown>,
+    );
     return {
       filters: hasFilters ? filters : null,
       uiState,
@@ -919,7 +933,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
       uiState.enabled = enabledValue === 'true' ? 'true' : 'false';
     }
 
-    const hasFilters = !this.areFiltersEmpty(filters as Record<string, unknown>);
+    const hasFilters = !this.areFiltersEmpty(
+      filters as Record<string, unknown>,
+    );
     return {
       filters: hasFilters ? filters : null,
       uiState,
@@ -996,7 +1012,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
     return Object.keys(params).length ? params : null;
   }
 
-  private buildCompanyQueryParams(filters: CompanySearchFilters): Params | null {
+  private buildCompanyQueryParams(
+    filters: CompanySearchFilters,
+  ): Params | null {
     const params: Params = {};
     const assign = (key: string, value: string | undefined) => {
       if (value) {
@@ -1017,9 +1035,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
     return Object.keys(params).length ? params : null;
   }
 
-  private normalizeFilterValue(value: string | undefined | null):
-    | string
-    | undefined {
+  private normalizeFilterValue(
+    value: string | undefined | null,
+  ): string | undefined {
     if (!value) {
       return undefined;
     }

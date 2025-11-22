@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { PaginatedResponse } from '../../../../shared/models/paginated-response';
+import { PaginatedResponse } from '../../models/paginated-response';
 import { Params, RouterLink } from '@angular/router';
 
 @Component({

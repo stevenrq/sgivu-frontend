@@ -8,9 +8,15 @@ import {
   Router,
   RouterLink,
 } from '@angular/router';
-import { Observable, Subscription, combineLatest, finalize, forkJoin } from 'rxjs';
+import {
+  Observable,
+  Subscription,
+  combineLatest,
+  finalize,
+  forkJoin,
+} from 'rxjs';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
-import { PagerComponent } from '../../../pager/components/pager/pager.component';
+import { PagerComponent } from '../../../../shared/components/pager/pager.component';
 import { PaginatedResponse } from '../../../../shared/models/paginated-response';
 import { UserSearchFilters, UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
@@ -67,9 +73,16 @@ interface UserListMetadata {
 export class UserListComponent implements OnInit, OnDestroy {
   readonly searchTermMaxLength = 80;
 
-  filters: UserSearchFilters & { enabled?: boolean | null } = this.createDefaultFilters();
+  filters: UserSearchFilters & { enabled?: boolean | null } =
+    this.createDefaultFilters();
 
-  readonly roleOptions: string[] = ['ADMIN', 'MANAGER', 'SALE', 'PURCHASE', 'USER'];
+  readonly roleOptions: string[] = [
+    'ADMIN',
+    'MANAGER',
+    'SALE',
+    'PURCHASE',
+    'USER',
+  ];
 
   private readonly metadata: UserListMetadata = {
     pagerUrl: ['/users/page'],
@@ -207,9 +220,7 @@ export class UserListComponent implements OnInit, OnDestroy {
 
   private loadUsers(page: number, filters?: UserSearchFilters): void {
     const activeFilters =
-      filters && !this.areFiltersEmpty(filters)
-        ? filters
-        : undefined;
+      filters && !this.areFiltersEmpty(filters) ? filters : undefined;
     this.loadEntities<User>({
       page,
       state: this.userState,
@@ -299,9 +310,7 @@ export class UserListComponent implements OnInit, OnDestroy {
     );
   }
 
-  private extractUserFiltersFromQuery(
-    map: ParamMap,
-  ): {
+  private extractUserFiltersFromQuery(map: ParamMap): {
     filters: UserSearchFilters | null;
     uiState: UserSearchFilters & { enabled?: boolean | null };
     queryParams: Params | null;
@@ -426,7 +435,9 @@ export class UserListComponent implements OnInit, OnDestroy {
     };
   }
 
-  private createDefaultFilters(): UserSearchFilters & { enabled?: boolean | null } {
+  private createDefaultFilters(): UserSearchFilters & {
+    enabled?: boolean | null;
+  } {
     return {
       name: '',
       username: '',
