@@ -1,64 +1,54 @@
-.container-fluid {
-  background-color: var(--bs-body-bg);
-  min-height: 100%;
+:host {
+  display: block;
 }
 
 .card {
-  background-color: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.75rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    transform var(--transition),
+    box-shadow var(--transition);
   overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(14, 30, 37, 0.12);
 }
 
-.card-header {
-  background-color: var(--bs-tertiary-bg);
-  border-bottom: 1px solid var(--bs-border-color);
-}
-
+.card-header,
 .card-footer {
-  background-color: var(--bs-tertiary-bg);
-  border-top: 1px solid var(--bs-border-color);
+  background-color: var(--surface);
+  border-color: var(--border);
 }
 
 .toggle-group .btn {
   font-weight: 600;
   border-radius: 999px;
   padding: 0.5rem 1rem;
+  color: var(--text);
+  border-color: var(--border);
+  background-color: var(--surface);
 }
 
 .toggle-group .btn.active {
-  color: #ffffff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-  box-shadow: 0 0.35rem 1rem rgba(13, 110, 253, 0.2);
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #2f6fed, #1f4bd8) !important;
+  border-color: #1f4bd8 !important;
+  box-shadow: 0 0.35rem 1rem rgba(47, 111, 237, 0.2);
 }
 
 .toggle-group .btn:not(.active):hover {
-  background-color: rgba(13, 110, 253, 0.08);
+  background-color: var(--surface-muted);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
 }
 
 .form-select-sm {
   padding-right: 1.75rem;
-}
-
-.form-check-input:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
-
-@media (max-width: 992px) {
-  .filter-group .form-control {
-    min-width: 140px;
-  }
 }
 
 .vehicle-link {
@@ -67,6 +57,6 @@
 }
 
 .vehicle-link:hover {
-  color: #0d6efd;
+  color: var(--accent);
   text-decoration: underline;
 }

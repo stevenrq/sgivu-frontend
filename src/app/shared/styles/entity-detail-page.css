@@ -2,12 +2,12 @@
   font-family: 'Inter', sans-serif;
   display: block;
   width: 100%;
-  --detail-primary-color: #0d6efd;
-  --detail-secondary-color: #6c757d;
-  --detail-background-color: #f8f9fa;
-  --detail-card-background: #ffffff;
-  --detail-text-color: #212529;
-  --detail-border-color: #dee2e6;
+  --detail-primary-color: var(--accent);
+  --detail-secondary-color: var(--muted);
+  --detail-background-color: var(--bg-page);
+  --detail-card-background: var(--surface);
+  --detail-text-color: var(--text);
+  --detail-border-color: var(--border);
   background-color: var(--detail-background-color);
   color: var(--detail-text-color);
 }
@@ -58,12 +58,12 @@
 
 .detail-card {
   background-color: var(--detail-card-background);
-  border: none;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--detail-border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    transform var(--transition),
+    box-shadow var(--transition);
 }
 
 .detail-card:hover {

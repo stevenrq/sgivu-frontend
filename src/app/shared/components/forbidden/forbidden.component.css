@@ -1,17 +1,13 @@
 :host {
   display: block;
   height: 100%;
-  --bs-body-bg: #f8f9fa;
-  --bs-body-color: #212529;
-  --bs-border-color: #dee2e6;
-  --bs-tertiary-bg: #ffffff;
 }
 
 .card {
-  background-color: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
 }
 
 .error-code {

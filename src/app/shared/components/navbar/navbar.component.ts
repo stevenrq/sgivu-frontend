@@ -1,4 +1,4 @@
-import { AsyncPipe, isPlatformBrowser } from '@angular/common';
+import { AsyncPipe, NgClass, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -19,7 +19,7 @@ import { UserService } from '../../../features/users/services/user.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterModule, AsyncPipe],
+  imports: [RouterModule, AsyncPipe, NgClass],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
@@ -30,6 +30,7 @@ export class NavbarComponent implements OnInit, AfterViewInit {
 
   private readonly desktopBreakpoint = 992;
   protected isMobileView = false;
+  protected isMenuOpen = false;
 
   @ViewChild('navbarCollapse')
   private navbarCollapse?: ElementRef<HTMLDivElement>;
@@ -73,6 +74,20 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     this.handleNavigation();
   }
 
+  toggleMenu(): void {
+    if (!this.isMobileView) {
+      return;
+    }
+    if (!this.collapseInstance) {
+      this.initializeCollapseInstance();
+    }
+    if (this.isMenuOpen) {
+      this.collapseInstance?.hide();
+    } else {
+      this.collapseInstance?.show();
+    }
+  }
+
   handleNavigation(): void {
     if (!this.isMobileView) {
       return;
@@ -94,6 +109,20 @@ export class NavbarComponent implements OnInit, AfterViewInit {
         toggle: false,
       },
     );
+
+    this.navbarCollapse.nativeElement.addEventListener(
+      'shown.bs.collapse',
+      () => {
+        this.isMenuOpen = true;
+      },
+    );
+
+    this.navbarCollapse.nativeElement.addEventListener(
+      'hidden.bs.collapse',
+      () => {
+        this.isMenuOpen = false;
+      },
+    );
   }
 
   private updateResponsiveState(): void {
@@ -105,7 +134,23 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     this.isMobileView = window.innerWidth < this.desktopBreakpoint;
 
     if (!this.isMobileView) {
+      this.showDesktopMenu();
+      this.isMenuOpen = false;
+    } else {
       this.collapseInstance?.hide();
+      this.isMenuOpen = false;
+    }
+  }
+
+  private showDesktopMenu(): void {
+    if (this.collapseInstance) {
+      this.collapseInstance.show();
+      return;
+    }
+
+    const element = this.navbarCollapse?.nativeElement;
+    if (element && !element.classList.contains('show')) {
+      element.classList.add('show');
     }
   }
 }

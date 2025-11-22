@@ -1,50 +1,49 @@
 :host {
-  --bs-body-bg: #f8f9fa;
-  --bs-body-color: #212529;
-  --bs-border-color: #dee2e6;
-  --bs-tertiary-bg: #ffffff;
   display: block;
 }
 
 .card {
-  background-color: var(--bs-tertiary-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
 }
 
 .card-header {
-  background-color: var(--bs-tertiary-bg);
-  border-bottom: 1px solid var(--bs-border-color);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 
 .card-title {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .form-label {
-  font-weight: 500;
-  color: #495057;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .input-group-text {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .alert {
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
 }
 
 .form-section {
-  border: 1px dashed var(--bs-border-color);
-  border-radius: 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
-  background-color: #f9fbff;
+  background-color: var(--surface-muted);
 }
 
 .section-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
 }
 
@@ -55,8 +54,8 @@
 }
 
 .contract-type-card {
-  border: 1px solid var(--bs-border-color);
-  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   padding: 0.85rem 1.25rem;
   display: flex;
   align-items: center;
@@ -64,7 +63,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 220px;
-  background-color: var(--bs-tertiary-bg);
+  background-color: var(--surface);
 }
 
 .contract-type-card .icon-wrapper {
@@ -78,10 +77,10 @@
 }
 
 .contract-type-card.active {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.12);
-  background-color: rgba(13, 110, 253, 0.04);
-  color: #0d6efd;
+  border-color: #1f4bd8;
+  box-shadow: 0 0 0 0.25rem rgba(47, 111, 237, 0.16);
+  background-color: var(--accent-soft);
+  color: #1f4bd8;
 }
 
 .contract-type-card.active small {
@@ -89,8 +88,8 @@
 }
 
 .vehicle-selector-card {
-  border: 1px solid rgba(13, 110, 253, 0.2);
-  border-radius: 0.85rem;
+  border: 1px solid rgba(47, 111, 237, 0.25);
+  border-radius: var(--radius-md);
   padding: 1.25rem;
-  background-color: rgba(13, 110, 253, 0.03);
+  background-color: var(--accent-soft);
 }

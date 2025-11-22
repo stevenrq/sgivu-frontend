@@ -1,7 +1,7 @@
 .vehicle-avatar {
   width: 160px;
   height: 120px;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   object-fit: cover;
 }
 
@@ -13,9 +13,9 @@
 
 .gallery-item {
   position: relative;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  background-color: #f1f3f5;
+  background-color: var(--surface-muted);
   min-height: 160px;
   display: flex;
   align-items: center;
@@ -30,7 +30,7 @@
 }
 
 .gallery-item-primary {
-  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
+  box-shadow: 0 8px 20px rgba(47, 111, 237, 0.25);
 }
 
 .gallery-badge {
@@ -68,10 +68,10 @@
 }
 
 .history-item {
-  border: 1px solid var(--detail-border-color);
-  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   padding: 1rem;
-  background-color: #fff;
+  background-color: var(--surface);
   box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
 }
 

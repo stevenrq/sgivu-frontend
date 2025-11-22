@@ -1,6 +1,6 @@
 :host {
   display: block;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .page-header__text {
@@ -8,8 +8,10 @@
 }
 
 .page-header__eyebrow {
-  letter-spacing: 0.08em;
-  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--muted);
 }
 
 .page-header__actions {
@@ -21,4 +23,8 @@
 
 .page-header__actions:empty {
   display: none;
+}
+
+.page-header__text h1 {
+  letter-spacing: 0.01em;
 }

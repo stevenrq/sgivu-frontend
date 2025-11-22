@@ -1,31 +1,31 @@
-body {
-  font-family: "Inter", sans-serif;
-  background-color: #f8f9fa;
+:host {
+  display: block;
 }
 
-/* Estilo para las tarjetas de configuración */
 .config-card {
-  border: none;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease-in-out;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--transition), box-shadow var(--transition);
 }
 
 .config-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
 }
 
-/* Estilo para el menú de navegación lateral */
 .nav-pills .nav-link {
-  color: #495057;
-  border-radius: 0.5rem;
-  font-weight: 500;
+  color: var(--muted);
+  border-radius: var(--radius-md);
+  font-weight: 600;
 }
 
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #0d6efd;
-  box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.4);
+  color: var(--text);
+  background-color: var(--surface-muted);
+  box-shadow: 0 0.25rem 0.75rem rgba(47, 111, 237, 0.2);
 }
 
 .nav-pills .nav-link i {
@@ -34,7 +34,6 @@ body {
   text-align: center;
 }
 
-/* Estilos para los interruptores (toggles) */
 .form-switch .form-check-input {
   cursor: pointer;
   width: 3.5em;
@@ -42,6 +41,6 @@ body {
 }
 
 .form-switch .form-check-input:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: var(--accent);
+  border-color: var(--accent);
 }

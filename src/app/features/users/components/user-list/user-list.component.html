@@ -154,13 +154,9 @@
             <tr>
               <td>
                 <div class="d-flex align-items-center">
-                  <img
-                    src="https://placehold.co/40x40/EFEFEF/333333?text={{
-                      user.firstName.charAt(0)
-                    }}{{ user.lastName.charAt(0) }}"
-                    alt="Avatar"
-                    class="rounded-circle me-3"
-                  />
+                  <div class="avatar me-3">
+                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                  </div>
                   <div>
                     <a
                       class="user-link fw-semibold d-inline-flex flex-column"

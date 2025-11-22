@@ -2,7 +2,7 @@
   @if (isMobileView) {
     <button
       type="button"
-      class="sidebar-toggle btn btn-outline-primary d-lg-none"
+      class="sidebar-toggle"
       (click)="toggleSidebar()"
       aria-label="Abrir menú lateral"
       [attr.aria-expanded]="isSidebarOpen"
@@ -14,7 +14,7 @@
         [class.bi-x-lg]="isSidebarOpen"
       ></i>
       <span class="sidebar-toggle-label">
-        {{ isSidebarOpen ? 'Cerrar' : 'Menú' }}
+        {{ isSidebarOpen ? "Cerrar" : "Menú" }}
       </span>
     </button>
   }
@@ -35,81 +35,112 @@
     [attr.aria-hidden]="!isSidebarOpen && isMobileView ? true : null"
   >
     <a
-      href="/dashboard"
-      class="sidebar-brand text-center"
+      class="sidebar__brand"
+      routerLink="/dashboard"
       (click)="handleNavigation()"
     >
-      <i class="bi bi-archive"></i>
+      <div class="sidebar__brand-mark">
+        <i class="bi bi-archive"></i>
+      </div>
+      <div class="sidebar__brand-copy">
+        <span class="title">SGIVU</span>
+      </div>
     </a>
-    <ul class="nav flex-column">
-      <li class="nav-item" routerLinkActive="active">
+
+    <div class="sidebar__group-label">Resumen</div>
+    <ul class="sidebar__links">
+      <li routerLinkActive="active">
         <a
-          class="nav-link"
-          aria-current="page"
           routerLink="/dashboard"
           (click)="handleNavigation()"
+          class="sidebar__link"
         >
-          <i class="bi bi-grid-1x2-fill"></i>Panel
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Panel</span>
         </a>
       </li>
-
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/vehicles" (click)="handleNavigation()">
-          <i class="bi bi-car-front-fill"></i>Vehículos
-        </a>
-      </li>
-
-      <li class="nav-item" routerLinkActive="active">
+      <li routerLinkActive="active">
         <a
-          class="nav-link"
+          routerLink="/vehicles"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+        >
+          <i class="bi bi-car-front-fill"></i>
+          <span>Vehículos</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/clients"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+        >
+          <i class="bi bi-people-fill"></i>
+          <span>Clientes</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
           routerLink="/purchase-sales"
           (click)="handleNavigation()"
+          class="sidebar__link"
         >
-          <i class="bi bi-receipt"></i>Compras y Ventas
+          <i class="bi bi-receipt"></i>
+          <span>Compras y Ventas</span>
         </a>
       </li>
+    </ul>
 
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/clients" (click)="handleNavigation()">
-          <i class="bi bi-people-fill"></i>Clientes
-        </a>
-      </li>
-
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/reports" (click)="handleNavigation()">
-          <i class="bi bi-file-earmark-bar-graph-fill"></i>Reportes
-        </a>
-      </li>
-
-      <li class="nav-item" routerLinkActive="active">
+    <div class="sidebar__group-label">Operación</div>
+    <ul class="sidebar__links">
+      <li routerLinkActive="active">
         <a
-          class="nav-link"
+          routerLink="/reports"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+        >
+          <i class="bi bi-file-earmark-bar-graph-fill"></i>
+          <span>Reportes</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
           routerLink="/maintenance"
           (click)="handleNavigation()"
+          class="sidebar__link"
         >
-          <i class="bi bi-tools"></i>Mantenimiento
+          <i class="bi bi-tools"></i>
+          <span>Mantenimiento</span>
         </a>
       </li>
-
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/users" (click)="handleNavigation()">
-          <i class="bi bi-person-badge-fill"></i>Usuarios
-        </a>
-      </li>
-
-      <li class="nav-item mt-auto" routerLinkActive="active">
-        <a class="nav-link" routerLink="/settings" (click)="handleNavigation()">
-          <i class="bi bi-gear-fill"></i>Configuración
-        </a>
-      </li>
-
-      <li class="nav-item mt-auto" routerLinkActive="active">
+      <li routerLinkActive="active">
         <a
-          class="nav-link"
+          routerLink="/users"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+        >
+          <i class="bi bi-person-badge-fill"></i>
+          <span>Usuarios</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/settings"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+        >
+          <i class="bi bi-gear-fill"></i>
+          <span>Configuración</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
           routerLink="/roles-permissions"
           (click)="handleNavigation()"
+          class="sidebar__link"
         >
-          <i class="bi bi-shield-lock"></i>Roles y Permisos
+          <i class="bi bi-shield-lock"></i>
+          <span>Roles y Permisos</span>
         </a>
       </li>
     </ul>

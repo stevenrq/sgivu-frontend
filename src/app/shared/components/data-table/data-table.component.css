@@ -4,8 +4,12 @@
 
 .table-container {
   width: 100%;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
   min-height: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.35rem;
+  box-shadow: var(--shadow-soft);
 }
 
 .table-container.table-responsive {
@@ -15,15 +19,44 @@
 .table-container table {
   width: 100%;
   margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  min-width: 720px;
 }
 
 .table-container thead th {
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: none;
+  background: transparent;
 }
 
 .table-container tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--surface-muted);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+}
+
+.table-container tbody tr {
+  background: var(--surface);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    background-color var(--transition);
+}
+
+.table-container tbody tr td:first-child {
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+}
+
+.table-container tbody tr td:last-child {
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
 }
 
 .table-container .btn-icon {
@@ -32,4 +65,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.table-light {
+  background: transparent;
+}
+
+@media (max-width: 768px) {
+  .table-container table {
+    min-width: 100%;
+  }
 }

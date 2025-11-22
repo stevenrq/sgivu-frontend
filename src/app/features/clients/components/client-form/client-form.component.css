@@ -3,9 +3,10 @@ form {
 }
 
 .client-type-toggle {
-  background-color: #f1f3f5;
-  border-radius: 0.75rem;
+  background-color: var(--surface-muted);
+  border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
 }
 
 .client-type-toggle .btn-group {
@@ -19,14 +20,14 @@ form {
 }
 
 .client-type-toggle .btn.active {
-  background-color: #0d6efd;
+  background-color: #1f4bd8;
   color: #ffffff;
-  border-color: #0d6efd;
-  box-shadow: 0 0.25rem 0.75rem rgba(13, 110, 253, 0.2);
+  border-color: #1f4bd8;
+  box-shadow: 0 0.25rem 0.75rem rgba(47, 111, 237, 0.25);
 }
 
 .client-type-toggle .btn:not(.active):hover {
-  background-color: rgba(13, 110, 253, 0.08);
+  background-color: var(--surface);
 }
 
 .loading-overlay {
@@ -38,7 +39,7 @@ form {
   justify-content: center;
   backdrop-filter: blur(2px);
   z-index: 10;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
 }
 
 fieldset legend {
@@ -47,5 +48,5 @@ fieldset legend {
 }
 
 .form-check-input:focus {
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  box-shadow: 0 0 0 0.25rem rgba(47, 111, 237, 0.25);
 }
