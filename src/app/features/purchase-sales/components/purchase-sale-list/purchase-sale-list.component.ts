@@ -399,6 +399,9 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     this.reportEndDate = null;
   }
 
+  /**
+   * @description Aplica los filtros actuales sincronizando query params para compartir la búsqueda y desencadenar carga paginada desde la página 0.
+   */
   applyFilters(): void {
     this.quickSuggestions = [];
     this.hintQuickSearchFilters();
@@ -419,6 +422,10 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     this.filters[field] = displayValue;
   }
 
+  /**
+   * @description Genera y descarga el reporte en el formato solicitado validando previamente el rango de fechas para no enviar solicitudes inválidas al backend.
+   * @param format Formato requerido por el usuario (pdf/excel/csv).
+   */
   downloadReport(format: 'pdf' | 'excel' | 'csv'): void {
     if (this.reportStartDate && this.reportEndDate) {
       if (this.reportStartDate > this.reportEndDate) {
@@ -544,6 +551,11 @@ export class PurchaseSaleListComponent implements OnInit, OnDestroy {
     return `reporte-compras-ventas-${rangeLabel}-${today}.${extension}`;
   }
 
+  /**
+   * @description Solicita confirmación y actualiza el estado de un contrato, asegurando que tras la mutación se recalculen KPIs y la página actual refleje el cambio.
+   * @param contract Contrato a modificar.
+   * @param status Estado destino.
+   */
   updateStatus(contract: PurchaseSale, status: ContractStatus): void {
     if (!contract.id) {
       return;

@@ -25,6 +25,9 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 
+/**
+ * @description Estado de la tabla de usuarios, incluyendo paginación y métricas activas/inactivas mostradas en los KPIs.
+ */
 interface UserListState<T extends User> {
   items: T[];
   pager?: PaginatedResponse<T>;
@@ -35,6 +38,9 @@ interface UserListState<T extends User> {
   error: string | null;
 }
 
+/**
+ * @description Configuración compartida para las rutinas de carga/paginación. Separa la lógica de orquestación del componente para facilitar pruebas y reutilización.
+ */
 interface UserLoadConfig<T extends User> {
   page: number;
   state: UserListState<T>;
@@ -44,6 +50,9 @@ interface UserLoadConfig<T extends User> {
   errorMessage: string;
 }
 
+/**
+ * @description Texto y rutas usadas por la cabecera y el paginador en el módulo de usuarios.
+ */
 interface UserListMetadata {
   pagerUrl: string[];
   title: string;
@@ -70,6 +79,9 @@ interface UserListMetadata {
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css',
 })
+/**
+ * @description Lista y pagina los usuarios de SGIVU, manteniendo sincronía entre filtros, URL y KPIs de estado (activos/inactivos). También ejecuta reacciones cuando cambian los parámetros de ruta.
+ */
 export class UserListComponent implements OnInit, OnDestroy {
   readonly searchTermMaxLength = 80;
 
@@ -214,6 +226,11 @@ export class UserListComponent implements OnInit, OnDestroy {
     this.navigateToPage(0);
   }
 
+  /**
+   * @description Solicita cambio de estado y recarga la página actual para reflejar el resultado en conteos y listado.
+   * @param id Identificador del usuario.
+   * @param status Nuevo estado habilitado/inhabilitado.
+   */
   public updateStatus(id: number, status: boolean): void {
     this.userUiHelper.updateStatus(id, status, () => this.reloadCurrentPage());
   }
@@ -239,6 +256,7 @@ export class UserListComponent implements OnInit, OnDestroy {
     state.loading = true;
     state.error = null;
 
+    // Se sincroniza la página solicitada con los contadores globales para que KPIs y tabla reflejen la misma foto de datos.
     const loader$ = forkJoin({
       pager: fetchPager(page),
       counts: fetchCounts(),

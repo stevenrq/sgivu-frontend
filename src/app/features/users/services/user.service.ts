@@ -6,6 +6,9 @@ import { Observable, tap } from 'rxjs';
 import { PaginatedResponse } from '../../../shared/models/paginated-response';
 import { UserCount } from '../interfaces/user-count.interface';
 
+/**
+ * @description Filtros admitidos por el backend para localizar usuarios según atributos de seguridad y contacto.
+ */
 export interface UserSearchFilters {
   name?: string;
   username?: string;
@@ -14,6 +17,9 @@ export interface UserSearchFilters {
   enabled?: boolean | '' | null;
 }
 
+/**
+ * @description Servicio centralizado para operar sobre usuarios de SGIVU. Mantiene un estado local sincronizado con el backend para acelerar listados y KPIs.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -27,14 +33,27 @@ export class UserService {
 
   constructor(private readonly http: HttpClient) {}
 
+  /**
+   * @description Devuelve la señal reactiva que representa la lista en memoria de usuarios cargados. Permite a la UI reaccionar sin pedir nuevamente al backend.
+   * @returns Estado interno de usuarios gestionado con `signal`.
+   */
   public getUsersState(): WritableSignal<User[]> {
     return this.usersState;
   }
 
+  /**
+   * @description Exposición del paginador en memoria para sincronizar vistas con el resultado más reciente de la API.
+   * @returns Señal escribible con la última respuesta paginada.
+   */
   public getUsersPagerState(): WritableSignal<PaginatedResponse<User>> {
     return this.usersPagerState;
   }
 
+  /**
+   * @description Registra un usuario en SGIVU y actualiza el estado local para que las listas reaccionen inmediatamente.
+   * @param user Datos completos del usuario a crear.
+   * @returns Observable con el usuario creado.
+   */
   public create(user: User): Observable<User> {
     return this.http
       .post<User>(this.apiUrl, user)
@@ -45,12 +64,21 @@ export class UserService {
       );
   }
 
+  /**
+   * @description Obtiene todos los usuarios sin paginar y sincroniza el estado compartido.
+   * @returns Observable con la colección completa de usuarios.
+   */
   public getAll(): Observable<User[]> {
     return this.http
       .get<User[]>(this.apiUrl)
       .pipe(tap((users) => this.usersState.set(users)));
   }
 
+  /**
+   * @description Solicita la página indicada de usuarios para listados extensos. Sincroniza tanto la lista visible como la metadata del paginador.
+   * @param page Número de página solicitado (cero-based).
+   * @returns Observable con respuesta paginada.
+   */
   public getAllPaginated(page: number): Observable<PaginatedResponse<User>> {
     return this.http
       .get<PaginatedResponse<User>>(`${this.apiUrl}/page/${page}`)
@@ -62,14 +90,29 @@ export class UserService {
       );
   }
 
+  /**
+   * @description Consulta contadores de usuarios activos/inactivos para KPIs del módulo de seguridad.
+   * @returns Observable con métricas de usuarios.
+   */
   public getUserCount(): Observable<UserCount> {
     return this.http.get<UserCount>(`${this.apiUrl}/count`);
   }
 
+  /**
+   * @description Recupera un usuario puntual para mostrar o editar su perfil.
+   * @param id Identificador del usuario.
+   * @returns Observable con el usuario encontrado.
+   */
   public getById(id: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
+  /**
+   * @description Actualiza los datos de un usuario y refleja el cambio en la cache local para evitar un refetch.
+   * @param id Identificador del usuario a actualizar.
+   * @param user Datos editados a persistir.
+   * @returns Observable con el usuario actualizado.
+   */
   public update(id: number, user: User): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}`, user).pipe(
       tap((updatedUser) => {
@@ -82,10 +125,21 @@ export class UserService {
     );
   }
 
+  /**
+   * @description Alterna el estado activo/inactivo de un usuario. El backend aplica reglas de negocio (por ejemplo, evitar bloquear al último admin).
+   * @param id Identificador del usuario.
+   * @param status Estado solicitado.
+   * @returns Observable con el estado final.
+   */
   public updateStatus(id: number, status: boolean): Observable<boolean> {
     return this.http.patch<boolean>(`${this.apiUrl}/${id}/status`, status);
   }
 
+  /**
+   * @description Elimina un usuario y purga su referencia del estado local para que la UI refleje la operación.
+   * @param id Identificador del usuario a eliminar.
+   * @returns Observable vacío cuando la operación finaliza.
+   */
   public delete(id: number): Observable<void> {
     return this.http
       .delete<void>(`${this.apiUrl}/${id}`)
@@ -98,6 +152,11 @@ export class UserService {
       );
   }
 
+  /**
+   * @description Busca usuarios aplicando filtros combinados (nombre, rol, estado, etc.) sin paginar. Útil para selectores o autocompletados.
+   * @param filters Filtros de búsqueda; los valores vacíos no se envían.
+   * @returns Observable con la colección filtrada.
+   */
   public searchUsers(filters: UserSearchFilters): Observable<User[]> {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {
@@ -110,6 +169,12 @@ export class UserService {
     return this.http.get<User[]>(`${this.apiUrl}/search`, { params });
   }
 
+  /**
+   * @description Variante paginada para búsquedas avanzadas. Permite combinar filtros y mantener paginación server-side.
+   * @param page Número de página solicitada.
+   * @param filters Filtros activos.
+   * @returns Observable con la página solicitada.
+   */
   public searchUsersPaginated(
     page: number,
     filters: UserSearchFilters,

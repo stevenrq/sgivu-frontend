@@ -3,6 +3,9 @@ import { ContractType } from './contract-type.enum';
 import { PaymentMethod } from './payment-method.enum';
 import { VehicleKind } from './vehicle-kind.enum';
 
+/**
+ * @description DTO principal para contratos de compra/venta en SGIVU, incluyendo referencias cruzadas y resúmenes para renderizado rápido.
+ */
 export interface PurchaseSale {
   id?: number;
   clientId: number;
@@ -24,6 +27,9 @@ export interface PurchaseSale {
   vehicleData?: VehicleCreationPayload;
 }
 
+/**
+ * @description Payload de creación de vehículo cuando el contrato incluye alta inmediata en inventario.
+ */
 export interface VehicleCreationPayload {
   vehicleType: VehicleKind;
   brand: string;
@@ -48,6 +54,9 @@ export interface VehicleCreationPayload {
   motorcycleType?: string;
 }
 
+/**
+ * @description Resumen ligero de cliente para pintar tarjetas de contrato sin cargar entidades completas.
+ */
 export interface ClientSummary {
   id: number;
   type: string;
@@ -57,6 +66,9 @@ export interface ClientSummary {
   phoneNumber?: number;
 }
 
+/**
+ * @description Resumen de usuario asesor asociado al contrato.
+ */
 export interface UserSummary {
   id: number;
   fullName: string;
@@ -64,6 +76,9 @@ export interface UserSummary {
   username?: string;
 }
 
+/**
+ * @description Resumen básico del vehículo vinculado al contrato.
+ */
 export interface VehicleSummary {
   id: number;
   type: string;

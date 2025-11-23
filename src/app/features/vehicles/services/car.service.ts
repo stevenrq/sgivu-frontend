@@ -13,6 +13,9 @@ interface RawCarCountResponse {
   unavailableCars: number;
 }
 
+/**
+ * @description Filtros admitidos para buscar vehículos tipo carro en el inventario SGIVU.
+ */
 export interface CarSearchFilters {
   plate?: string;
   brand?: string;
@@ -33,6 +36,9 @@ export interface CarSearchFilters {
   maxSalePrice?: number | null;
 }
 
+/**
+ * @description Servicio dedicado a la gestión de carros usados: controla cache local, búsqueda avanzada y cambios de estado en el inventario.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -50,14 +56,27 @@ export class CarService {
 
   constructor(private readonly http: HttpClient) {}
 
+  /**
+   * @description Exposición de la señal con los carros cargados en memoria.
+   * @returns Señal escribible con el inventario actual de carros.
+   */
   getState(): WritableSignal<Car[]> {
     return this.carsState;
   }
 
+  /**
+   * @description Devuelve el estado paginado de carros para sincronizar componentes de navegación.
+   * @returns Señal con el paginador activo.
+   */
   getPagerState(): WritableSignal<PaginatedResponse<Car>> {
     return this.carsPagerState;
   }
 
+  /**
+   * @description Registra un carro y actualiza inmediatamente el estado local para que listados reflejen el alta.
+   * @param payload Carro a crear.
+   * @returns Observable con la entidad creada.
+   */
   create(payload: Car): Observable<Car> {
     return this.http.post<Car>(this.apiUrl, payload).pipe(
       tap((created) => {
@@ -66,6 +85,10 @@ export class CarService {
     );
   }
 
+  /**
+   * @description Recupera todos los carros del inventario y sincroniza la cache en memoria.
+   * @returns Observable con la colección completa.
+   */
   getAll(): Observable<Car[]> {
     return this.http.get<Car[]>(this.apiUrl).pipe(
       tap((cars) => {
@@ -74,6 +97,11 @@ export class CarService {
     );
   }
 
+  /**
+   * @description Trae la página solicitada de carros para listados extensos.
+   * @param page Índice de página (cero-based).
+   * @returns Observable con la página solicitada.
+   */
   getAllPaginated(page: number): Observable<PaginatedResponse<Car>> {
     return this.http
       .get<PaginatedResponse<Car>>(`${this.apiUrl}/page/${page}`)
@@ -84,6 +112,10 @@ export class CarService {
       );
   }
 
+  /**
+   * @description Obtiene contadores de disponibilidad de carros (totales, disponibles, no disponibles) para KPIs de inventario.
+   * @returns Observable con métricas agregadas.
+   */
   getCounts(): Observable<VehicleCount> {
     return this.http
       .get<RawCarCountResponse>(`${this.apiUrl}/count`)
@@ -96,10 +128,21 @@ export class CarService {
       );
   }
 
+  /**
+   * @description Recupera un carro por id para edición o detalle.
+   * @param id Identificador del carro.
+   * @returns Observable con la entidad.
+   */
   getById(id: number): Observable<Car> {
     return this.http.get<Car>(`${this.apiUrl}/${id}`);
   }
 
+  /**
+   * @description Actualiza un carro y sincroniza el estado local para evitar recargas completas de inventario.
+   * @param id Identificador del carro.
+   * @param payload Datos actualizados.
+   * @returns Observable con la entidad modificada.
+   */
   update(id: number, payload: Car): Observable<Car> {
     return this.http.put<Car>(`${this.apiUrl}/${id}`, payload).pipe(
       tap((updated) => {
@@ -110,6 +153,12 @@ export class CarService {
     );
   }
 
+  /**
+   * @description Cambia el estado operativo del carro (disponible/no disponible) y refleja el cambio en la cache.
+   * @param id Identificador del carro.
+   * @param status Nuevo estado de negocio.
+   * @returns Observable con el estado final del vehículo.
+   */
   changeStatus(id: number, status: VehicleStatus): Observable<VehicleStatus> {
     return this.http
       .patch<{ status: string }>(
@@ -131,6 +180,11 @@ export class CarService {
       );
   }
 
+  /**
+   * @description Elimina un carro del inventario y actualiza el estado local.
+   * @param id Identificador del carro.
+   * @returns Observable vacío cuando la operación finaliza.
+   */
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       tap(() => {
@@ -139,11 +193,22 @@ export class CarService {
     );
   }
 
+  /**
+   * @description Ejecuta búsquedas no paginadas usando filtros de placa, modelo, precio, etc. Útil para autocompletados.
+   * @param filters Filtros parciales aplicados a la consulta.
+   * @returns Observable con resultados filtrados.
+   */
   search(filters: Partial<CarSearchFilters>): Observable<Car[]> {
     const params = this.buildSearchParams(filters);
     return this.http.get<Car[]>(`${this.apiUrl}/search`, { params });
   }
 
+  /**
+   * @description Variante paginada de búsqueda avanzada sobre carros, usada en listados con filtros persistentes.
+   * @param page Página solicitada.
+   * @param filters Filtros activos.
+   * @returns Observable con la página filtrada.
+   */
   searchPaginated(
     page: number,
     filters: Partial<CarSearchFilters>,
