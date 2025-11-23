@@ -1,398 +1,359 @@
-<div class="d-flex vh-100">
-  <div class="flex-grow-1 d-flex flex-column">
-    <main class="flex-grow-1 p-4 user-form-page">
-      <div class="container-fluid">
-        <div class="card shadow-sm border-0 position-relative user-form-card">
-          @if (isLoading()) {
-            <div class="loading-overlay">
-              <div class="spinner-border text-primary">
-                <span class="visually-hidden">Cargando...</span>
-              </div>
-            </div>
-          }
-
-          <div class="card-header border-bottom-0 pt-3 user-form-header">
-            <h1 class="h4 mb-1 d-flex align-items-center user-form-title">
-              <i class="bi me-2" [ngClass]="headerIcon"></i>
-              {{ titleText }}
-            </h1>
-            <p class="mb-0 user-form-subtitle">
-              {{ subtitleText }}
-            </p>
-          </div>
-
-          <div class="card-body p-4">
-            <form
-              class="floating-google"
-              [formGroup]="formGroup"
-              (ngSubmit)="onSubmit()"
+<app-form-shell
+  [loading]="isLoading()"
+  [title]="titleText"
+  [subtitle]="subtitleText"
+  [icon]="headerIcon"
+  pageClass="user-form-page"
+  cardClass="user-form-card"
+  headerClass="user-form-header"
+  titleClass="user-form-title"
+  subtitleClass="user-form-subtitle"
+  footerClass="user-form-footer"
+>
+  <form
+    form-body
+    class="floating-google"
+    [formGroup]="formGroup"
+    (ngSubmit)="onSubmit()"
+  >
+    <fieldset class="border p-3 pt-2 rounded">
+      <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+        <i class="bi bi-person-badge me-1"></i>Datos Personales
+      </legend>
+      <div class="row g-3 mt-0">
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="nationalId"
+              placeholder="Número de cédula"
+              formControlName="nationalId"
+              [ngClass]="{
+                'is-invalid':
+                  nationalId?.invalid &&
+                  (nationalId?.dirty || nationalId?.touched),
+              }"
+            />
+            <label for="nationalId"
+              ><i class="bi bi-person-vcard me-2"></i>Número de cédula</label
             >
-              <fieldset class="border p-3 pt-2 rounded">
-                <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
-                  <i class="bi bi-person-badge me-1"></i>Datos Personales
-                </legend>
-                <div class="row g-3 mt-0">
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="nationalId"
-                        placeholder="Número de cédula"
-                        formControlName="nationalId"
-                        [ngClass]="{
-                          'is-invalid':
-                            nationalId?.invalid &&
-                            (nationalId?.dirty || nationalId?.touched),
-                        }"
-                      />
-                      <label for="nationalId"
-                        ><i class="bi bi-person-vcard me-2"></i>Número de
-                        cédula</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (nationalId?.hasError("required")) {
-                          <div>La cédula es requerida.</div>
-                        }
-                        @if (nationalId?.hasError("pattern")) {
-                          <div>Solo se permiten números.</div>
-                        }
-                        @if (nationalId?.hasError("invalidLength")) {
-                          <div>Debe tener entre 7 y 10 dígitos.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="tel"
-                        class="form-control"
-                        id="phoneNumber"
-                        placeholder="Número de teléfono"
-                        formControlName="phoneNumber"
-                        [ngClass]="{
-                          'is-invalid':
-                            phoneNumber?.invalid &&
-                            (phoneNumber?.dirty || phoneNumber?.touched),
-                        }"
-                      />
-                      <label for="phoneNumber"
-                        ><i class="bi bi-phone me-2"></i>Número de
-                        teléfono</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (phoneNumber?.hasError("required")) {
-                          <div>El teléfono es requerido.</div>
-                        }
-                        @if (phoneNumber?.hasError("pattern")) {
-                          <div>Solo se permiten números.</div>
-                        }
-                        @if (phoneNumber?.hasError("invalidLength")) {
-                          <div>Debe tener exactamente 10 dígitos.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="firstName"
-                        placeholder="Nombres"
-                        formControlName="firstName"
-                        [ngClass]="{
-                          'is-invalid':
-                            firstName?.invalid &&
-                            (firstName?.dirty || firstName?.touched),
-                        }"
-                      />
-                      <label for="firstName"
-                        ><i class="bi bi-person me-2"></i>Nombres</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (firstName?.hasError("required")) {
-                          <div>El nombre es requerido.</div>
-                        }
-                        @if (firstName?.hasError("invalidLength")) {
-                          <div>Debe tener entre 3 y 20 caracteres.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="lastName"
-                        placeholder="Apellidos"
-                        formControlName="lastName"
-                        [ngClass]="{
-                          'is-invalid':
-                            lastName?.invalid &&
-                            (lastName?.dirty || lastName?.touched),
-                        }"
-                      />
-                      <label for="lastName"
-                        ><i class="bi bi-person me-2"></i>Apellidos</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (lastName?.hasError("required")) {
-                          <div>El apellido es requerido.</div>
-                        }
-                        @if (lastName?.hasError("invalidLength")) {
-                          <div>Debe tener entre 3 y 20 caracteres.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="form-floating">
-                      <input
-                        type="email"
-                        class="form-control"
-                        id="email"
-                        placeholder="Correo electrónico"
-                        formControlName="email"
-                        [ngClass]="{
-                          'is-invalid':
-                            email?.invalid && (email?.dirty || email?.touched),
-                        }"
-                      />
-                      <label for="email"
-                        ><i class="bi bi-envelope-at me-2"></i>Correo
-                        electrónico</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (email?.hasError("required")) {
-                          <div>El correo es requerido.</div>
-                        }
-                        @if (email?.hasError("email")) {
-                          <div>Ingresa un correo válido.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </fieldset>
-
-              <fieldset
-                class="border p-3 pt-2 rounded mt-4"
-                formGroupName="address"
-              >
-                <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
-                  <i class="bi bi-geo-alt-fill me-1"></i>Dirección
-                </legend>
-                <div class="row g-3 mt-0">
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="street"
-                        placeholder="Calle/Avenida/Carrera"
-                        formControlName="street"
-                        [ngClass]="{
-                          'is-invalid':
-                            street?.invalid &&
-                            (street?.dirty || street?.touched),
-                        }"
-                      />
-                      <label for="street"
-                        ><i class="bi bi-signpost-split me-2"></i
-                        >Calle/Avenida/Carrera</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (street?.hasError("required")) {
-                          <div>La calle es requerida.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="number"
-                        placeholder="Número"
-                        formControlName="number"
-                        [ngClass]="{
-                          'is-invalid':
-                            number?.invalid &&
-                            (number?.dirty || number?.touched),
-                        }"
-                      />
-                      <label for="number"
-                        ><i class="bi bi-hash me-2"></i>Número</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (number?.hasError("required")) {
-                          <div>El número es requerido.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="city"
-                        placeholder="Ciudad"
-                        formControlName="city"
-                        [ngClass]="{
-                          'is-invalid':
-                            city?.invalid && (city?.dirty || city?.touched),
-                        }"
-                      />
-                      <label for="city"
-                        ><i class="bi bi-building me-2"></i>Ciudad</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (city?.hasError("required")) {
-                          <div>La ciudad es requerida.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </fieldset>
-
-              <fieldset class="border p-3 pt-2 rounded mt-4">
-                <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
-                  <i class="bi bi-shield-lock me-1"></i>Credenciales de Acceso
-                </legend>
-                <div class="row g-3 mt-0">
-                  <div class="col-md-6">
-                    <div class="form-floating">
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="username"
-                        placeholder="Nombre de usuario"
-                        formControlName="username"
-                        [ngClass]="{
-                          'is-invalid':
-                            username?.invalid &&
-                            (username?.dirty || username?.touched),
-                        }"
-                      />
-                      <label for="username"
-                        ><i class="bi bi-person-circle me-2"></i>Nombre de
-                        usuario</label
-                      >
-                      <div class="invalid-feedback">
-                        @if (username?.hasError("required")) {
-                          <div>El usuario es requerido.</div>
-                        }
-                        @if (username?.hasError("invalidLength")) {
-                          <div>Debe tener entre 6 y 20 caracteres.</div>
-                        }
-                        @if (username?.hasError("forbiddenCharacters")) {
-                          <div>No puede contener caracteres especiales.</div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="input-group has-validation">
-                      <div class="form-floating">
-                        <input
-                          [type]="showPassword ? 'text' : 'password'"
-                          class="form-control"
-                          id="password"
-                          placeholder="Contraseña"
-                          formControlName="password"
-                          [ngClass]="{
-                            'is-invalid':
-                              password?.invalid &&
-                              (password?.dirty || password?.touched),
-                          }"
-                        />
-                        <label for="password"
-                          ><i class="bi bi-key me-2"></i>Contraseña</label
-                        >
-                      </div>
-                      <button
-                        type="button"
-                        class="input-group-text"
-                        (click)="togglePasswordVisibility()"
-                        title="Mostrar/Ocultar contraseña"
-                      >
-                        <i
-                          [class]="
-                            showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'
-                          "
-                        ></i>
-                      </button>
-                    </div>
-                    @if (isEditMode && !password?.value) {
-                      <div class="form-text text-muted">
-                        Dejar en blanco para no cambiar la contraseña.
-                      </div>
-                    }
-                    @if (
-                      password?.invalid &&
-                      (password?.dirty || password?.touched)
-                    ) {
-                      <div class="invalid-feedback d-block">
-                        @if (password?.hasError("required")) {
-                          <div>La contraseña es requerida.</div>
-                        }
-                        @if (password?.hasError("invalidLength")) {
-                          <div>Debe tener entre 6 y 20 caracteres.</div>
-                        }
-                        @if (password?.hasError("weakPassword")) {
-                          <div>
-                            Debe contener almenos una
-                            <strong>mayúscula</strong>,
-                            <strong>minúscula</strong>,
-                            <strong>número</strong> y un símbolo
-                            <strong>(&#64; $ ! % * ? &)</strong>.
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-
-          <div class="card-footer user-form-footer text-end border-top-0">
-            <button
-              type="button"
-              class="btn btn-secondary me-2"
-              (click)="onCancel()"
-              [disabled]="isSubmitting"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              (click)="onSubmit()"
-              [disabled]="formGroup.invalid || isSubmitting"
-            >
-              @if (isSubmitting) {
-                <span
-                  class="spinner-border spinner-border-sm me-2"
-                  aria-hidden="true"
-                ></span>
-              } @else {
-                <i
-                  class="bi me-1"
-                  [class]="isEditMode ? 'bi-save' : 'bi-check-circle'"
-                ></i>
+            <div class="invalid-feedback">
+              @if (nationalId?.hasError("required")) {
+                <div>La cédula es requerida.</div>
               }
-              {{ isEditMode ? "Guardar Cambios" : "Confirmar Registro" }}
-            </button>
+              @if (nationalId?.hasError("pattern")) {
+                <div>Solo se permiten números.</div>
+              }
+              @if (nationalId?.hasError("invalidLength")) {
+                <div>Debe tener entre 7 y 10 dígitos.</div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="tel"
+              class="form-control"
+              id="phoneNumber"
+              placeholder="Número de teléfono"
+              formControlName="phoneNumber"
+              [ngClass]="{
+                'is-invalid':
+                  phoneNumber?.invalid &&
+                  (phoneNumber?.dirty || phoneNumber?.touched),
+              }"
+            />
+            <label for="phoneNumber"
+              ><i class="bi bi-phone me-2"></i>Número de teléfono</label
+            >
+            <div class="invalid-feedback">
+              @if (phoneNumber?.hasError("required")) {
+                <div>El teléfono es requerido.</div>
+              }
+              @if (phoneNumber?.hasError("pattern")) {
+                <div>Solo se permiten números.</div>
+              }
+              @if (phoneNumber?.hasError("invalidLength")) {
+                <div>Debe tener exactamente 10 dígitos.</div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="firstName"
+              placeholder="Nombres"
+              formControlName="firstName"
+              [ngClass]="{
+                'is-invalid':
+                  firstName?.invalid &&
+                  (firstName?.dirty || firstName?.touched),
+              }"
+            />
+            <label for="firstName"
+              ><i class="bi bi-person me-2"></i>Nombres</label
+            >
+            <div class="invalid-feedback">
+              @if (firstName?.hasError("required")) {
+                <div>El nombre es requerido.</div>
+              }
+              @if (firstName?.hasError("invalidLength")) {
+                <div>Debe tener entre 3 y 20 caracteres.</div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="lastName"
+              placeholder="Apellidos"
+              formControlName="lastName"
+              [ngClass]="{
+                'is-invalid':
+                  lastName?.invalid && (lastName?.dirty || lastName?.touched),
+              }"
+            />
+            <label for="lastName"
+              ><i class="bi bi-person me-2"></i>Apellidos</label
+            >
+            <div class="invalid-feedback">
+              @if (lastName?.hasError("required")) {
+                <div>El apellido es requerido.</div>
+              }
+              @if (lastName?.hasError("invalidLength")) {
+                <div>Debe tener entre 3 y 20 caracteres.</div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-floating">
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              placeholder="Correo electrónico"
+              formControlName="email"
+              [ngClass]="{
+                'is-invalid':
+                  email?.invalid && (email?.dirty || email?.touched),
+              }"
+            />
+            <label for="email"
+              ><i class="bi bi-envelope-at me-2"></i>Correo electrónico</label
+            >
+            <div class="invalid-feedback">
+              @if (email?.hasError("required")) {
+                <div>El correo es requerido.</div>
+              }
+              @if (email?.hasError("email")) {
+                <div>Ingresa un correo válido.</div>
+              }
+            </div>
           </div>
         </div>
       </div>
-    </main>
-  </div>
-</div>
+    </fieldset>
+
+    <fieldset class="border p-3 pt-2 rounded mt-4" formGroupName="address">
+      <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+        <i class="bi bi-geo-alt-fill me-1"></i>Dirección
+      </legend>
+      <div class="row g-3 mt-0">
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="street"
+              placeholder="Calle/Avenida/Carrera"
+              formControlName="street"
+              [ngClass]="{
+                'is-invalid':
+                  street?.invalid && (street?.dirty || street?.touched),
+              }"
+            />
+            <label for="street"
+              ><i class="bi bi-signpost-split me-2"></i>Calle/Avenida/Carrera</label
+            >
+            <div class="invalid-feedback">
+              @if (street?.hasError("required")) {
+                <div>La calle es requerida.</div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="number"
+              placeholder="Número"
+              formControlName="number"
+              [ngClass]="{
+                'is-invalid':
+                  number?.invalid && (number?.dirty || number?.touched),
+              }"
+            />
+            <label for="number"><i class="bi bi-hash me-2"></i>Número</label>
+            <div class="invalid-feedback">
+              @if (number?.hasError("required")) {
+                <div>El número es requerido.</div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="city"
+              placeholder="Ciudad"
+              formControlName="city"
+              [ngClass]="{
+                'is-invalid':
+                  city?.invalid && (city?.dirty || city?.touched),
+              }"
+            />
+            <label for="city"><i class="bi bi-building me-2"></i>Ciudad</label>
+            <div class="invalid-feedback">
+              @if (city?.hasError("required")) {
+                <div>La ciudad es requerida.</div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="border p-3 pt-2 rounded mt-4">
+      <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+        <i class="bi bi-shield-lock me-1"></i>Credenciales de Acceso
+      </legend>
+      <div class="row g-3 mt-0">
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              placeholder="Nombre de usuario"
+              formControlName="username"
+              [ngClass]="{
+                'is-invalid':
+                  username?.invalid && (username?.dirty || username?.touched),
+              }"
+            />
+            <label for="username"
+              ><i class="bi bi-person-circle me-2"></i>Nombre de usuario</label
+            >
+            <div class="invalid-feedback">
+              @if (username?.hasError("required")) {
+                <div>El usuario es requerido.</div>
+              }
+              @if (username?.hasError("invalidLength")) {
+                <div>Debe tener entre 6 y 20 caracteres.</div>
+              }
+              @if (username?.hasError("forbiddenCharacters")) {
+                <div>No puede contener caracteres especiales.</div>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="password-group">
+            <label for="password"
+              ><i class="bi bi-key me-2"></i>Contraseña</label
+            >
+            <div class="input-group has-validation">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                class="form-control"
+                id="password"
+                placeholder="Contraseña"
+                formControlName="password"
+                [ngClass]="{
+                  'is-invalid':
+                    password?.invalid &&
+                    (password?.dirty || password?.touched),
+                }"
+              />
+              <button
+                type="button"
+                class="input-group-text password-toggle"
+                (click)="togglePasswordVisibility()"
+                title="Mostrar/Ocultar contraseña"
+              >
+                <i
+                  [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"
+                ></i>
+              </button>
+            </div>
+          </div>
+          @if (isEditMode && !password?.value) {
+            <div class="form-text text-muted">
+              Dejar en blanco para no cambiar la contraseña.
+            </div>
+          }
+          @if (password?.invalid && (password?.dirty || password?.touched)) {
+            <div class="invalid-feedback d-block">
+              @if (password?.hasError("required")) {
+                <div>La contraseña es requerida.</div>
+              }
+              @if (password?.hasError("invalidLength")) {
+                <div>Debe tener entre 6 y 20 caracteres.</div>
+              }
+              @if (password?.hasError("weakPassword")) {
+                <div>
+                  Debe contener almenos una <strong>mayúscula</strong>,
+                  <strong>minúscula</strong>, <strong>número</strong> y un
+                  símbolo <strong>(&#64; $ ! % * ? &)</strong>.
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+  <ng-container form-actions>
+    <button
+      type="button"
+      class="btn btn-secondary me-2"
+      (click)="onCancel()"
+      [disabled]="isSubmitting"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      (click)="onSubmit()"
+      [disabled]="formGroup.invalid || isSubmitting"
+    >
+      @if (isSubmitting) {
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          aria-hidden="true"
+        ></span>
+      } @else {
+        <i
+          class="bi me-1"
+          [class]="isEditMode ? 'bi-save' : 'bi-check-circle'"
+        ></i>
+      }
+      {{ isEditMode ? "Guardar Cambios" : "Confirmar Registro" }}
+    </button>
+  </ng-container>
+</app-form-shell>

@@ -4,11 +4,10 @@ form {
 
 :host {
   display: block;
-  background: var(--bg-page);
 }
 
 .client-form-page {
-  background: var(--surface);
+  background: transparent;
   overflow-y: auto;
 }
 

@@ -10,6 +10,7 @@ import { NgClass } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, finalize } from 'rxjs';
 import Swal from 'sweetalert2';
+import { FormShellComponent } from '../../../../shared/components/form-shell/form-shell.component';
 import {
   lengthValidator,
   noSpecialCharactersValidator,
@@ -61,7 +62,7 @@ interface ViewCopy {
 
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, NgClass],
+  imports: [ReactiveFormsModule, NgClass, FormShellComponent],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css',
 })

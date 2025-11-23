@@ -2,49 +2,51 @@
   display: block;
 }
 
-.card {
-  background-color: var(--surface);
+.purchase-sale-form-page {
+  background: transparent;
+  overflow-y: auto;
+}
+
+.purchase-sale-form-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: var(--surface);
   box-shadow: var(--shadow-soft);
-  overflow: hidden;
-  transition:
-    transform var(--transition),
-    box-shadow var(--transition);
 }
 
-.card-header {
-  background-color: var(--surface);
-  border-bottom: 1px solid var(--border);
+.purchase-sale-form-header {
+  background: var(--surface);
+  color: var(--text);
 }
 
-.card-title {
-  font-weight: 700;
+.purchase-sale-form-title {
+  color: var(--text);
 }
 
-.form-label {
-  font-weight: 600;
+.purchase-sale-form-subtitle {
   color: var(--muted);
 }
 
-.input-group-text {
-  font-weight: 700;
+.purchase-sale-form-footer {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.purchase-sale-form .form-floating {
+  margin-bottom: 0.35rem;
+}
+
+.purchase-sale-form .form-floating label {
+  margin-bottom: 0.2rem;
+}
+
+.purchase-sale-form .form-floating select.form-select {
+  padding: 0.65rem 0.85rem;
+  height: auto;
+  min-height: 3rem;
 }
 
 .alert {
   border-radius: var(--radius-md);
-}
-
-.form-section {
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  background-color: var(--surface-muted);
-}
-
-.section-title {
-  font-weight: 700;
-  font-size: 1rem;
 }
 
 .contract-type-toggle {
@@ -92,4 +94,68 @@
   border-radius: var(--radius-md);
   padding: 1.25rem;
   background-color: var(--accent-soft);
+}
+
+.price-group .input-group-text {
+  font-weight: 700;
+  background: var(--surface-muted);
+}
+
+.price-group {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background-color var(--transition);
+}
+
+.price-group .form-control {
+  border: 0;
+}
+
+.price-group .form-control.is-invalid {
+  box-shadow: inset 0 0 0 1px #dc3545;
+}
+
+.price-group .form-control:focus {
+  box-shadow: none;
+}
+
+.price-group:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.16);
+  background: var(--input-bg);
+}
+
+.price-group.readonly {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.price-group .input-group-text {
+  border: 0;
+}
+
+.price-group .form-control {
+  height: 3rem;
+}
+
+.price-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.price-field > label {
+  color: var(--text);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.2;
 }

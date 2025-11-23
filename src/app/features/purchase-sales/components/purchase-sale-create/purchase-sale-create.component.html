@@ -1,253 +1,292 @@
-<div class="container-fluid">
-  <app-page-header
-    title="Registrar contrato de compraventa"
-    subtitle="Separa la captura de información de compras y ventas en esta página dedicada."
+<app-form-shell
+  [loading]="formLoading || isLoadingLookups()"
+  [title]="'Registrar contrato de compraventa'"
+  [subtitle]="
+    'Separa la captura de información de compras y ventas en esta página dedicada.'
+  "
+  [icon]="'bi-card-checklist'"
+  pageClass="purchase-sale-form-page"
+  cardClass="purchase-sale-form-card"
+  headerClass="purchase-sale-form-header"
+  titleClass="purchase-sale-form-title"
+  subtitleClass="purchase-sale-form-subtitle"
+  footerClass="purchase-sale-form-footer"
+>
+  <form
+    form-body
+    class="floating-google purchase-sale-form"
+    #contractFormRef="ngForm"
+    (ngSubmit)="submitContract(contractFormRef)"
+    novalidate
   >
-    <a
-      page-header-actions
-      class="btn btn-outline-secondary"
-      routerLink="/purchase-sales/page/0"
-    >
-      <i class="bi bi-card-checklist me-1"></i>
-      Ver lista de contratos
-    </a>
-  </app-page-header>
-
-  <div class="row g-4 mb-4">
-    <div class="col-md-4">
-      <app-kpi-card
-        label="Contratos Totales"
-        [value]="totalContracts"
-        icon="bi-file-earmark-text-fill"
-        variant="primary"
-      ></app-kpi-card>
-    </div>
-    <div class="col-md-4">
-      <app-kpi-card
-        label="Compras Registradas"
-        [value]="totalPurchases"
-        icon="bi-cart-plus-fill"
-        variant="success"
-      ></app-kpi-card>
-    </div>
-    <div class="col-md-4">
-      <app-kpi-card
-        label="Ventas Registradas"
-        [value]="totalSales"
-        icon="bi-cart-check-fill"
-        variant="warning"
-      ></app-kpi-card>
-    </div>
-  </div>
-
-  <section class="card mb-4">
-    <div class="card-header bg-white">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-          <h5 class="card-title mb-0">Completa la información del contrato</h5>
-          <small class="text-muted"
-          >Selecciona el tipo de operación y completa la información requerida.</small
-          >
-        </div>
-        <span class="badge" [ngClass]="isPurchaseType ? 'text-bg-primary' : 'text-bg-success'">
-          {{ getContractTypeLabel(contractForm.contractType) }}
-        </span>
+    <div class="row g-3 kpi-row mb-3">
+      <div class="col-md-4">
+        <app-kpi-card
+          label="Contratos Totales"
+          [value]="totalContracts"
+          icon="bi-file-earmark-text-fill"
+          variant="primary"
+        ></app-kpi-card>
+      </div>
+      <div class="col-md-4">
+        <app-kpi-card
+          label="Compras Registradas"
+          [value]="totalPurchases"
+          icon="bi-cart-plus-fill"
+          variant="success"
+        ></app-kpi-card>
+      </div>
+      <div class="col-md-4">
+        <app-kpi-card
+          label="Ventas Registradas"
+          [value]="totalSales"
+          icon="bi-cart-check-fill"
+          variant="warning"
+        ></app-kpi-card>
       </div>
     </div>
-    <div class="card-body">
-      @if (isLoadingLookups()) {
-        <div class="alert alert-info mb-0">
-          <div class="d-flex align-items-center gap-2">
-            <span class="spinner-border spinner-border-sm"></span>
-            <span>Cargando información auxiliar...</span>
-          </div>
-        </div>
-      } @else if (hasLookupError()) {
-        <div class="alert alert-danger mb-0">
-          Ocurrió un problema al cargar la información auxiliar. Intenta recargar la página.
-        </div>
-      } @else {
-        <form #contractFormRef="ngForm" (ngSubmit)="submitContract(contractFormRef)" novalidate>
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label d-flex align-items-center gap-2 mb-2">
-                <i class="bi bi-toggle2-on text-primary"></i>
-                Tipo de contrato
+
+    @if (hasLookupError()) {
+      <div class="alert alert-danger mb-0">
+        Ocurrió un problema al cargar la información auxiliar. Intenta recargar
+        la página.
+      </div>
+    } @else {
+      <fieldset class="border p-3 pt-2 rounded mb-4">
+        <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+          <i class="bi bi-file-earmark-text me-1"></i>Datos del contrato
+        </legend>
+        <div class="row g-3 mt-0">
+          <div class="col-12">
+            <label class="form-label d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-toggle2-on text-primary"></i>
+              Tipo de contrato
+            </label>
+            <div
+              class="contract-type-toggle"
+              role="group"
+              aria-label="Tipo de contrato"
+            >
+              <input
+                type="radio"
+                class="btn-check"
+                name="contractType"
+                id="contractTypePurchase"
+                [(ngModel)]="contractForm.contractType"
+                (ngModelChange)="onContractTypeChange($event)"
+                [value]="ContractType.PURCHASE"
+                required
+                #contractTypeCtrl="ngModel"
+              />
+              <label
+                class="contract-type-card"
+                [class.active]="isPurchaseType"
+                for="contractTypePurchase"
+              >
+                <span class="icon-wrapper text-primary bg-primary-subtle">
+                  <i class="bi bi-cart-plus"></i>
+                </span>
+                <div>
+                  <span class="fw-semibold d-block">Contrato de compra</span>
+                  <small class="text-muted"
+                    >Registra ingresos al inventario.</small
+                  >
+                </div>
               </label>
-              <div class="contract-type-toggle" role="group" aria-label="Tipo de contrato">
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="contractType"
-                  id="contractTypePurchase"
-                  [(ngModel)]="contractForm.contractType"
-                  (ngModelChange)="onContractTypeChange($event)"
-                  [value]="ContractType.PURCHASE"
-                  required
-                  #contractTypeCtrl="ngModel"
-                />
-                <label
-                  class="contract-type-card"
-                  [class.active]="isPurchaseType"
-                  for="contractTypePurchase"
-                >
-                  <span class="icon-wrapper text-primary bg-primary-subtle">
-                    <i class="bi bi-cart-plus"></i>
-                  </span>
-                  <div>
-                    <span class="fw-semibold d-block">Contrato de compra</span>
-                    <small class="text-muted">Registra ingresos al inventario.</small>
-                  </div>
-                </label>
 
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="contractType"
-                  id="contractTypeSale"
-                  [(ngModel)]="contractForm.contractType"
-                  (ngModelChange)="onContractTypeChange($event)"
-                  [value]="ContractType.SALE"
-                  required
-                />
-                <label
-                  class="contract-type-card"
-                  [class.active]="isSaleType"
-                  for="contractTypeSale"
-                >
-                  <span class="icon-wrapper text-success bg-success-subtle">
-                    <i class="bi bi-cart-check"></i>
-                  </span>
-                  <div>
-                    <span class="fw-semibold d-block">Contrato de venta</span>
-                    <small class="text-muted">Valida vehículos listos para la venta.</small>
-                  </div>
-                </label>
-              </div>
-              @if (showControlErrors(contractTypeCtrl)) {
-                <div class="invalid-feedback d-block">Selecciona el tipo de contrato.</div>
-              }
+              <input
+                type="radio"
+                class="btn-check"
+                name="contractType"
+                id="contractTypeSale"
+                [(ngModel)]="contractForm.contractType"
+                (ngModelChange)="onContractTypeChange($event)"
+                [value]="ContractType.SALE"
+                required
+              />
+              <label
+                class="contract-type-card"
+                [class.active]="isSaleType"
+                for="contractTypeSale"
+              >
+                <span class="icon-wrapper text-success bg-success-subtle">
+                  <i class="bi bi-cart-check"></i>
+                </span>
+                <div>
+                  <span class="fw-semibold d-block">Contrato de venta</span>
+                  <small class="text-muted"
+                    >Valida vehículos listos para la venta.</small
+                  >
+                </div>
+              </label>
             </div>
+            @if (showControlErrors(contractTypeCtrl)) {
+              <div class="invalid-feedback d-block">
+                Selecciona el tipo de contrato.
+              </div>
+            }
+          </div>
 
-            @if (isSaleType) {
-              <div class="col-12">
-                <div class="vehicle-selector-card">
-                  <label class="form-label d-flex align-items-center gap-2 mb-2">
-                    <i class="bi bi-truck-front-fill text-primary"></i>
-                    Vehículo a vender
-                  </label>
+          @if (isSaleType) {
+            <div class="col-12">
+              <div class="vehicle-selector-card">
+                <div class="form-floating">
                   <select
                     class="form-select"
                     name="contractVehicleId"
                     [(ngModel)]="contractForm.vehicleId"
                     (ngModelChange)="onVehicleSelectionChange($event)"
                     [required]="isSaleType"
-                    #contractVehicleId="ngModel"
-                    [class.is-invalid]="showControlErrors(contractVehicleId)"
-                  >
-                    <option [ngValue]="null">Selecciona un vehículo disponible</option>
-                    @for (vehicle of saleVehicleOptions; track vehicle.id) {
-                      <option [ngValue]="vehicle.id">{{ vehicle.label }}</option>
-                    }
-                  </select>
-                  <div class="invalid-feedback">Selecciona el vehículo a vender.</div>
+                #contractVehicleId="ngModel"
+                [class.is-invalid]="showControlErrors(contractVehicleId)"
+              >
+                <option [ngValue]="null">Selecciona un vehículo</option>
+                @for (vehicle of saleVehicleOptions; track vehicle.id) {
+                  <option [ngValue]="vehicle.id">{{ vehicle.label }}</option>
+                }
+              </select>
+              <label for="contractVehicleId">Vehículo a vender</label>
+            </div>
+            <div class="invalid-feedback">
+              @if (showControlErrors(contractVehicleId)) {
+                Selecciona el vehículo a vender.
+              }
                 </div>
               </div>
-            }
+            </div>
+          }
 
-            <div class="col-md-4">
-              <label class="form-label">Cliente</label>
+          <div class="col-md-4">
+            <div class="form-floating">
               <select
                 class="form-select"
+                id="contractClientId"
                 name="contractClientId"
                 [(ngModel)]="contractForm.clientId"
-                required
-                #contractClientId="ngModel"
-                [class.is-invalid]="showControlErrors(contractClientId)"
-              >
-                <option [ngValue]="null">Selecciona un cliente</option>
-                @for (client of clients(); track client.id) {
-                  <option [ngValue]="client.id">{{ client.label }}</option>
-                }
-              </select>
-              <div class="invalid-feedback">Selecciona un cliente.</div>
+              required
+              #contractClientId="ngModel"
+              [class.is-invalid]="showControlErrors(contractClientId)"
+            >
+              <option [ngValue]="null">Selecciona un cliente</option>
+              @for (client of clients(); track client.id) {
+                <option [ngValue]="client.id">{{ client.label }}</option>
+              }
+            </select>
+            <label for="contractClientId">Cliente</label>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Usuario responsable</label>
+            <div class="invalid-feedback d-block" *ngIf="showControlErrors(contractClientId)">
+              Selecciona un cliente.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
               <select
                 class="form-select"
+                id="contractUserId"
                 name="contractUserId"
                 [(ngModel)]="contractForm.userId"
-                required
-                #contractUserId="ngModel"
-                [class.is-invalid]="showControlErrors(contractUserId)"
-              >
-                <option [ngValue]="null">Selecciona un usuario</option>
-                @for (user of users(); track user.id) {
-                  <option [ngValue]="user.id">{{ user.label }}</option>
-                }
-              </select>
-              <div class="invalid-feedback">Selecciona el usuario responsable.</div>
+              required
+              #contractUserId="ngModel"
+              [class.is-invalid]="showControlErrors(contractUserId)"
+            >
+              <option [ngValue]="null">Selecciona un usuario</option>
+              @for (user of users(); track user.id) {
+                <option [ngValue]="user.id">{{ user.label }}</option>
+              }
+            </select>
+            <label for="contractUserId">Usuario responsable</label>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Estado del contrato</label>
+            <div class="invalid-feedback d-block" *ngIf="showControlErrors(contractUserId)">
+              Selecciona el usuario responsable.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
               <select
                 class="form-select"
+                id="contractStatus"
                 name="contractStatus"
                 [(ngModel)]="contractForm.contractStatus"
-                required
-                #contractStatusCtrl="ngModel"
-                [class.is-invalid]="showControlErrors(contractStatusCtrl)"
-              >
-                @for (status of contractStatuses; track status) {
-                  <option [ngValue]="status">{{ getStatusLabel(status) }}</option>
-                }
+              required
+              #contractStatusCtrl="ngModel"
+              [class.is-invalid]="showControlErrors(contractStatusCtrl)"
+            >
+              <option [ngValue]="null">Selecciona el estado</option>
+              @for (status of contractStatuses; track status) {
+                <option [ngValue]="status">
+                  {{ getStatusLabel(status) }}
+                </option>
+              }
               </select>
-              <div class="invalid-feedback">Selecciona el estado del contrato.</div>
+              <label for="contractStatus">Estado del contrato</label>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Precio de compra</label>
-              <div class="input-group">
-                <span class="input-group-text">$</span>
-                @if (isPurchaseType) {
-                  <input
-                    type="text"
-                    inputmode="decimal"
-                    class="form-control"
-                    name="contractPurchasePrice"
-                    [ngModel]="purchasePriceInput"
-                    (ngModelChange)="onPriceInput($event, 'purchasePrice')"
-                    [required]="isPurchaseType"
-                    pattern="^[0-9.,\\s$]*$"
-                    #contractPurchasePrice="ngModel"
-                    [class.is-invalid]="showControlErrors(contractPurchasePrice)"
-                  />
-                } @else {
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="contractPurchasePrice"
-                    [value]="formatCurrency(contractForm.purchasePrice) || 'N/D'"
-                    readonly
-                  />
-                }
-              </div>
-              @if (contractForm.purchasePrice !== null) {
-                <small class="text-muted">{{ formatCurrency(contractForm.purchasePrice) }}</small>
-              }
-              @if (isPurchaseType) {
-                <div class="invalid-feedback">Ingresa el precio de compra.</div>
-              }
+            <div class="invalid-feedback d-block" *ngIf="showControlErrors(contractStatusCtrl)">
+              Selecciona el estado del contrato.
             </div>
-            @if (isSaleType) {
-              <div class="col-md-4">
-                <label class="form-label">Precio de venta</label>
-                <div class="input-group">
+          </div>
+
+          <div class="col-md-4">
+            @if (isPurchaseType) {
+              <div class="price-field">
+                <label for="contractPurchasePrice">Precio de compra</label>
+                <div class="input-group price-group">
                   <span class="input-group-text">$</span>
                   <input
                     type="text"
                     inputmode="decimal"
                     class="form-control"
+                    id="contractPurchasePrice"
+                    name="contractPurchasePrice"
+                    [ngModel]="purchasePriceInput"
+                    (ngModelChange)="onPriceInput($event, 'purchasePrice')"
+                    required
+                    pattern="^[0-9.,\\s$]*$"
+                    #contractPurchasePrice="ngModel"
+                    [class.is-invalid]="showControlErrors(contractPurchasePrice)"
+                    placeholder="Precio de compra"
+                  />
+                </div>
+              </div>
+              @if (contractForm.purchasePrice !== null) {
+                <small class="text-muted">{{
+                  formatCurrency(contractForm.purchasePrice)
+                }}</small>
+              }
+              @if (showControlErrors(contractPurchasePrice)) {
+              <div class="invalid-feedback d-block">
+                Ingresa el precio de compra.
+              </div>
+            }
+          } @else {
+            <div class="price-field">
+              <label for="contractPurchasePrice">Precio de compra</label>
+              <div class="input-group price-group readonly">
+                <span class="input-group-text">$</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="contractPurchasePrice"
+                  name="contractPurchasePrice"
+                  [value]="formatCurrency(contractForm.purchasePrice) || 'N/D'"
+                  readonly
+                  placeholder="Precio de compra"
+                />
+              </div>
+            </div>
+          }
+          </div>
+
+          @if (isSaleType) {
+            <div class="col-md-4">
+              <div class="price-field">
+                <label for="contractSalePrice">Precio de venta</label>
+                <div class="input-group price-group">
+                  <span class="input-group-text">$</span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    class="form-control"
+                    id="contractSalePrice"
                     name="contractSalePrice"
                     [ngModel]="salePriceInput"
                     (ngModelChange)="onPriceInput($event, 'salePrice')"
@@ -255,192 +294,309 @@
                     pattern="^[0-9.,\\s$]*$"
                     #contractSalePrice="ngModel"
                     [class.is-invalid]="showControlErrors(contractSalePrice)"
+                    placeholder="Precio de venta"
                   />
                 </div>
-                @if (contractForm.salePrice !== null) {
-                  <small class="text-muted">{{ formatCurrency(contractForm.salePrice) }}</small>
-                }
-                <div class="invalid-feedback">Ingresa el precio de venta.</div>
               </div>
-            }
-            <div class="col-md-6">
-              <label class="form-label">Método de pago</label>
+              @if (contractForm.salePrice !== null) {
+                <small class="text-muted">{{
+                  formatCurrency(contractForm.salePrice)
+                }}</small>
+              }
+              @if (showControlErrors(contractSalePrice)) {
+                <div class="invalid-feedback d-block">
+                  Ingresa el precio de venta.
+                </div>
+              }
+            </div>
+          }
+
+          <div class="col-md-6">
+            <div class="form-floating">
               <select
                 class="form-select"
+                id="contractPaymentMethod"
                 name="contractPaymentMethod"
                 [(ngModel)]="contractForm.paymentMethod"
-                required
-                #contractPaymentMethod="ngModel"
-                [class.is-invalid]="showControlErrors(contractPaymentMethod)"
-              >
-                @for (method of paymentMethods; track method) {
-                  <option [ngValue]="method">{{ getPaymentMethodLabel(method) }}</option>
-                }
+              required
+              #contractPaymentMethod="ngModel"
+              [class.is-invalid]="showControlErrors(contractPaymentMethod)"
+            >
+              <option [ngValue]="null">Selecciona el método de pago</option>
+              @for (method of paymentMethods; track method) {
+                <option [ngValue]="method">
+                  {{ getPaymentMethodLabel(method) }}
+                </option>
+              }
               </select>
-              <div class="invalid-feedback">Selecciona el método de pago.</div>
+              <label for="contractPaymentMethod">Método de pago</label>
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Limitaciones de pago</label>
+            <div
+              class="invalid-feedback d-block"
+              *ngIf="showControlErrors(contractPaymentMethod)"
+            >
+              Selecciona el método de pago.
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-floating">
               <input
                 type="text"
                 class="form-control"
+                id="contractPaymentLimitations"
                 name="contractPaymentLimitations"
                 maxlength="200"
                 [(ngModel)]="contractForm.paymentLimitations"
                 required
                 #contractPaymentLimitations="ngModel"
                 [class.is-invalid]="showControlErrors(contractPaymentLimitations)"
+                placeholder="Limitaciones de pago"
               />
-              <div class="invalid-feedback">Describe las limitaciones de pago.</div>
+              <label for="contractPaymentLimitations"
+                >Limitaciones de pago</label
+              >
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Términos de pago</label>
+            <div
+              class="invalid-feedback d-block"
+              *ngIf="showControlErrors(contractPaymentLimitations)"
+            >
+              Describe las limitaciones de pago.
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-floating">
               <input
                 type="text"
                 class="form-control"
+                id="contractPaymentTerms"
                 name="contractPaymentTerms"
                 maxlength="200"
                 [(ngModel)]="contractForm.paymentTerms"
                 required
                 #contractPaymentTerms="ngModel"
                 [class.is-invalid]="showControlErrors(contractPaymentTerms)"
+                placeholder="Términos de pago"
               />
-              <div class="invalid-feedback">Describe los términos de pago.</div>
+              <label for="contractPaymentTerms">Términos de pago</label>
             </div>
-            <div class="col-12">
-              <label class="form-label">Observaciones (opcional)</label>
+            <div
+              class="invalid-feedback d-block"
+              *ngIf="showControlErrors(contractPaymentTerms)"
+            >
+              Describe los términos de pago.
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-floating">
               <textarea
                 class="form-control"
+                id="contractObservations"
                 name="contractObservations"
                 rows="2"
                 maxlength="500"
                 [(ngModel)]="contractForm.observations"
+                placeholder="Observaciones"
               ></textarea>
+              <label for="contractObservations">Observaciones (opcional)</label>
             </div>
           </div>
-          @if (isSaleType && !saleVehicleOptions.length) {
-            <div class="alert alert-warning mt-3">
-              Debes registrar una compra para contar con vehículos disponibles para la venta.
-            </div>
-          }
+        </div>
 
-          @if (isPurchaseType) {
-            <div class="form-section mt-4">
-              <div class="section-title d-flex align-items-center gap-2">
-                <i class="bi bi-truck-front-fill text-primary"></i>
-                <span>Datos del vehículo a registrar</span>
+        @if (isSaleType && !saleVehicleOptions.length) {
+          <div class="alert alert-warning mt-3 mb-0">
+            Debes registrar una compra para contar con vehículos disponibles
+            para la venta.
+          </div>
+        }
+      </fieldset>
+
+      @if (isPurchaseType) {
+        <fieldset class="border p-3 pt-2 rounded">
+          <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+            <i class="bi bi-truck-front-fill me-1"></i>Datos del vehículo a
+            registrar
+          </legend>
+          <div class="row g-3 mt-0">
+            <div class="col-md-3">
+              <div class="form-floating">
+                <select
+                  class="form-select"
+                  id="vehicleType"
+                  name="vehicleType"
+                  [(ngModel)]="vehicleForm.vehicleType"
+                  (ngModelChange)="onVehicleTypeChange($event)"
+                  required
+                  #vehicleTypeCtrl="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleTypeCtrl)"
+                >
+                  <option [ngValue]="null">Selecciona el tipo</option>
+                  @for (kind of vehicleKinds; track kind) {
+                    <option [ngValue]="kind">
+                      {{ kind === "CAR" ? "Automóvil" : "Motocicleta" }}
+                    </option>
+                  }
+                </select>
+                <label for="vehicleType">Tipo de vehículo</label>
               </div>
-              <div class="row g-3">
-                <div class="col-md-3">
-                  <label class="form-label">Tipo de vehículo</label>
-                  <select
-                    class="form-select"
-                    name="vehicleType"
-                    [(ngModel)]="vehicleForm.vehicleType"
-                    (ngModelChange)="onVehicleTypeChange($event)"
-                    required
-                    #vehicleTypeCtrl="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleTypeCtrl)"
-                  >
-                    @for (kind of vehicleKinds; track kind) {
-                      <option [ngValue]="kind">
-                        {{ kind === 'CAR' ? 'Automóvil' : 'Motocicleta' }}
-                      </option>
-                    }
-                  </select>
-                  <div class="invalid-feedback">Selecciona el tipo de vehículo.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Marca</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleBrand"
-                    maxlength="20"
-                    [(ngModel)]="vehicleForm.brand"
-                    required
-                    #vehicleBrand="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleBrand)"
-                  />
-                  <div class="invalid-feedback">Ingresa la marca.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Modelo</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleModel"
-                    maxlength="20"
-                    [(ngModel)]="vehicleForm.model"
-                    required
-                    #vehicleModel="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleModel)"
-                  />
-                  <div class="invalid-feedback">Ingresa el modelo.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Línea</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleLine"
-                    maxlength="20"
-                    [(ngModel)]="vehicleForm.line"
-                    required
-                    #vehicleLine="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleLine)"
-                  />
-                  <div class="invalid-feedback">Ingresa la línea.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Placa</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehiclePlate"
-                    maxlength="10"
-                    [(ngModel)]="vehicleForm.plate"
-                    required
-                    #vehiclePlate="ngModel"
-                    [class.is-invalid]="showControlErrors(vehiclePlate)"
-                  />
-                  <div class="invalid-feedback">Ingresa la placa del vehículo.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Capacidad de pasajeros</label>
-                  <input
-                    type="number"
-                    min="1"
-                    class="form-control"
-                    name="vehicleCapacity"
-                    [(ngModel)]="vehicleForm.capacity"
-                    required
-                    #vehicleCapacity="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleCapacity)"
-                  />
-                  <div class="invalid-feedback">Ingresa la capacidad de pasajeros.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Año</label>
-                  <input
-                    type="number"
-                    min="1950"
-                    max="2050"
-                    class="form-control"
-                    name="vehicleYear"
-                    [(ngModel)]="vehicleForm.year"
-                    required
-                    #vehicleYear="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleYear)"
-                  />
-                  <div class="invalid-feedback">Ingresa el año del vehículo.</div>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Kilometraje</label>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleTypeCtrl)"
+              >
+                Selecciona el tipo de vehículo.
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleBrand"
+                  name="vehicleBrand"
+                  maxlength="20"
+                  [(ngModel)]="vehicleForm.brand"
+                  required
+                  #vehicleBrand="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleBrand)"
+                  placeholder="Marca"
+                />
+                <label for="vehicleBrand">Marca</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleBrand)"
+              >
+                Ingresa la marca.
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleModel"
+                  name="vehicleModel"
+                  maxlength="20"
+                  [(ngModel)]="vehicleForm.model"
+                  required
+                  #vehicleModel="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleModel)"
+                  placeholder="Modelo"
+                />
+                <label for="vehicleModel">Modelo</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleModel)"
+              >
+                Ingresa el modelo.
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleLine"
+                  name="vehicleLine"
+                  maxlength="20"
+                  [(ngModel)]="vehicleForm.line"
+                  required
+                  #vehicleLine="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleLine)"
+                  placeholder="Línea"
+                />
+                <label for="vehicleLine">Línea</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleLine)"
+              >
+                Ingresa la línea.
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehiclePlate"
+                  name="vehiclePlate"
+                  maxlength="10"
+                  [(ngModel)]="vehicleForm.plate"
+                  required
+                  #vehiclePlate="ngModel"
+                  [class.is-invalid]="showControlErrors(vehiclePlate)"
+                  placeholder="Placa"
+                />
+                <label for="vehiclePlate">Placa</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehiclePlate)"
+              >
+                Ingresa la placa del vehículo.
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="number"
+                  min="1"
+                  class="form-control"
+                  id="vehicleCapacity"
+                  name="vehicleCapacity"
+                  [(ngModel)]="vehicleForm.capacity"
+                  required
+                  #vehicleCapacity="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleCapacity)"
+                  placeholder="Capacidad de pasajeros"
+                />
+                <label for="vehicleCapacity">Capacidad de pasajeros</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleCapacity)"
+              >
+                Ingresa la capacidad de pasajeros.
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input
+                  type="number"
+                  min="1950"
+                  max="2050"
+                  class="form-control"
+                  id="vehicleYear"
+                  name="vehicleYear"
+                  [(ngModel)]="vehicleForm.year"
+                  required
+                  #vehicleYear="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleYear)"
+                  placeholder="Año"
+                />
+                <label for="vehicleYear">Año</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleYear)"
+              >
+                Ingresa el año del vehículo.
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="price-field">
+                <label for="vehicleMileage">Kilometraje</label>
+                <div class="input-group price-group">
+                  <span class="input-group-text">km</span>
                   <input
                     type="text"
                     inputmode="numeric"
                     class="form-control"
+                    id="vehicleMileage"
                     name="vehicleMileage"
                     [ngModel]="vehicleMileageInput"
                     (ngModelChange)="onMileageInput($event)"
@@ -448,211 +604,318 @@
                     pattern="^[0-9.,]+$"
                     #vehicleMileage="ngModel"
                     [class.is-invalid]="showControlErrors(vehicleMileage)"
+                    placeholder="Kilometraje"
                   />
-                  @if (vehicleForm.mileage !== null) {
-                    <small class="text-muted">{{ formatMileage(vehicleForm.mileage) }} km</small>
-                  }
-                  <div class="invalid-feedback">Ingresa el kilometraje en números.</div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Número de motor</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleMotorNumber"
-                    maxlength="30"
-                    [(ngModel)]="vehicleForm.motorNumber"
-                    required
-                    #vehicleMotorNumber="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleMotorNumber)"
-                  />
-                  <div class="invalid-feedback">Ingresa el número de motor.</div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Número serial</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleSerialNumber"
-                    maxlength="30"
-                    [(ngModel)]="vehicleForm.serialNumber"
-                    required
-                    #vehicleSerialNumber="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleSerialNumber)"
-                  />
-                  <div class="invalid-feedback">Ingresa el número serial.</div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Número de chasis</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleChassisNumber"
-                    maxlength="30"
-                    [(ngModel)]="vehicleForm.chassisNumber"
-                    required
-                    #vehicleChassisNumber="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleChassisNumber)"
-                  />
-                  <div class="invalid-feedback">Ingresa el número de chasis.</div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Color</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleColor"
-                    maxlength="20"
-                    [(ngModel)]="vehicleForm.color"
-                    required
-                    #vehicleColor="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleColor)"
-                  />
-                  <div class="invalid-feedback">Ingresa el color.</div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Ciudad de registro</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleCity"
-                    maxlength="30"
-                    [(ngModel)]="vehicleForm.cityRegistered"
-                    required
-                    #vehicleCity="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleCity)"
-                  />
-                  <div class="invalid-feedback">Ingresa la ciudad de registro.</div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Transmisión</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="vehicleTransmission"
-                    maxlength="20"
-                    [(ngModel)]="vehicleForm.transmission"
-                    required
-                    #vehicleTransmission="ngModel"
-                    [class.is-invalid]="showControlErrors(vehicleTransmission)"
-                  />
-                  <div class="invalid-feedback">Ingresa el tipo de transmisión.</div>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Precio de venta objetivo</label>
-                  <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input
-                      type="text"
-                      inputmode="numeric"
-                      class="form-control"
-                      name="vehicleSalePrice"
-                      [ngModel]="vehicleSalePriceInput"
-                      (ngModelChange)="onPriceInput($event, 'vehicleSalePrice')"
-                      pattern="^[0-9.,\\s$]*$"
-                      #vehicleSalePrice="ngModel"
-                    />
-                  </div>
-                  @if (vehicleForm.salePrice !== null) {
-                    <small class="text-muted">{{ formatCurrency(vehicleForm.salePrice) }}</small>
-                  }
                 </div>
               </div>
-              @if (isCarSelected) {
-                <div class="row g-3 mt-1">
-                  <div class="col-md-4">
-                    <label class="form-label">Tipo de carrocería</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="vehicleBodyType"
-                      maxlength="20"
-                      [(ngModel)]="vehicleForm.bodyType"
-                      required
-                      #vehicleBodyType="ngModel"
-                      [class.is-invalid]="showControlErrors(vehicleBodyType)"
-                    />
-                    <div class="invalid-feedback">Ingresa el tipo de carrocería.</div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Tipo de combustible</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="vehicleFuelType"
-                      maxlength="20"
-                      [(ngModel)]="vehicleForm.fuelType"
-                      required
-                      #vehicleFuelType="ngModel"
-                      [class.is-invalid]="showControlErrors(vehicleFuelType)"
-                    />
-                    <div class="invalid-feedback">Ingresa el tipo de combustible.</div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Número de puertas</label>
-                    <input
-                      type="number"
-                      min="2"
-                      max="6"
-                      class="form-control"
-                      name="vehicleDoors"
-                      [(ngModel)]="vehicleForm.numberOfDoors"
-                      required
-                      #vehicleDoors="ngModel"
-                      [class.is-invalid]="showControlErrors(vehicleDoors)"
-                    />
-                    <div class="invalid-feedback">Ingresa el número de puertas.</div>
-                  </div>
-                </div>
+              @if (vehicleForm.mileage !== null) {
+                <small class="text-muted">{{
+                  formatMileage(vehicleForm.mileage)
+                }} km</small>
               }
-              @if (isMotorcycleSelected) {
-                <div class="row g-3 mt-1">
-                  <div class="col-md-4">
-                    <label class="form-label">Tipo de motocicleta</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="vehicleMotorcycleType"
-                      maxlength="20"
-                      [(ngModel)]="vehicleForm.motorcycleType"
-                      required
-                      #vehicleMotorcycleType="ngModel"
-                      [class.is-invalid]="showControlErrors(vehicleMotorcycleType)"
-                    />
-                    <div class="invalid-feedback">Indica el tipo de motocicleta.</div>
-                  </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleMileage)"
+              >
+                Ingresa el kilometraje en números.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleMotorNumber"
+                  name="vehicleMotorNumber"
+                  maxlength="30"
+                  [(ngModel)]="vehicleForm.motorNumber"
+                  required
+                  #vehicleMotorNumber="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleMotorNumber)"
+                  placeholder="Número de motor"
+                />
+                <label for="vehicleMotorNumber">Número de motor</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleMotorNumber)"
+              >
+                Ingresa el número de motor.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleSerialNumber"
+                  name="vehicleSerialNumber"
+                  maxlength="30"
+                  [(ngModel)]="vehicleForm.serialNumber"
+                  required
+                  #vehicleSerialNumber="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleSerialNumber)"
+                  placeholder="Número serial"
+                />
+                <label for="vehicleSerialNumber">Número serial</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleSerialNumber)"
+              >
+                Ingresa el número serial.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleChassisNumber"
+                  name="vehicleChassisNumber"
+                  maxlength="30"
+                  [(ngModel)]="vehicleForm.chassisNumber"
+                  required
+                  #vehicleChassisNumber="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleChassisNumber)"
+                  placeholder="Número de chasis"
+                />
+                <label for="vehicleChassisNumber">Número de chasis</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleChassisNumber)"
+              >
+                Ingresa el número de chasis.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleColor"
+                  name="vehicleColor"
+                  maxlength="20"
+                  [(ngModel)]="vehicleForm.color"
+                  required
+                  #vehicleColor="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleColor)"
+                  placeholder="Color"
+                />
+                <label for="vehicleColor">Color</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleColor)"
+              >
+                Ingresa el color.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleCity"
+                  name="vehicleCity"
+                  maxlength="30"
+                  [(ngModel)]="vehicleForm.cityRegistered"
+                  required
+                  #vehicleCity="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleCity)"
+                  placeholder="Ciudad de registro"
+                />
+                <label for="vehicleCity">Ciudad de registro</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleCity)"
+              >
+                Ingresa la ciudad de registro.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="vehicleTransmission"
+                  name="vehicleTransmission"
+                  maxlength="20"
+                  [(ngModel)]="vehicleForm.transmission"
+                  required
+                  #vehicleTransmission="ngModel"
+                  [class.is-invalid]="showControlErrors(vehicleTransmission)"
+                  placeholder="Transmisión"
+                />
+                <label for="vehicleTransmission">Transmisión</label>
+              </div>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="showControlErrors(vehicleTransmission)"
+              >
+                Ingresa el tipo de transmisión.
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="price-field">
+                <label for="vehicleSalePrice">Precio de venta objetivo</label>
+                <div class="input-group price-group">
+                  <span class="input-group-text">$</span>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    class="form-control"
+                    id="vehicleSalePrice"
+                    name="vehicleSalePrice"
+                    [ngModel]="vehicleSalePriceInput"
+                    (ngModelChange)="onPriceInput($event, 'vehicleSalePrice')"
+                    pattern="^[0-9.,\\s$]*$"
+                    #vehicleSalePrice="ngModel"
+                    placeholder="Precio de venta objetivo"
+                  />
                 </div>
+              </div>
+              @if (vehicleForm.salePrice !== null) {
+                <small class="text-muted">{{
+                  formatCurrency(vehicleForm.salePrice)
+                }}</small>
               }
-              <small class="text-muted d-block mt-3">
-                El vehículo quedará disponible en el inventario una vez se cree el contrato de compra.
-              </small>
+            </div>
+          </div>
+
+          @if (isCarSelected) {
+            <div class="row g-3 mt-1">
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="vehicleBodyType"
+                    name="vehicleBodyType"
+                    maxlength="20"
+                    [(ngModel)]="vehicleForm.bodyType"
+                    required
+                    #vehicleBodyType="ngModel"
+                    [class.is-invalid]="showControlErrors(vehicleBodyType)"
+                    placeholder="Tipo de carrocería"
+                  />
+                  <label for="vehicleBodyType">Tipo de carrocería</label>
+                </div>
+                <div
+                  class="invalid-feedback d-block"
+                  *ngIf="showControlErrors(vehicleBodyType)"
+                >
+                  Ingresa el tipo de carrocería.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="vehicleFuelType"
+                    name="vehicleFuelType"
+                    maxlength="20"
+                    [(ngModel)]="vehicleForm.fuelType"
+                    required
+                    #vehicleFuelType="ngModel"
+                    [class.is-invalid]="showControlErrors(vehicleFuelType)"
+                    placeholder="Tipo de combustible"
+                  />
+                  <label for="vehicleFuelType">Tipo de combustible</label>
+                </div>
+                <div
+                  class="invalid-feedback d-block"
+                  *ngIf="showControlErrors(vehicleFuelType)"
+                >
+                  Ingresa el tipo de combustible.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input
+                    type="number"
+                    min="2"
+                    max="6"
+                    class="form-control"
+                    id="vehicleDoors"
+                    name="vehicleDoors"
+                    [(ngModel)]="vehicleForm.numberOfDoors"
+                    required
+                    #vehicleDoors="ngModel"
+                    [class.is-invalid]="showControlErrors(vehicleDoors)"
+                    placeholder="Número de puertas"
+                  />
+                  <label for="vehicleDoors">Número de puertas</label>
+                </div>
+                <div
+                  class="invalid-feedback d-block"
+                  *ngIf="showControlErrors(vehicleDoors)"
+                >
+                  Ingresa el número de puertas.
+                </div>
+              </div>
             </div>
           }
-
-          <div class="d-flex justify-content-end gap-2 mt-4">
-            <button
-              class="btn btn-outline-secondary"
-              type="button"
-              (click)="resetContractForm(contractFormRef, true)"
-              [disabled]="formLoading"
-            >
-              Limpiar
-            </button>
-            <button
-              class="btn btn-primary"
-              type="submit"
-              [disabled]="formLoading"
-              *appHasPermission="'purchase_sale:create'"
-            >
-              <span
-                class="spinner-border spinner-border-sm me-2"
-                *ngIf="formLoading"
-              ></span>
-              Guardar contrato
-            </button>
-          </div>
-        </form>
+          @if (isMotorcycleSelected) {
+            <div class="row g-3 mt-1">
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="vehicleMotorcycleType"
+                    name="vehicleMotorcycleType"
+                    maxlength="20"
+                    [(ngModel)]="vehicleForm.motorcycleType"
+                    required
+                    #vehicleMotorcycleType="ngModel"
+                    [class.is-invalid]="showControlErrors(vehicleMotorcycleType)"
+                    placeholder="Tipo de motocicleta"
+                  />
+                  <label for="vehicleMotorcycleType">Tipo de motocicleta</label>
+                </div>
+                <div
+                  class="invalid-feedback d-block"
+                  *ngIf="showControlErrors(vehicleMotorcycleType)"
+                >
+                  Indica el tipo de motocicleta.
+                </div>
+              </div>
+            </div>
+          }
+          <small class="text-muted d-block mt-3">
+            El vehículo quedará disponible en el inventario una vez se cree el
+            contrato de compra.
+          </small>
+        </fieldset>
       }
-    </div>
-  </section>
-</div>
+    }
+  </form>
+
+  <ng-container form-actions>
+    <button
+      class="btn btn-outline-secondary me-2"
+      type="button"
+      (click)="resetContractForm(contractFormRef, true)"
+      [disabled]="formLoading"
+    >
+      Limpiar
+    </button>
+    <button
+      class="btn btn-primary"
+      type="submit"
+      (click)="submitContract(contractFormRef)"
+      [disabled]="formLoading"
+      *appHasPermission="'purchase_sale:create'"
+    >
+      <span
+        class="spinner-border spinner-border-sm me-2"
+        *ngIf="formLoading"
+      ></span>
+      Guardar contrato
+    </button>
+  </ng-container>
+</app-form-shell>

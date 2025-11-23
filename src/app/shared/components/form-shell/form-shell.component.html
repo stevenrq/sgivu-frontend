@@ -1,0 +1,34 @@
+<div class="d-flex">
+  <div class="flex-grow-1 d-flex flex-column">
+    <main class="flex-grow-1 p-4 form-shell-main" [ngClass]="pageClass">
+      <div class="container-fluid">
+        <div
+          class="card shadow-sm border-0 position-relative"
+          [ngClass]="cardClass"
+        >
+          @if (loading) {
+            <app-loading-overlay />
+          }
+
+          <div class="card-header border-bottom-0 pt-3" [ngClass]="headerClass">
+            <h1 class="h4 mb-1 d-flex align-items-center" [ngClass]="titleClass">
+              <i class="bi me-2" [ngClass]="icon"></i>
+              {{ title }}
+            </h1>
+            <p class="mb-0" [ngClass]="subtitleClass">
+              {{ subtitle }}
+            </p>
+          </div>
+
+          <div class="card-body p-4" [ngClass]="bodyClass">
+            <ng-content select="[form-body]"></ng-content>
+          </div>
+
+          <div class="card-footer text-end border-top-0" [ngClass]="footerClass">
+            <ng-content select="[form-actions]"></ng-content>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

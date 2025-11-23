@@ -12,7 +12,6 @@ import {
   ActivatedRoute,
   ParamMap,
   Router,
-  RouterLink,
 } from '@angular/router';
 import {
   Subscription,
@@ -50,6 +49,7 @@ import {
 } from '../../models/purchase-sale-reference.model';
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { FormShellComponent } from '../../../../shared/components/form-shell/form-shell.component';
 import {
   formatCopCurrency,
   formatCopNumber,
@@ -100,9 +100,8 @@ interface VehicleFormModel {
     CommonModule,
     FormsModule,
     HasPermissionDirective,
-    RouterLink,
     KpiCardComponent,
-    PageHeaderComponent,
+    FormShellComponent,
   ],
   templateUrl: './purchase-sale-create.component.html',
   styleUrl: './purchase-sale-create.component.css',

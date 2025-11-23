@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { PersonService } from '../../services/person.service';
 import { CompanyService } from '../../services/company.service';
+import { FormShellComponent } from '../../../../shared/components/form-shell/form-shell.component';
 import {
   lengthValidator,
   noWhitespaceValidator,
@@ -68,7 +69,7 @@ interface ViewCopy {
 
 @Component({
   selector: 'app-client-form',
-  imports: [ReactiveFormsModule, NgClass],
+  imports: [ReactiveFormsModule, NgClass, FormShellComponent],
   templateUrl: './client-form.component.html',
   styleUrl: './client-form.component.css',
 })
