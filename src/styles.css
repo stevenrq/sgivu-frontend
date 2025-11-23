@@ -252,6 +252,28 @@ h6 {
   color: var(--text);
 }
 
+.dropdown-menu {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.dropdown-divider {
+  border-color: var(--border);
+}
+
+.dropdown-item {
+  color: var(--text);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
 .table {
   border-collapse: separate;
   border-spacing: 0 10px;
@@ -282,8 +304,9 @@ h6 {
 }
 
 .table-hover tbody tr:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+  transform: none;
+  box-shadow: inherit;
+  background-color: inherit;
 }
 
 .table-responsive {

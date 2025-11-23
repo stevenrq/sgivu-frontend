@@ -10,10 +10,14 @@
   border: 1px solid var(--border);
   padding: 0.35rem;
   box-shadow: var(--shadow-soft);
+  overflow: visible;
+  position: relative;
+  isolation: isolate;
 }
 
 .table-container.table-responsive {
   overflow-x: auto;
+  overflow-y: visible;
 }
 
 .table-container table {
@@ -34,25 +38,70 @@
   background: var(--table-head-bg);
 }
 
+.table-container .table {
+  position: relative;
+  overflow: visible;
+}
+
+.table-container .table-hover tbody tr {
+  transition:
+    box-shadow var(--transition),
+    background-color var(--transition);
+}
+
 .table-container table > :not(caption) > * > * {
   background: var(--surface);
   color: var(--text);
   border-color: var(--border);
 }
 
-.table-container tbody tr:hover {
-  background-color: var(--surface-muted);
-  transform: translateY(-1px);
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
-}
-
 .table-container tbody tr {
+  position: relative;
+  z-index: 0;
   background: var(--surface);
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
   transition:
-    transform var(--transition),
     box-shadow var(--transition),
     background-color var(--transition);
+}
+
+.table-container tbody tr:focus-within,
+.table-container tbody tr:has(.dropdown-menu.show) {
+  z-index: 5;
+}
+
+.table-container tbody tr:has(.dropdown-menu.show) {
+  background-color: var(--surface-muted);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.table-container tbody tr > * {
+  position: relative;
+  z-index: 1;
+}
+
+.table-container tbody tr:focus-within > *,
+.table-container tbody tr:has(.dropdown-menu.show) > * {
+  z-index: 6;
+}
+
+.table-container.table-responsive {
+  position: relative;
+}
+
+.table-container .table-hover tbody tr:hover,
+.table-container .table-hover tbody tr:hover > *,
+.table-container tbody tr:hover,
+.table-container tbody tr:hover > * {
+  background-color: inherit !important;
+  box-shadow: inherit !important;
+  transform: none !important;
+  z-index: inherit;
+}
+
+.table-container .dropdown-menu {
+  z-index: 9999;
+  position: absolute;
 }
 
 .table-container tbody tr td:first-child {
