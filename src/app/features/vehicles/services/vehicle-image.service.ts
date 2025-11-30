@@ -17,6 +17,7 @@ import { HttpResponse } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
+/** Gestiona la carga, confirmación y eliminación de imágenes de vehículos. */
 export class VehicleImageService {
   private readonly apiUrl = `${environment.apiUrl}/v1/vehicles`;
 
@@ -99,6 +100,12 @@ export class VehicleImageService {
   }
 
   // Uso explícito de fetch para evitar que los interceptores de Angular modifiquen headers que invaliden la firma S3.
+  /**
+   * Usa `fetch` en lugar de `HttpClient` para respetar la firma de S3,
+   * evitando que los interceptores agreguen cabeceras que invaliden la
+   * solicitud. También controla manualmente los errores para entregar
+   * contexto al suscriptor.
+   */
   private async uploadWithFetch(
     url: string,
     file: File,

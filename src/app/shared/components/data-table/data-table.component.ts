@@ -9,6 +9,7 @@ import { LoadingOverlayComponent } from '../loading-overlay/loading-overlay.comp
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.css',
 })
+/** Contenedor de tabla estilizada que integra un overlay de carga reutilizable. */
 export class DataTableComponent {
   @Input()
   loading = false;

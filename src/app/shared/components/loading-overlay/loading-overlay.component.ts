@@ -8,6 +8,7 @@ import { Component, Input } from '@angular/core';
   templateUrl: './loading-overlay.component.html',
   styleUrl: './loading-overlay.component.css',
 })
+/** Capa visual para bloquear la UI mientras se completan operaciones asíncronas. */
 export class LoadingOverlayComponent {
   @Input()
   label = 'Cargando...';

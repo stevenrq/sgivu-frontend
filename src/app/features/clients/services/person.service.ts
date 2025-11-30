@@ -185,6 +185,12 @@ export class PersonService {
     );
   }
 
+  /**
+   * Construye parámetros HTTP excluyendo filtros vacíos para mantener
+   * las consultas limpias hacia el backend.
+   *
+   * @param filters Filtros de búsqueda proporcionados por la UI.
+   */
   private buildSearchParams(filters: PersonSearchFilters): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {

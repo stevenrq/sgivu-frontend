@@ -24,6 +24,10 @@ import { Theme, ThemeService } from '../../services/theme.service';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
+/**
+ * Barra de navegación principal que gestiona autenticación, selección de tema
+ * y comportamiento responsive con el componente Collapse de Bootstrap.
+ */
 export class NavbarComponent implements OnInit, AfterViewInit {
   protected user$!: Observable<User | null>;
 
@@ -106,6 +110,10 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     this.collapseInstance?.hide();
   }
 
+  /**
+   * Prepara la instancia de `Collapse` asegurando que solo se ejecute en el browser
+   * y sincroniza el flag interno `isMenuOpen` con los eventos de Bootstrap.
+   */
   private initializeCollapseInstance(): void {
     if (!this.navbarCollapse || !isPlatformBrowser(this.platformId)) {
       return;
@@ -133,6 +141,10 @@ export class NavbarComponent implements OnInit, AfterViewInit {
     );
   }
 
+  /**
+   * Determina si la vista es móvil o desktop en función del ancho de pantalla
+   * y muestra/oculta el menú en consecuencia.
+   */
   private updateResponsiveState(): void {
     if (!isPlatformBrowser(this.platformId)) {
       this.isMobileView = false;

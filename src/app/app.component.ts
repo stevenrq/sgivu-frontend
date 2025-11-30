@@ -9,6 +9,7 @@ import { SidebarComponent } from './shared/components/sidebar/sidebar.component'
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
+/** Componente raíz que arma el shell principal de la aplicación. */
 export class AppComponent {
   constructor() {}
 }

@@ -9,6 +9,7 @@ import { LoadingOverlayComponent } from '../loading-overlay/loading-overlay.comp
   templateUrl: './form-shell.component.html',
   styleUrl: './form-shell.component.css',
 })
+/** Contenedor base para formularios con encabezado y estados de carga configurables. */
 export class FormShellComponent {
   @Input()
   title = '';

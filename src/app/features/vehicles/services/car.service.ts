@@ -220,6 +220,12 @@ export class CarService {
     );
   }
 
+  /**
+   * Construye los parámetros de búsqueda ignorando valores vacíos para
+   * reducir ruido en las consultas al backend.
+   *
+   * @param filters Filtros opcionales recibidos desde la UI.
+   */
   private buildSearchParams(filters: Partial<CarSearchFilters>): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {

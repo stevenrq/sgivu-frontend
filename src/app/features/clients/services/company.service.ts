@@ -185,6 +185,12 @@ export class CompanyService {
     );
   }
 
+  /**
+   * Construye los parámetros HTTP ignorando filtros vacíos para no enviar
+   * valores nulos al backend.
+   *
+   * @param filters Filtros activos proporcionados por la UI.
+   */
   private buildSearchParams(filters: CompanySearchFilters): HttpParams {
     let params = new HttpParams();
     Object.entries(filters).forEach(([key, value]) => {

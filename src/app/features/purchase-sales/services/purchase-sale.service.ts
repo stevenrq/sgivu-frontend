@@ -185,7 +185,10 @@ export class PurchaseSaleService {
     });
   }
 
-  // Construye parámetros opcionales para reportes; solo se envían fechas válidas para no afectar el cache del endpoint.
+  /**
+   * Construye parámetros opcionales para reportes; solo se envían fechas
+   * válidas para no afectar el cache del endpoint.
+   */
   private buildReportParams(startDate?: string | null, endDate?: string | null): HttpParams {
     let params = new HttpParams();
     if (startDate) {

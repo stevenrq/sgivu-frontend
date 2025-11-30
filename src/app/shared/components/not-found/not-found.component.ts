@@ -7,4 +7,5 @@ import { RouterModule } from '@angular/router';
   templateUrl: './not-found.component.html',
   styleUrl: './not-found.component.css',
 })
+/** Pantalla mostrada cuando la ruta solicitada no existe. */
 export class NotFoundComponent {}

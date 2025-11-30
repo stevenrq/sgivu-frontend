@@ -25,6 +25,10 @@ import { formatCopCurrency } from '../../../../shared/utils/currency.utils';
   styleUrls: ['./dashboard.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+/**
+ * Panel principal que reúne KPIs y visualizaciones del inventario y ventas.
+ * Coordina la carga simultánea de métricas y prepara los datos para Chart.js.
+ */
 export class DashboardComponent implements OnInit, OnDestroy {
   private readonly subscriptions: Subscription[] = [];
 
@@ -116,6 +120,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.formatCurrency(this.monthlyRevenue);
   }
 
+  /**
+   * Orquesta la carga inicial de métricas y distribuye los resultados en el estado local.
+   * Maneja errores de red y notifica cambio al `ChangeDetectorRef` por `OnPush`.
+   */
   private loadDashboardData(): void {
     this.isLoading = true;
     this.loadError = null;
@@ -141,6 +149,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.push(dashboardSub);
   }
 
+  /**
+   * Solicita en paralelo los contadores de vehículos por tipo.
+   */
   private loadVehicleCounts() {
     return forkJoin({
       cars: this.carService.getCounts(),
@@ -148,6 +159,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Calcula inventario total y datos para el gráfico de distribución.
+   *
+   * @param counts Contadores de carros y motos.
+   */
   private applyVehicleCounts(counts: {
     cars: VehicleCount;
     motorcycles: VehicleCount;
@@ -189,6 +205,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   }
 
+  /**
+   * Deriva métricas de ventas (ingresos y unidades) a partir de los contratos cargados.
+   *
+   * @param contracts Lista completa de contratos recuperados.
+   */
   private applySalesMetrics(contracts: PurchaseSale[]): void {
     const { monthlyRevenue, monthlySalesCount } =
       this.computeMonthlySales(contracts);
@@ -196,6 +217,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.monthlySales = monthlySalesCount;
   }
 
+  /**
+   * Agrupa ventas del mes en curso para obtener ingreso mensual y cantidad de ventas.
+   *
+   * @param contracts Contratos obtenidos del backend.
+   */
   private computeMonthlySales(contracts: PurchaseSale[]): {
     monthlyRevenue: number;
     monthlySalesCount: number;
@@ -235,6 +261,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   }
 
+  /**
+   * Aplica formato de moneda consistente para valores COP mostrados en tarjetas.
+   *
+   * @param value Valor numérico a formatear.
+   */
   private formatCurrency(value: number): string {
     return formatCopCurrency(value, {
       minimumFractionDigits: 0,

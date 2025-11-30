@@ -25,6 +25,7 @@ import { UtcToGmtMinus5Pipe } from '../../../../shared/pipes/utc-to-gmt-minus5.p
     './purchase-sale-detail.component.css',
   ],
 })
+/** Presenta un contrato con su estado, valores y enlaces hacia edición o listado. */
 export class PurchaseSaleDetailComponent implements OnInit, OnDestroy {
   protected contract: PurchaseSale | null = null;
   protected loading = true;

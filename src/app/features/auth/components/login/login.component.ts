@@ -7,6 +7,9 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
+/**
+ * Punto de entrada para iniciar el flujo OAuth; redirige al proveedor de identidad.
+ */
 export class LoginComponent implements OnInit {
   constructor(private readonly authService: AuthService) {}
 

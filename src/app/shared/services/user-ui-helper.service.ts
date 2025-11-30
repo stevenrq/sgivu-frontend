@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 @Injectable({
   providedIn: 'root',
 })
+/** Utilidades de UI para confirmar y ejecutar acciones sobre usuarios. */
 export class UserUiHelperService {
   constructor(private readonly userService: UserService) {}
 

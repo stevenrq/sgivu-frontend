@@ -37,6 +37,7 @@ type VehicleDetailType = 'car' | 'motorcycle';
     UtcToGmtMinus5Pipe,
   ],
 })
+/** Muestra la información completa de un vehículo y permite cambiar su estado o navegar a edición. */
 export class VehicleDetailComponent implements OnInit, OnDestroy {
   protected readonly VehicleStatus = VehicleStatus;
   protected vehicle: Car | Motorcycle | null = null;

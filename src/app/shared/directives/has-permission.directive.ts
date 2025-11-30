@@ -27,6 +27,7 @@ import { PermissionService } from '../../features/auth/services/permission.servi
 @Directive({
   selector: '[appHasPermission]',
 })
+/** Directiva estructural que muestra u oculta vistas según permisos del usuario. */
 export class HasPermissionDirective implements OnChanges, OnDestroy {
   /**
    * Permiso o lista de permisos a verificar.

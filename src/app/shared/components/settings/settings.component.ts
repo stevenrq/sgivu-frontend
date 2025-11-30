@@ -13,6 +13,7 @@ import {
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css',
 })
+/** Vista de ajustes personales que permite cambiar el tema y muestra datos del usuario actual. */
 export class SettingsComponent implements OnInit {
   protected user: User | null = null;
   protected selectedTheme: ThemePreference = 'system';

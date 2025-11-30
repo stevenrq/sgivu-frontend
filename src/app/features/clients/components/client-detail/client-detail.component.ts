@@ -28,6 +28,11 @@ interface ChecklistItem {
   ],
   imports: [CommonModule, RouterLink, HasPermissionDirective],
 })
+/**
+ * Pantalla de detalle que muestra la información completa de un cliente,
+ * permitiendo activar/desactivar y navegar hacia edición según su tipo
+ * (persona o empresa).
+ */
 export class ClientDetailComponent implements OnInit, OnDestroy {
   protected clientType: ClientDetailType = 'person';
   protected person: Person | null = null;
@@ -251,6 +256,10 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Alterna el estado activo del cliente actual y, tras la operación,
+   * recarga los datos para reflejar el cambio.
+   */
   toggleStatus(): void {
     const entity = this.entity;
     if (!entity || this.currentClientId == null) {
@@ -277,6 +286,12 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Recupera los datos del cliente según el tipo (persona/empresa) y
+   * actualiza el estado de la vista manejando los estados de carga y error.
+   *
+   * @param id Identificador del cliente a consultar.
+   */
   private loadClient(id: number): void {
     this.isLoading = true;
     this.errorMessage = null;

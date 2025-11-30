@@ -1,5 +1,9 @@
 import { VehicleStatus } from './vehicle-status.enum';
 
+/**
+ * Modelo base de vehículo disponible en el inventario SGIVU.
+ * Incluye datos de identificación, estado y métricas comerciales.
+ */
 export class Vehicle {
   id!: number;
   brand!: string;

@@ -8,6 +8,7 @@ import { Component, Input } from '@angular/core';
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.css',
 })
+/** Encabezado reutilizable para páginas con título, subtítulo y eyebrow opcional. */
 export class PageHeaderComponent {
   @Input({ required: true })
   title!: string;

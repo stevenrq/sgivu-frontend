@@ -1,5 +1,6 @@
 import { formatDate } from '@angular/common';
 
+/** Valor de fecha admitido por los formateadores utilitarios. */
 export type DateInput = string | number | Date | null | undefined;
 
 const DEFAULT_FORMAT = 'short';
@@ -41,6 +42,10 @@ function toDate(dateValue: DateInput): Date | null {
 }
 
 export function parseUtcDate(dateValue: DateInput): Date | null {
+  /**
+   * Normaliza un valor de fecha (string, número o Date) a una instancia de `Date`.
+   * Devuelve `null` si el valor no es convertible.
+   */
   return toDate(dateValue);
 }
 

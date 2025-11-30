@@ -233,6 +233,12 @@ export class MotorcycleService {
     );
   }
 
+  /**
+   * Construye parámetros de búsqueda excluyendo filtros vacíos antes de
+   * enviarlos al backend.
+   *
+   * @param filters Filtros opcionales provenientes de la UI.
+   */
   private buildSearchParams(
     filters: Partial<MotorcycleSearchFilters>,
   ): HttpParams {
