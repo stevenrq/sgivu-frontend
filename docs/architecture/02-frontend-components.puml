@@ -1,0 +1,62 @@
+@startuml
+' Componentes principales del frontend SGIVU.
+' Basado en: app.routes.ts (rutas y guards), features/auth/services/auth.service.ts,
+' README.md (tecnologías) y environments (apiUrl/issuer).
+left to right direction
+
+package "Configuración" {
+  component "environment.*.ts\n(apiUrl, issuer, clientId)" as Env
+  component "auth-config.ts\n(angular-oauth2-oidc)" as AuthConfig
+}
+
+package "Autenticación" {
+  component "AuthService\n(OAuthService wrapper,\nloadDiscovery + tokens)" as AuthSvc
+  component "authGuard\n(valida sesión)" as AuthGuard
+  component "permissionGuard\n(canActivateFn con PermissionService)" as PermGuard
+  component "PermissionService\nclaims rolesAndPermissions" as PermSvc
+  component "defaultOAuthInterceptor\nadjunta Bearer\nsolo apiUrl" as OAuthInterceptor
+}
+
+package "Características" {
+  component "Dashboard\n(graficos demanda)" as Dashboard
+  component "Users feature\n(users CRUD, roles/permisos)" as Users
+  component "Clients feature\n(persons/companies)" as Clients
+  component "Vehicles feature\n(cars/motorcycles)" as Vehicles
+  component "Purchase-Sales feature\n(contractos compra/venta)" as PurchaseSales
+}
+
+package "Compartidos" {
+  component "Shared components\n(navbar/sidebar/forbidden/not-found)" as SharedCmp
+  component "Shared services\n(SweetAlert, loaders)" as SharedSvc
+  component "Directiva appHasPermission\ncontrola visibilidad" as HasPermission
+  component "Models/DTOs\n(User, PaginatedResponse)" as Models
+}
+
+component "API Gateway\nHTTP Client" as HttpClient
+
+Env --> AuthConfig
+AuthConfig --> AuthSvc
+AuthSvc --> AuthGuard
+AuthSvc --> OAuthInterceptor
+PermSvc --> PermGuard
+AuthSvc --> PermSvc : claims rolesAndPermissions
+HasPermission --> PermSvc
+
+Dashboard --> HttpClient
+Users --> HttpClient
+Clients --> HttpClient
+Vehicles --> HttpClient
+PurchaseSales --> HttpClient
+SharedSvc --> HttpClient
+
+AuthGuard --> Users
+AuthGuard --> Clients
+AuthGuard --> Vehicles
+AuthGuard --> PurchaseSales
+PermGuard --> Dashboard
+
+note right of HttpClient
+  Llama apiUrl (gateway /v1/*)\ncon interceptor que agrega token válido.
+end note
+
+@enduml

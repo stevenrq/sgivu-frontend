@@ -115,6 +115,10 @@ El archivo `src/app/features/auth/config/auth-config.ts` consume estos valores p
 * Documentar componentes complejos con comentarios JSDoc y actualiza las pruebas unitarias asociadas.
 * Reutilizar las señales y servicios compartidos para conservar un único origen de estados en listados y formularios.
 
+## 📐 Diagramas
+- Contexto frontend ↔ gateway/auth: `docs/architecture/01-frontend-context.puml`
+- Componentes/guards/interceptores principales: `docs/architecture/02-frontend-components.puml`
+
 ## ✨ Autor
 
 * **Steven Ricardo Quiñones**

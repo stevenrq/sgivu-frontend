@@ -1,0 +1,24 @@
+@startuml
+' Contexto SGIVU Frontend.
+' Basado en: README.md (rol y dependencias), environment.development.ts (apiUrl/issuer/clientId),
+' app.routes.ts (rutas dashboard/users/clients/vehicles/purchase-sales), flujo OAuth con angular-oauth2-oidc.
+left to right direction
+
+actor "Operador\n(Usuario interno)" as User
+rectangle "Browser\nSPA Angular" as Browser
+rectangle "SGIVU Frontend\n(Angular 20)" as Frontend
+rectangle "API Gateway\nsgivu-gateway" as Gateway
+rectangle "Auth Service\nsgivu-auth\n(OIDC)" as Auth
+rectangle "Servicios backend\nuser/client/vehicle/\npurchase-sale/ml" as Services
+
+User --> Browser : Navega a\nhttps://sgivu-frontend
+Browser --> Frontend : Carga bundle\nfrom S3/CloudFront
+Frontend --> Auth : OAuth2/OIDC\n(angular-oauth2-oidc,\ndiscovery issuer)
+Frontend --> Gateway : REST JSON\n/apiUrl=/v1/*
+Gateway --> Services : Proxy lb://\nJWT rolesAndPermissions
+
+note right of Frontend
+  Guarda tokens en localStorage,\nusa guards authGuard/permissionGuard\ny directiva appHasPermission.
+end note
+
+@enduml

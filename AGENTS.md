@@ -37,3 +37,7 @@
 
 - Never commit secrets. Only adjust URLs/client IDs in `src/environments/*.ts`; production values should come from your deployment pipeline.
 - OAuth settings are consumed by `src/app/features/auth/config/auth-config.ts`; validate scopes and redirect URIs match the identity provider configuration.
+
+## Architecture Docs
+- SPA ↔ gateway/auth context: `docs/architecture/01-frontend-context.puml`
+- Components/guards/interceptors: `docs/architecture/02-frontend-components.puml`
