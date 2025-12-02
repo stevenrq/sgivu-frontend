@@ -12,6 +12,13 @@ SGIVU Frontend es la interfaz principal del ecosistema SGIVU. Permite a los equi
 * **Presentación:** Incluye un dashboard con gráficos de demanda (`ng2-charts` + `Chart.js`), componentes compartidos de navegación y un módulo de usuarios con control de estados, paginación y acciones confirmadas desde `SweetAlert2`.
 * **State management:** Se usan señales nativas de Angular para mantener el estado de listas y paginadores dentro de los servicios, favoreciendo un flujo reactivo sin librerías externas.
 
+### Predicción de demanda (dashboard)
+
+* El horizonte se inicializa en 6 meses, pero no se consulta hasta que el usuario seleccione un vehículo en la búsqueda rápida.
+* La búsqueda rápida autocompleta por marca, modelo, placa o línea; al elegir un ítem se rellenan tipo/marca/modelo/línea y se ejecuta la predicción llamando primero a `retrain` y luego a `predict`.
+* Si no hay vehículo seleccionado, la gráfica muestra un placeholder y no se envían peticiones al backend.
+* Las métricas del modelo (MAPE, RMSE, R², σ) y la versión entrenada se muestran junto al gráfico para trazabilidad.
+
 ## ⚙️ Tecnologías
 
 * **Framework:** Angular 20 (TypeScript, standalone components, Signals API)

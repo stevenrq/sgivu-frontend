@@ -24,12 +24,15 @@ export interface UserOption {
 
 /**
  * Opción de vehículo disponible para asociar a un contrato.
+ * Incluye placa y línea para alimentar búsquedas rápidas y predicciones.
  */
 export interface VehicleOption {
   id: number;
   label: string;
   status: VehicleStatus;
   type: 'CAR' | 'MOTORCYCLE';
+  line?: string | null;
+  plate?: string | null;
   purchasePrice?: number | null;
   createdAt?: string | null;
   updatedAt?: string | null;
@@ -92,6 +95,8 @@ export function mapCarsToVehicles(cars: Car[]): VehicleOption[] {
       label: `${car.brand} ${car.model} (${car.plate})`,
       status: car.status,
       type: 'CAR' as const,
+      line: car.line ?? null,
+      plate: car.plate ?? null,
       purchasePrice: car.purchasePrice,
       createdAt: car.createdAt ?? null,
       updatedAt: car.updatedAt ?? null,
@@ -113,6 +118,8 @@ export function mapMotorcyclesToVehicles(
       label: `${motorcycle.brand} ${motorcycle.model} (${motorcycle.plate})`,
       status: motorcycle.status,
       type: 'MOTORCYCLE' as const,
+      line: motorcycle.line ?? null,
+      plate: motorcycle.plate ?? null,
       purchasePrice: motorcycle.purchasePrice,
       createdAt: motorcycle.createdAt ?? null,
       updatedAt: motorcycle.updatedAt ?? null,

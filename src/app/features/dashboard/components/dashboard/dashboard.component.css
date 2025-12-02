@@ -99,3 +99,88 @@
   border-color: color-mix(in srgb, var(--border) 70%, var(--accent) 15%);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
 }
+
+.prediction-form .form-label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.segment-suggestions .btn {
+  border-style: dashed;
+  color: var(--text);
+}
+
+.chart-container {
+  min-height: 340px;
+  max-height: 420px;
+  overflow: hidden;
+}
+
+.chart-placeholder {
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chart-container canvas {
+  max-height: 380px;
+  width: 100% !important;
+}
+
+.inventory-chart canvas {
+  max-height: 320px;
+  width: 100% !important;
+}
+
+.contracted-search .form-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.contracted-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contracted-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent 20%);
+}
+
+.contracted-item:last-child {
+  border-bottom: none;
+}
+
+.quick-search {
+  position: relative;
+}
+
+.quick-search-wrapper {
+  position: relative;
+}
+
+.quick-search-dropdown {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-md);
+  margin-top: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.quick-search-dropdown .dropdown-item {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.quick-search .form-control {
+  min-height: 46px;
+}

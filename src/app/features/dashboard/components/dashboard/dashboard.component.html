@@ -41,19 +41,176 @@
   <div class="row g-4 mb-4">
     <div class="col-xl-8">
       <div class="card h-100">
-        <div class="card-header">
-          <h5 class="card-title mb-0">
-            Predicción de Demanda (Próximos 6 Meses)
-          </h5>
+        <div
+          class="card-header d-flex flex-wrap align-items-start align-items-md-center justify-content-between gap-2"
+        >
+          <div>
+            <h5 class="card-title mb-1">Predicción de Demanda</h5>
+            <div class="text-muted small">
+              @if (activeSegmentLabel) {
+                <span>{{ activeSegmentLabel }}</span>
+              } @else {
+                <span>Selecciona un segmento para pronosticar.</span>
+              }
+              @if (modelVersion) {
+                <span class="ms-2 badge text-bg-light border">Modelo {{ modelVersion }}</span>
+              } @else if (latestModel?.version) {
+                <span class="ms-2 badge text-bg-light border">
+                  Modelo {{ latestModel?.version }}
+                </span>
+              }
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            @if (forecastMetrics?.mape !== undefined) {
+              <span class="badge bg-primary-subtle text-primary">
+                MAPE {{ forecastMetrics?.mape | number: '1.1-2' }}
+              </span>
+            }
+            @if (forecastMetrics?.rmse !== undefined) {
+              <span class="badge bg-secondary-subtle text-secondary">
+                RMSE {{ forecastMetrics?.rmse | number: '1.1-2' }}
+              </span>
+            }
+            @if (salesHistoryCount > 0 && salesHistoryCount < 15) {
+              <span class="badge bg-warning-subtle text-warning-emphasis">
+                Historial corto: {{ salesHistoryCount }} ventas
+              </span>
+            }
+          </div>
         </div>
         <div class="card-body">
-          <canvas
-            baseChart
-            [data]="demandData"
-            [options]="demandOptions"
-            [type]="'line'"
+          <form
+            [formGroup]="predictionForm"
+            (ngSubmit)="onSubmitPrediction()"
+            class="quick-search mt-3"
           >
-          </canvas>
+            <label class="form-label filter-label text-muted fw-semibold">
+              Búsqueda rápida de vehículos
+            </label>
+            <div class="quick-search-wrapper">
+              <input
+                type="search"
+                class="form-control"
+                [(ngModel)]="quickVehicleTerm"
+                (ngModelChange)="filterVehicleOptions($event)"
+                placeholder="Escribe marca, modelo, placa o línea"
+                autocomplete="off"
+                [ngModelOptions]="{ standalone: true }"
+              />
+              <div class="quick-search-dropdown" *ngIf="contractedVehicles.length > 0">
+                @for (
+                  vehicle of contractedVehicles;
+                  track vehicle.type + vehicle.id
+                ) {
+                  <button
+                    type="button"
+                    class="dropdown-item d-flex justify-content-between align-items-center"
+                    (click)="selectQuickVehicle(vehicle)"
+                  >
+                    <div>
+                      <div class="fw-semibold">
+                        {{ vehicle.type === 'MOTORCYCLE' ? 'Moto' : 'Auto' }} ·
+                        {{ vehicle.label }}
+                        @if (vehicle.line) {
+                          <span class="text-muted">({{ vehicle.line }})</span>
+                        }
+                      </div>
+                      <div class="text-muted small">
+                        @if (vehicle.line) {
+                          Línea: {{ vehicle.line }} ·
+                        }
+                        Contratos: {{ vehicle.contractsCount ?? 0 }}
+                      </div>
+                    </div>
+                    @if (quickVehicleLoading && quickVehicleTerm === vehicle.label) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+              <div class="row g-2 align-items-end mt-2">
+                <div class="col-6 col-md-3">
+                  <label class="form-label small">Horizonte (meses)</label>
+                  <input
+                    type="number"
+                  min="1"
+                  max="24"
+                  class="form-control"
+                  formControlName="horizonMonths"
+                />
+              </div>
+              <div class="col-12 col-md-auto">
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                  [disabled]="predictionLoading || quickVehicleLoading"
+                >
+                  @if (predictionLoading) {
+                    <span
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    ></span>
+                  }
+                  Consultar
+                </button>
+              </div>
+            </div>
+          </form>
+
+          @if (predictionError) {
+            <div
+              class="alert alert-warning d-flex align-items-center gap-2 mb-3"
+              role="alert"
+            >
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <div>{{ predictionError }}</div>
+            </div>
+          }
+
+          <div class="chart-container position-relative">
+            @if (predictionLoading) {
+              <div class="chart-placeholder text-center text-muted">
+                <div class="spinner-border text-primary mb-2" role="status"></div>
+                <div>Entrenando y calculando pronóstico...</div>
+              </div>
+            } @else if (demandData) {
+              <div
+                class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2"
+              >
+                <div class="text-muted small">
+                  @if (latestModel?.trainedAt) {
+                    Último entrenamiento: {{ latestModel?.trainedAt | date: 'medium' }}
+                  }
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  @if (forecastMetrics?.r2 !== undefined) {
+                    <span class="badge text-bg-light border">
+                      R² {{ forecastMetrics?.r2 | number: '1.2-2' }}
+                    </span>
+                  }
+                  @if (forecastMetrics?.residual_std !== undefined) {
+                    <span class="badge text-bg-light border">
+                      σ {{ forecastMetrics?.residual_std | number: '1.2-2' }}
+                    </span>
+                  }
+                </div>
+              </div>
+              <canvas
+                baseChart
+                [data]="demandData"
+                [options]="demandOptions"
+                [type]="'line'"
+                height="340"
+              >
+              </canvas>
+            } @else {
+              <div class="chart-placeholder text-center text-muted">
+                Selecciona un vehículo en la búsqueda rápida y consulta para ver la predicción.
+              </div>
+            }
+          </div>
         </div>
       </div>
     </div>
@@ -62,7 +219,9 @@
         <div class="card-header">
           <h5 class="card-title mb-0">Composición del Inventario</h5>
         </div>
-        <div class="card-body d-flex align-items-center justify-content-center">
+        <div
+          class="card-body d-flex align-items-center justify-content-center inventory-chart"
+        >
           @if (isLoading) {
             <div class="text-center text-muted py-4">
               <div class="spinner-border text-primary mb-2" role="status">
@@ -76,6 +235,7 @@
               [data]="inventoryData"
               [options]="inventoryOptions"
               [type]="'doughnut'"
+              height="280"
             >
             </canvas>
           } @else {
