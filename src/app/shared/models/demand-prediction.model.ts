@@ -24,10 +24,23 @@ export interface DemandPredictionPoint {
   upperCi: number;
 }
 
+export interface DemandHistoryPoint {
+  month: string;
+  salesCount: number;
+}
+
 export interface DemandPredictionResponse {
   predictions: DemandPredictionPoint[];
+  history?: DemandHistoryPoint[];
+  trainedAt?: string;
   modelVersion: string;
   metrics?: DemandMetrics;
+  segment?: {
+    vehicle_type?: string;
+    brand?: string;
+    model?: string;
+    line?: string;
+  };
 }
 
 export interface ModelMetadata {

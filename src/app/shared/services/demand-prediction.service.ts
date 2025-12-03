@@ -18,7 +18,18 @@ interface PredictionResponseDto {
     lower_ci: number;
     upper_ci: number;
   }[];
+  history?: {
+    month: string;
+    sales_count: number;
+  }[];
   model_version: string;
+  trained_at?: string;
+  segment?: {
+    vehicle_type?: string;
+    brand?: string;
+    model?: string;
+    line?: string;
+  };
   metrics?: DemandMetrics;
 }
 
@@ -46,7 +57,7 @@ export class DemandPredictionService {
   predict(payload: DemandPredictionRequest): Observable<DemandPredictionResponse> {
     const request = this.buildPayload(payload);
     return this.http
-      .post<PredictionResponseDto>(`${this.apiUrl}/predict`, request)
+      .post<PredictionResponseDto>(`${this.apiUrl}/predict-with-history`, request)
       .pipe(map((response) => this.mapPredictionResponse(response)));
   }
 
@@ -99,7 +110,14 @@ export class DemandPredictionService {
           lowerCi: item.lower_ci,
           upperCi: item.upper_ci,
         })) ?? [],
+      history:
+        response.history?.map((item) => ({
+          month: item.month,
+          salesCount: item.sales_count,
+        })) ?? [],
       modelVersion: response.model_version,
+      trainedAt: response.trained_at,
+      segment: response.segment,
       metrics: response.metrics,
     };
   }
