@@ -735,7 +735,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private parseMonth(monthInput: string | Date): Date {
-    const parsed = monthInput instanceof Date ? monthInput : new Date(monthInput);
+    if (monthInput instanceof Date) {
+      return new Date(monthInput.getFullYear(), monthInput.getMonth(), 1);
+    }
+    const match = monthInput.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      const [, y, m, d] = match;
+      return new Date(Number(y), Number(m) - 1, Number(d));
+    }
+    const parsed = new Date(monthInput);
     return new Date(parsed.getFullYear(), parsed.getMonth(), 1);
   }
 
