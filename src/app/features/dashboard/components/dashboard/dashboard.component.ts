@@ -15,16 +15,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import {
-  Subscription,
-  forkJoin,
-  of,
-  switchMap,
-  tap,
-  map,
-  catchError,
-  Observable,
-} from 'rxjs';
+import { Subscription, forkJoin, of, map, catchError, Observable } from 'rxjs';
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { CarService } from '../../../vehicles/services/car.service';
 import { MotorcycleService } from '../../../vehicles/services/motorcycle.service';
@@ -175,6 +166,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   predictionLoading = false;
   predictionError: string | null = null;
+  retrainLoading = false;
+  retrainError: string | null = null;
+  retrainMessage: string | null = null;
   modelVersion: string | null = null;
   forecastMetrics: DemandMetrics | null = null;
   segmentSuggestions: SegmentOption[] = [];
@@ -495,6 +489,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.predictionLoading = true;
     this.predictionError = null;
+    this.retrainError = null;
+    this.retrainMessage = null;
 
     const payload: DemandPredictionRequest = {
       vehicleType: (formValue.vehicleType as VehicleKind) ?? VehicleKind.CAR,
@@ -506,19 +502,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
 
     const predictionSub = this.demandPredictionService
-      .retrain()
-      .pipe(
-        tap((metadata) => {
-          this.latestModel = {
-            version: metadata.version,
-            trainedAt: metadata.trained_at,
-            metrics: metadata.metrics,
-          };
-          this.modelVersion = metadata.version;
-          this.forecastMetrics = metadata.metrics;
-        }),
-        switchMap(() => this.demandPredictionService.predict(payload)),
-      )
+      .predict(payload)
       .subscribe({
         next: (response) => {
           const hasPredictions = response.predictions.length > 0;
@@ -836,5 +820,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
         contract.vehicleId === vehicleId ||
         contract.vehicleSummary?.id === vehicleId,
     ).length;
+  }
+
+  /**
+   * Dispara un reentrenamiento manual del modelo sin bloquear el submit.
+   * Útil cuando no existe modelo entrenado todavía o se desea actualizarlo.
+   */
+  onRetrain(): void {
+    if (this.retrainLoading) {
+      return;
+    }
+    this.retrainLoading = true;
+    this.retrainError = null;
+    this.retrainMessage = null;
+
+    const retrainSub = this.demandPredictionService.retrain().subscribe({
+      next: (metadata) => {
+        this.latestModel = {
+          version: metadata.version,
+          trainedAt: metadata.trained_at,
+          metrics: metadata.metrics,
+        };
+        this.modelVersion = metadata.version;
+        this.forecastMetrics = metadata.metrics;
+        this.retrainMessage = 'Modelo reentrenado correctamente.';
+        this.retrainLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.retrainError =
+          error?.error?.detail ??
+          'No se pudo reentrenar el modelo. Intenta nuevamente.';
+        this.retrainLoading = false;
+        this.cdr.markForCheck();
+      },
+    });
+
+    this.subscriptions.push(retrainSub);
   }
 }
