@@ -1,4 +1,8 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { BehaviorSubject, of } from 'rxjs';
 
@@ -20,17 +24,20 @@ describe('PermissionService', () => {
     authState$ = new BehaviorSubject<boolean>(false);
     doneLoading$ = new BehaviorSubject<boolean>(false);
 
-    authService = jasmine.createSpyObj<AuthService>('AuthService', [
-      'getUserId',
-    ], {
-      isAuthenticated$: authState$.asObservable(),
-      isDoneLoading$: doneLoading$.asObservable(),
-    });
+    authService = jasmine.createSpyObj<AuthService>(
+      'AuthService',
+      ['getUserId'],
+      {
+        isAuthenticated$: authState$.asObservable(),
+        isDoneLoading$: doneLoading$.asObservable(),
+      },
+    );
     userService = jasmine.createSpyObj<UserService>('UserService', ['getById']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         PermissionService,
         { provide: AuthService, useValue: authService },
         { provide: UserService, useValue: userService },
@@ -46,7 +53,9 @@ describe('PermissionService', () => {
   });
 
   it('obtiene y almacena permisos desde el backend', () => {
-    const permissions = [{ id: 1, name: 'user:create', description: 'Create users' }];
+    const permissions = [
+      { id: 1, name: 'user:create', description: 'Create users' },
+    ];
 
     service.getAll().subscribe((response) => {
       expect(response).toEqual(permissions);
