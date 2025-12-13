@@ -49,6 +49,7 @@ import {
   normalizeMoneyInput,
   parseCopCurrency,
 } from '../../../../shared/utils/currency.utils';
+import { RowNavigateDirective } from '../../../../shared/directives/row-navigate.directive';
 import {
   ClientOption,
   UserOption,
@@ -110,6 +111,7 @@ type QuickSuggestion = {
     DataTableComponent,
     CopCurrencyPipe,
     RouterLink,
+    RowNavigateDirective,
   ],
   templateUrl: './purchase-sale-list.component.html',
   styleUrl: './purchase-sale-list.component.css',

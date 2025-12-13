@@ -346,7 +346,11 @@
           }
 
           @for (contract of contracts; track contract.id) {
-            <tr>
+            <tr
+              appRowNavigate
+              [appRowNavigate]="['/purchase-sales/details', contract.id]"
+              [appRowNavigateDisabled]="isListLoading"
+            >
               <td>
                 <span
                   class="badge rounded-pill"
