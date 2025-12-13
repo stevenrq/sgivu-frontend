@@ -272,13 +272,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ].filter((item) => item.value > 0);
 
     const labels =
-      breakdown.length > 0 ? breakdown.map((item) => item.label) : ['Sin datos'];
+      breakdown.length > 0
+        ? breakdown.map((item) => item.label)
+        : ['Sin datos'];
     const data =
       breakdown.length > 0 ? breakdown.map((item) => item.value) : [1];
     const backgroundColor =
-      breakdown.length > 0
-        ? breakdown.map((item) => item.color)
-        : ['#e9ecef'];
+      breakdown.length > 0 ? breakdown.map((item) => item.color) : ['#e9ecef'];
 
     this.inventoryData = {
       labels,
@@ -375,7 +375,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       brand: ['', [Validators.required]],
       model: ['', [Validators.required]],
       line: [''],
-      horizonMonths: [6, [Validators.required, Validators.min(1), Validators.max(24)]],
+      horizonMonths: [
+        6,
+        [Validators.required, Validators.min(1), Validators.max(24)],
+      ],
     });
   }
 
@@ -394,7 +397,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       catchError(() => of([])),
     );
 
-    const loadSub = forkJoin({ cars: cars$, motorcycles: motorcycles$ }).subscribe({
+    const loadSub = forkJoin({
+      cars: cars$,
+      motorcycles: motorcycles$,
+    }).subscribe({
       next: ({ cars, motorcycles }) => {
         this.vehicleOptions = [...cars, ...motorcycles];
         this.contractedVehiclesLoading = false;
@@ -428,7 +434,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     contracts.forEach((contract) => {
       const summary = contract.vehicleSummary;
       const vehicleType = this.normalizeVehicleType(
-        (summary?.type as string | undefined) ?? contract.vehicleData?.vehicleType,
+        (summary?.type as string | undefined) ??
+          contract.vehicleData?.vehicleType,
       );
       const brand = summary?.brand ?? contract.vehicleData?.brand;
       const model = summary?.model ?? contract.vehicleData?.model;
@@ -507,10 +514,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (response) => {
           const hasPredictions = response.predictions.length > 0;
           this.demandData = hasPredictions
-            ? this.buildForecastChart(response.predictions, response.history ?? [])
+            ? this.buildForecastChart(
+                response.predictions,
+                response.history ?? [],
+              )
             : null;
-          this.modelVersion = response.modelVersion ?? this.latestModel?.version ?? null;
-          this.forecastMetrics = response.metrics ?? this.latestModel?.metrics ?? null;
+          this.modelVersion =
+            response.modelVersion ?? this.latestModel?.version ?? null;
+          this.forecastMetrics =
+            response.metrics ?? this.latestModel?.metrics ?? null;
           if (response.trainedAt) {
             this.latestModel = {
               ...(this.latestModel ?? {}),
@@ -559,7 +571,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
 
     const historyMap = new Map(
-      history.map((point) => [this.formatMonthKey(this.parseMonth(point.month)), point.salesCount]),
+      history.map((point) => [
+        this.formatMonthKey(this.parseMonth(point.month)),
+        point.salesCount,
+      ]),
     );
 
     const unionKeys = Array.from(
@@ -567,16 +582,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ...Array.from(historyMap.keys()),
         ...Array.from(predictionMap.keys()),
       ]),
-    ).sort((a, b) => this.parseMonthKey(a).getTime() - this.parseMonthKey(b).getTime());
+    ).sort(
+      (a, b) =>
+        this.parseMonthKey(a).getTime() - this.parseMonthKey(b).getTime(),
+    );
 
-    const labels = unionKeys.map((key) => this.formatMonthLabel(this.parseMonthKey(key)));
+    const labels = unionKeys.map((key) =>
+      this.formatMonthLabel(this.parseMonthKey(key)),
+    );
 
-    const lowerBand = unionKeys.map((key) => predictionMap.get(key)?.lowerCi ?? null);
-    const upperBand = unionKeys.map((key) => predictionMap.get(key)?.upperCi ?? null);
-    const demandValues = unionKeys.map((key) => predictionMap.get(key)?.demand ?? null);
-    const historicalValues = unionKeys.map((key) => historyMap.get(key) ?? null);
+    const lowerBand = unionKeys.map(
+      (key) => predictionMap.get(key)?.lowerCi ?? null,
+    );
+    const upperBand = unionKeys.map(
+      (key) => predictionMap.get(key)?.upperCi ?? null,
+    );
+    const demandValues = unionKeys.map(
+      (key) => predictionMap.get(key)?.demand ?? null,
+    );
+    const historicalValues = unionKeys.map(
+      (key) => historyMap.get(key) ?? null,
+    );
 
-    this.updateDemandScaleRange([...historicalValues, ...lowerBand, ...upperBand, ...demandValues]);
+    this.updateDemandScaleRange([
+      ...historicalValues,
+      ...lowerBand,
+      ...upperBand,
+      ...demandValues,
+    ]);
 
     return {
       labels,
@@ -612,7 +645,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private formatMonthLabel(monthInput: string | Date): string {
-    const parsed = monthInput instanceof Date ? monthInput : new Date(monthInput);
+    const parsed =
+      monthInput instanceof Date ? monthInput : new Date(monthInput);
     const monthNames = [
       'Ene',
       'Feb',
@@ -631,7 +665,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private updateDemandScaleRange(values: (number | null)[]): void {
-    const numericValues = values.filter((value): value is number => typeof value === 'number');
+    const numericValues = values.filter(
+      (value): value is number => typeof value === 'number',
+    );
     if (numericValues.length === 0) {
       return;
     }
@@ -641,7 +677,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const suggestedMin = Math.min(0, Math.floor(minValue));
     const suggestedMax = Math.max(1, maxValue) * 1.2;
     const currentScales = this.demandOptions.scales ?? {};
-    const currentY = (currentScales as NonNullable<ChartOptions<'line'>['scales']>)['y'] ?? {};
+    const currentY =
+      (currentScales as NonNullable<ChartOptions<'line'>['scales']>)['y'] ?? {};
 
     this.demandOptions = {
       ...this.demandOptions,
@@ -674,7 +711,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private findLatestMonth(history: Map<string, number>): Date | null {
-    const months = Array.from(history.keys()).map((key) => this.parseMonthKey(key));
+    const months = Array.from(history.keys()).map((key) =>
+      this.parseMonthKey(key),
+    );
     if (months.length === 0) {
       return null;
     }
@@ -692,7 +731,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!value) {
       return '';
     }
-    const withoutAccents = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const withoutAccents = value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
     return withoutAccents
       .toUpperCase()
       .replace(/[^A-Z0-9]+/g, ' ')
@@ -742,7 +783,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private describeSegment(payload: DemandPredictionRequest): string {
     const typeLabel =
-      payload.vehicleType === VehicleKind.MOTORCYCLE ? 'Motocicleta' : 'Automóvil';
+      payload.vehicleType === VehicleKind.MOTORCYCLE
+        ? 'Motocicleta'
+        : 'Automóvil';
     const base = `${typeLabel} · ${payload.brand} ${payload.model}`;
     if (payload.line) {
       return `${base} (${payload.line})`;
@@ -793,7 +836,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
    * Al seleccionar un vehículo en la búsqueda rápida, recupera su detalle completo
    * y rellena el formulario de predicción antes de lanzar la consulta.
    */
-  selectQuickVehicle(vehicle: VehicleOption & { contractsCount?: number }): void {
+  selectQuickVehicle(
+    vehicle: VehicleOption & { contractsCount?: number },
+  ): void {
     const [brand, ...rest] = vehicle.label.split(' ');
     const model = rest
       .join(' ')

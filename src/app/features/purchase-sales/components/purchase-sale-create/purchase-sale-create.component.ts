@@ -8,17 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
-import {
-  ActivatedRoute,
-  ParamMap,
-  Router,
-} from '@angular/router';
-import {
-  Subscription,
-  finalize,
-  forkJoin,
-  map,
-} from 'rxjs';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Subscription, finalize, forkJoin, map } from 'rxjs';
 import Swal from 'sweetalert2';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { parseUtcDate } from '../../../../shared/utils/date.utils';

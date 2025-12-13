@@ -139,7 +139,7 @@ export class PurchaseSaleDetailComponent implements OnInit, OnDestroy {
   }
 
   protected get vehicleDetailLink(): (string | number)[] {
-    if (!this.contract || !this.contract.vehicleId) {
+    if (!this.contract?.vehicleId) {
       return ['/vehicles'];
     }
     const summary = this.contract.vehicleSummary;

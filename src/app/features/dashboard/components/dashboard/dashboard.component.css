@@ -4,7 +4,11 @@
 
 .dashboard-page .card {
   background:
-    linear-gradient(180deg, rgba(var(--accent-rgb), 0.05), rgba(var(--accent-rgb), 0.02)),
+    linear-gradient(
+      180deg,
+      rgba(var(--accent-rgb), 0.05),
+      rgba(var(--accent-rgb), 0.02)
+    ),
     var(--surface);
   border-color: color-mix(in srgb, var(--border) 75%, var(--accent) 10%);
 }
@@ -148,7 +152,8 @@
 
 .contracted-item {
   padding: 0.5rem 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 80%, transparent 20%);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--border) 80%, transparent 20%);
 }
 
 .contracted-item:last-child {

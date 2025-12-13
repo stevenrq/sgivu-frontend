@@ -53,7 +53,9 @@
                 <span>Selecciona un segmento para pronosticar.</span>
               }
               @if (modelVersion) {
-                <span class="ms-2 badge text-bg-light border">Modelo {{ modelVersion }}</span>
+                <span class="ms-2 badge text-bg-light border"
+                  >Modelo {{ modelVersion }}</span
+                >
               } @else if (latestModel?.version) {
                 <span class="ms-2 badge text-bg-light border">
                   Modelo {{ latestModel?.version }}
@@ -64,12 +66,12 @@
           <div class="d-flex flex-wrap gap-2 align-items-center">
             @if (forecastMetrics?.mape !== undefined) {
               <span class="badge bg-primary-subtle text-primary">
-                MAPE {{ forecastMetrics?.mape | number: '1.1-2' }}
+                MAPE {{ forecastMetrics?.mape | number: "1.1-2" }}
               </span>
             }
             @if (forecastMetrics?.rmse !== undefined) {
               <span class="badge bg-secondary-subtle text-secondary">
-                RMSE {{ forecastMetrics?.rmse | number: '1.1-2' }}
+                RMSE {{ forecastMetrics?.rmse | number: "1.1-2" }}
               </span>
             }
             @if (salesHistoryCount > 0 && salesHistoryCount < 15) {
@@ -111,7 +113,10 @@
                 autocomplete="off"
                 [ngModelOptions]="{ standalone: true }"
               />
-              <div class="quick-search-dropdown" *ngIf="contractedVehicles.length > 0">
+              <div
+                class="quick-search-dropdown"
+                *ngIf="contractedVehicles.length > 0"
+              >
                 @for (
                   vehicle of contractedVehicles;
                   track vehicle.type + vehicle.id
@@ -123,7 +128,7 @@
                   >
                     <div>
                       <div class="fw-semibold">
-                        {{ vehicle.type === 'MOTORCYCLE' ? 'Moto' : 'Auto' }} ·
+                        {{ vehicle.type === "MOTORCYCLE" ? "Moto" : "Auto" }} ·
                         {{ vehicle.label }}
                         @if (vehicle.line) {
                           <span class="text-muted">({{ vehicle.line }})</span>
@@ -136,18 +141,20 @@
                         Contratos: {{ vehicle.contractsCount ?? 0 }}
                       </div>
                     </div>
-                    @if (quickVehicleLoading && quickVehicleTerm === vehicle.label) {
+                    @if (
+                      quickVehicleLoading && quickVehicleTerm === vehicle.label
+                    ) {
                       <span class="spinner-border spinner-border-sm"></span>
                     }
                   </button>
                 }
               </div>
             </div>
-              <div class="row g-2 align-items-end mt-2">
-                <div class="col-6 col-md-3">
-                  <label class="form-label small">Horizonte (meses)</label>
-                  <input
-                    type="number"
+            <div class="row g-2 align-items-end mt-2">
+              <div class="col-6 col-md-3">
+                <label class="form-label small">Horizonte (meses)</label>
+                <input
+                  type="number"
                   min="1"
                   max="24"
                   class="form-control"
@@ -182,13 +189,19 @@
             </div>
           }
           @if (retrainError) {
-            <div class="alert alert-danger d-flex align-items-center gap-2 mb-3" role="alert">
+            <div
+              class="alert alert-danger d-flex align-items-center gap-2 mb-3"
+              role="alert"
+            >
               <i class="bi bi-x-circle-fill"></i>
               <div>{{ retrainError }}</div>
             </div>
           }
           @if (retrainMessage) {
-            <div class="alert alert-success d-flex align-items-center gap-2 mb-3" role="alert">
+            <div
+              class="alert alert-success d-flex align-items-center gap-2 mb-3"
+              role="alert"
+            >
               <i class="bi bi-check-circle-fill"></i>
               <div>{{ retrainMessage }}</div>
             </div>
@@ -197,7 +210,10 @@
           <div class="chart-container position-relative">
             @if (predictionLoading) {
               <div class="chart-placeholder text-center text-muted">
-                <div class="spinner-border text-primary mb-2" role="status"></div>
+                <div
+                  class="spinner-border text-primary mb-2"
+                  role="status"
+                ></div>
                 <div>Entrenando y calculando pronóstico...</div>
               </div>
             } @else if (demandData) {
@@ -206,18 +222,19 @@
               >
                 <div class="text-muted small">
                   @if (latestModel?.trainedAt) {
-                    Último entrenamiento: {{ latestModel?.trainedAt | date: 'medium' }}
+                    Último entrenamiento:
+                    {{ latestModel?.trainedAt | date: "medium" }}
                   }
                 </div>
                 <div class="d-flex flex-wrap gap-2">
                   @if (forecastMetrics?.r2 !== undefined) {
                     <span class="badge text-bg-light border">
-                      R² {{ forecastMetrics?.r2 | number: '1.2-2' }}
+                      R² {{ forecastMetrics?.r2 | number: "1.2-2" }}
                     </span>
                   }
                   @if (forecastMetrics?.residual_std !== undefined) {
                     <span class="badge text-bg-light border">
-                      σ {{ forecastMetrics?.residual_std | number: '1.2-2' }}
+                      σ {{ forecastMetrics?.residual_std | number: "1.2-2" }}
                     </span>
                   }
                 </div>
@@ -232,7 +249,8 @@
               </canvas>
             } @else {
               <div class="chart-placeholder text-center text-muted">
-                Selecciona un vehículo en la búsqueda rápida y consulta para ver la predicción.
+                Selecciona un vehículo en la búsqueda rápida y consulta para ver
+                la predicción.
               </div>
             }
           </div>
@@ -336,38 +354,38 @@
         </div>
         <div class="card-body alerts-card__body">
           <div class="list-group alerts-list">
-          <a
-            href="#"
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
-          >
-            <div class="ms-2 me-auto">
-              <div class="fw-bold">Documentación por Vencer</div>
-              SOAT - Toyota Hilux (QWE-45Z)
-            </div>
-            <span class="badge bg-danger rounded-pill">Vence en 3 días</span>
-          </a>
-          <a
-            href="#"
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
-          >
-            <div class="ms-2 me-auto">
-              <div class="fw-bold">Mantenimiento Próximo</div>
-              Cambio de aceite - AKT NKD 125
-            </div>
-            <span class="badge bg-warning text-dark rounded-pill"
-              >Próxima semana</span
+            <a
+              href="#"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
             >
-          </a>
-          <a
-            href="#"
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
-          >
-            <div class="ms-2 me-auto">
-              <div class="fw-bold">Documentación por Vencer</div>
-              Tecnomecánica - Mazda 3 (RTY-00F)
-            </div>
-            <span class="badge bg-danger rounded-pill">Vence en 10 días</span>
-          </a>
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">Documentación por Vencer</div>
+                SOAT - Toyota Hilux (QWE-45Z)
+              </div>
+              <span class="badge bg-danger rounded-pill">Vence en 3 días</span>
+            </a>
+            <a
+              href="#"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
+            >
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">Mantenimiento Próximo</div>
+                Cambio de aceite - AKT NKD 125
+              </div>
+              <span class="badge bg-warning text-dark rounded-pill"
+                >Próxima semana</span
+              >
+            </a>
+            <a
+              href="#"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
+            >
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">Documentación por Vencer</div>
+                Tecnomecánica - Mazda 3 (RTY-00F)
+              </div>
+              <span class="badge bg-danger rounded-pill">Vence en 10 días</span>
+            </a>
           </div>
         </div>
       </div>

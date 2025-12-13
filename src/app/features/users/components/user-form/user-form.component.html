@@ -182,7 +182,8 @@
               }"
             />
             <label for="street"
-              ><i class="bi bi-signpost-split me-2"></i>Calle/Avenida/Carrera</label
+              ><i class="bi bi-signpost-split me-2"></i
+              >Calle/Avenida/Carrera</label
             >
             <div class="invalid-feedback">
               @if (street?.hasError("required")) {
@@ -221,8 +222,7 @@
               placeholder="Ciudad"
               formControlName="city"
               [ngClass]="{
-                'is-invalid':
-                  city?.invalid && (city?.dirty || city?.touched),
+                'is-invalid': city?.invalid && (city?.dirty || city?.touched),
               }"
             />
             <label for="city"><i class="bi bi-building me-2"></i>Ciudad</label>
@@ -284,8 +284,7 @@
                 formControlName="password"
                 [ngClass]="{
                   'is-invalid':
-                    password?.invalid &&
-                    (password?.dirty || password?.touched),
+                    password?.invalid && (password?.dirty || password?.touched),
                 }"
               />
               <button
@@ -294,9 +293,7 @@
                 (click)="togglePasswordVisibility()"
                 title="Mostrar/Ocultar contraseña"
               >
-                <i
-                  [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"
-                ></i>
+                <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
               </button>
             </div>
           </div>
