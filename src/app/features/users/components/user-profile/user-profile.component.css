@@ -35,8 +35,8 @@
 }
 
 .detail-status-pill-on-hero {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  font-weight: 600;
+  background-color: #1d3f8d;
+  color: #f7faff;
+  border: 1px solid color-mix(in srgb, #ffffff 35%, #1d3f8d 65%);
+  font-weight: 700;
 }
