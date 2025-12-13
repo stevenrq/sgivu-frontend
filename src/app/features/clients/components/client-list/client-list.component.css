@@ -63,8 +63,3 @@
   text-decoration: none;
   color: inherit;
 }
-
-.client-link:hover {
-  color: var(--accent);
-  text-decoration: underline;
-}

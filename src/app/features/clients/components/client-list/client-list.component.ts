@@ -33,6 +33,7 @@ import { Person } from '../../models/person.model.';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { RowNavigateDirective } from '../../../../shared/directives/row-navigate.directive';
 
 type ClientTab = 'person' | 'company';
 
@@ -90,6 +91,7 @@ interface ClientCountsResult<T extends ClientEntity = ClientEntity> {
     PageHeaderComponent,
     KpiCardComponent,
     DataTableComponent,
+    RowNavigateDirective,
   ],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.css',

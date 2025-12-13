@@ -307,7 +307,11 @@
           } @else {
             @if (activeTab === 'person') {
               @for (person of personState.items; track person.id) {
-                <tr>
+                <tr
+                  appRowNavigate
+                  [appRowNavigate]="['/clients/persons', person.id, 'detail']"
+                  [appRowNavigateDisabled]="activeState.loading"
+                >
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="avatar me-3">
@@ -315,12 +319,9 @@
                         }}{{ person.lastName.charAt(0) || "" }}
                       </div>
                       <div>
-                        <a
-                          class="client-link fw-semibold d-inline-flex flex-column"
-                          [routerLink]="['/clients/persons', person.id, 'detail']"
-                        >
+                        <span class="fw-semibold d-inline-flex flex-column">
                           <span>{{ person.firstName }} {{ person.lastName }}</span>
-                        </a>
+                        </span>
                         <div class="text-muted small">
                           <i class="bi bi-geo-alt me-1"></i>
                           {{ person.address.city || "Ciudad no definida" }}
@@ -397,19 +398,20 @@
               }
             } @else {
               @for (company of companyState.items; track company.id) {
-                <tr>
+                <tr
+                  appRowNavigate
+                  [appRowNavigate]="['/clients/companies', company.id, 'detail']"
+                  [appRowNavigateDisabled]="activeState.loading"
+                >
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="avatar me-3">
                         {{ company.companyName.charAt(0) || "E" }}
                       </div>
                       <div>
-                        <a
-                          class="client-link fw-semibold d-inline-flex flex-column"
-                          [routerLink]="['/clients/companies', company.id, 'detail']"
-                        >
+                        <span class="fw-semibold d-inline-flex flex-column">
                           <span>{{ company.companyName }}</span>
-                        </a>
+                        </span>
                         <div class="text-muted small">
                           <i class="bi bi-geo-alt me-1"></i>
                           {{ company.address.city || "Ciudad no definida" }}
