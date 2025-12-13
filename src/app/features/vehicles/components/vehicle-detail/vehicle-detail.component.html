@@ -1,20 +1,29 @@
 <div class="container detail-container mt-5 mb-5">
   @if (isLoading) {
     <div class="text-center py-5">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem">
+      <div
+        class="spinner-border text-primary"
+        style="width: 3rem; height: 3rem"
+      >
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="mt-3">Cargando información del vehículo...</p>
     </div>
   } @else if (errorMessage) {
     <div class="alert alert-danger" role="alert">
-      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+      <div
+        class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3"
+      >
         <div>
           <h5 class="alert-heading mb-1">Error al cargar el vehículo</h5>
           <p class="mb-0">{{ errorMessage }}</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <button class="btn btn-outline-danger" type="button" (click)="reload()">
+          <button
+            class="btn btn-outline-danger"
+            type="button"
+            (click)="reload()"
+          >
             <i class="bi bi-arrow-clockwise me-2"></i>Reintentar
           </button>
           <a class="btn btn-primary" [routerLink]="inventoryLink">
@@ -42,7 +51,9 @@
           <span class="badge detail-status-pill detail-status-pill-on-hero">
             {{ statusLabel(vehicle.status) }}
           </span>
-          <span class="badge rounded-pill bg-light text-dark detail-status-pill">
+          <span
+            class="badge rounded-pill bg-light text-dark detail-status-pill"
+          >
             {{ vehicle.year }} · {{ vehicle.cityRegistered }}
           </span>
         </div>
@@ -62,7 +73,11 @@
                       class="gallery-item"
                       [class.gallery-item-primary]="image.primary"
                     >
-                      <img [src]="image.url" alt="Imagen del vehículo" loading="lazy" />
+                      <img
+                        [src]="image.url"
+                        alt="Imagen del vehículo"
+                        loading="lazy"
+                      />
                       @if (image.primary) {
                         <figcaption class="gallery-badge">
                           <i class="bi bi-star-fill me-1"></i>Principal
@@ -109,19 +124,23 @@
                 <div class="col-md-6">
                   <p class="detail-info-label">Ciudad de registro</p>
                   <p class="detail-info-value">
-                    <i class="bi bi-geo-alt-fill"></i>{{ vehicle.cityRegistered }}
+                    <i class="bi bi-geo-alt-fill"></i
+                    >{{ vehicle.cityRegistered }}
                   </p>
                 </div>
                 <div class="col-md-6">
                   <p class="detail-info-label">Placa</p>
                   <p class="detail-info-value">
-                    <span class="badge bg-primary detail-chip">{{ vehicle.plate }}</span>
+                    <span class="badge bg-primary detail-chip">{{
+                      vehicle.plate
+                    }}</span>
                   </p>
                 </div>
                 <div class="col-md-6">
                   <p class="detail-info-label">Capacidad</p>
                   <p class="detail-info-value">
-                    <i class="bi bi-people-fill"></i>{{ vehicle.capacity }} pasajeros
+                    <i class="bi bi-people-fill"></i
+                    >{{ vehicle.capacity }} pasajeros
                   </p>
                 </div>
               </div>
@@ -141,7 +160,8 @@
                 <div class="col-md-6">
                   <p class="detail-info-label">Kilometraje</p>
                   <p class="detail-info-value">
-                    <i class="bi bi-speedometer2"></i>{{ vehicle.mileage | number: '1.0-0' }} km
+                    <i class="bi bi-speedometer2"></i
+                    >{{ vehicle.mileage | number: "1.0-0" }} km
                   </p>
                 </div>
                 <div class="col-md-6">
@@ -167,12 +187,16 @@
                   </div>
                   <div class="col-md-6">
                     <p class="detail-info-label">Número de puertas</p>
-                    <p class="detail-info-value">{{ currentCar.numberOfDoors }}</p>
+                    <p class="detail-info-value">
+                      {{ currentCar.numberOfDoors }}
+                    </p>
                   </div>
                 } @else if (isMotorcycle && currentMotorcycle) {
                   <div class="col-md-6">
                     <p class="detail-info-label">Tipo de motocicleta</p>
-                    <p class="detail-info-value">{{ currentMotorcycle.motorcycleType }}</p>
+                    <p class="detail-info-value">
+                      {{ currentMotorcycle.motorcycleType }}
+                    </p>
                   </div>
                 }
               </div>
@@ -254,8 +278,8 @@
                 ></i>
                 {{
                   vehicle.status === VehicleStatus.INACTIVE
-                    ? 'Activar vehículo'
-                    : 'Desactivar vehículo'
+                    ? "Activar vehículo"
+                    : "Desactivar vehículo"
                 }}
               </button>
               <a class="btn btn-outline-secondary" [routerLink]="inventoryLink">
@@ -315,7 +339,9 @@
                 <ul class="history-timeline">
                   @for (
                     contract of purchaseHistory;
-                    track contract.id ?? contract.createdAt ?? contract.updatedAt
+                    track contract.id ??
+                      contract.createdAt ??
+                      contract.updatedAt
                   ) {
                     <li class="history-item">
                       <div
@@ -358,7 +384,10 @@
                           {{ historyAmountLabel(contract) }}
                         </p>
                         <ng-container
-                          *ngIf="historyAmount(contract) as amount; else noAmount"
+                          *ngIf="
+                            historyAmount(contract) as amount;
+                            else noAmount
+                          "
                         >
                           <p class="detail-info-value mb-1">
                             {{ amount | copCurrency }}

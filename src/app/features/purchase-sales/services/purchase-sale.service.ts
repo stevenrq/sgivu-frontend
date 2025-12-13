@@ -150,7 +150,10 @@ export class PurchaseSaleService {
    * @param endDate Fecha final (opcional).
    * @returns Observable con el archivo PDF.
    */
-  downloadPdf(startDate?: string | null, endDate?: string | null): Observable<Blob> {
+  downloadPdf(
+    startDate?: string | null,
+    endDate?: string | null,
+  ): Observable<Blob> {
     const params = this.buildReportParams(startDate, endDate);
     return this.http.get<Blob>(`${this.apiUrl}/report/pdf`, {
       params,
@@ -164,7 +167,10 @@ export class PurchaseSaleService {
    * @param endDate Fecha final (opcional).
    * @returns Observable con el archivo Excel.
    */
-  downloadExcel(startDate?: string | null, endDate?: string | null): Observable<Blob> {
+  downloadExcel(
+    startDate?: string | null,
+    endDate?: string | null,
+  ): Observable<Blob> {
     const params = this.buildReportParams(startDate, endDate);
     return this.http.get<Blob>(`${this.apiUrl}/report/excel`, {
       params,
@@ -178,7 +184,10 @@ export class PurchaseSaleService {
    * @param endDate Fecha final (opcional).
    * @returns Observable con el archivo CSV.
    */
-  downloadCsv(startDate?: string | null, endDate?: string | null): Observable<Blob> {
+  downloadCsv(
+    startDate?: string | null,
+    endDate?: string | null,
+  ): Observable<Blob> {
     const params = this.buildReportParams(startDate, endDate);
     return this.http.get<Blob>(`${this.apiUrl}/report/csv`, {
       params,
@@ -190,7 +199,10 @@ export class PurchaseSaleService {
    * Construye parámetros opcionales para reportes; solo se envían fechas
    * válidas para no afectar el cache del endpoint.
    */
-  private buildReportParams(startDate?: string | null, endDate?: string | null): HttpParams {
+  private buildReportParams(
+    startDate?: string | null,
+    endDate?: string | null,
+  ): HttpParams {
     let params = new HttpParams();
     if (startDate) {
       params = params.set('startDate', startDate);

@@ -8,13 +8,17 @@
         alt="Foto de Perfil"
         class="detail-avatar mb-3"
       />
-      <h1 class="detail-title detail-hero-title">{{ user.firstName }} {{ user.lastName }}</h1>
-      <p class="detail-subtitle detail-hero-subtitle">&#64;{{ user.username }}</p>
+      <h1 class="detail-title detail-hero-title">
+        {{ user.firstName }} {{ user.lastName }}
+      </h1>
+      <p class="detail-subtitle detail-hero-subtitle">
+        &#64;{{ user.username }}
+      </p>
       <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
         <span
           class="badge rounded-pill detail-status-pill detail-status-pill-on-hero"
         >
-          {{ user.enabled ? 'Activo' : 'Inactivo' }}
+          {{ user.enabled ? "Activo" : "Inactivo" }}
         </span>
         <span class="badge bg-light text-dark detail-status-pill">
           Roles: {{ user.roles?.size || 0 }}
@@ -62,31 +66,31 @@
             </div>
           </div>
         </div>
-          <div class="card detail-card mb-4">
-            <div class="card-header detail-card-header">
-              <i class="bi bi-briefcase me-2"></i>Resumen operativo
-            </div>
-            <div class="card-body detail-card-body">
-              <div class="row g-3">
-                <div class="col-sm-6">
-                  <p class="detail-info-label">Email</p>
-                  <p class="detail-info-value mb-0">{{ user.email }}</p>
-                </div>
-                <div class="col-sm-6">
-                  <p class="detail-info-label">Teléfono</p>
-                  <p class="detail-info-value mb-0">{{ user.phoneNumber }}</p>
-                </div>
-                <div class="col-sm-6">
-                  <p class="detail-info-label">Usuario interno</p>
-                  <p class="detail-info-value mb-0">{{ user.username }}</p>
-                </div>
-                <div class="col-sm-6">
-                  <p class="detail-info-label">Documento</p>
-                  <p class="detail-info-value mb-0">{{ user.nationalId }}</p>
-                </div>
+        <div class="card detail-card mb-4">
+          <div class="card-header detail-card-header">
+            <i class="bi bi-briefcase me-2"></i>Resumen operativo
+          </div>
+          <div class="card-body detail-card-body">
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <p class="detail-info-label">Email</p>
+                <p class="detail-info-value mb-0">{{ user.email }}</p>
+              </div>
+              <div class="col-sm-6">
+                <p class="detail-info-label">Teléfono</p>
+                <p class="detail-info-value mb-0">{{ user.phoneNumber }}</p>
+              </div>
+              <div class="col-sm-6">
+                <p class="detail-info-label">Usuario interno</p>
+                <p class="detail-info-value mb-0">{{ user.username }}</p>
+              </div>
+              <div class="col-sm-6">
+                <p class="detail-info-label">Documento</p>
+                <p class="detail-info-value mb-0">{{ user.nationalId }}</p>
               </div>
             </div>
           </div>
+        </div>
 
         <div class="card detail-card mb-4">
           <div class="card-header detail-card-header">
@@ -163,16 +167,16 @@
                 <i class="bi bi-receipt me-2"></i>Ver contratos
               </a>
               <button
-                [ngClass]="user.enabled ? 'btn-outline-danger' : 'btn-outline-success'"
+                [ngClass]="
+                  user.enabled ? 'btn-outline-danger' : 'btn-outline-success'
+                "
                 class="btn"
                 (click)="updateStatus(user.id, !user.enabled)"
                 *appHasPermission="'user:update'"
               >
                 <i
                   class="bi me-2"
-                  [ngClass]="
-                    user.enabled ? 'bi-toggle-off' : 'bi-toggle-on'
-                  "
+                  [ngClass]="user.enabled ? 'bi-toggle-off' : 'bi-toggle-on'"
                 ></i
                 >{{ user.enabled ? "Desactivar usuario" : "Activar usuario" }}
               </button>

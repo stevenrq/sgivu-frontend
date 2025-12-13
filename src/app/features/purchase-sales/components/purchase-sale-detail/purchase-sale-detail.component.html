@@ -56,7 +56,9 @@
                     <i class="bi bi-truck text-success"></i>
                     <div>
                       <div class="fw-semibold">{{ vehicleLabel }}</div>
-                      <small class="text-muted">ID: {{ contract.vehicleId || '—' }}</small>
+                      <small class="text-muted"
+                        >ID: {{ contract.vehicleId || "—" }}</small
+                      >
                     </div>
                   </div>
                 </div>
@@ -68,7 +70,9 @@
                     <i class="bi bi-person-workspace text-info"></i>
                     <div>
                       <div class="fw-semibold">{{ userName }}</div>
-                      <small class="text-muted">Usuario #{{ contract.userId }}</small>
+                      <small class="text-muted"
+                        >Usuario #{{ contract.userId }}</small
+                      >
                     </div>
                   </div>
                 </div>
@@ -150,7 +154,7 @@
           </div>
           <div class="card-body detail-card-body">
             <p class="mb-0">
-              {{ contract.observations || 'No se registraron observaciones.' }}
+              {{ contract.observations || "No se registraron observaciones." }}
             </p>
           </div>
         </div>
@@ -189,7 +193,10 @@
                   <i class="bi bi-truck-front me-2"></i>Ver vehículo
                 </a>
               }
-              <a class="btn btn-outline-secondary" routerLink="/purchase-sales/page/0">
+              <a
+                class="btn btn-outline-secondary"
+                routerLink="/purchase-sales/page/0"
+              >
                 <i class="bi bi-arrow-left me-2"></i>Volver al listado
               </a>
             </div>

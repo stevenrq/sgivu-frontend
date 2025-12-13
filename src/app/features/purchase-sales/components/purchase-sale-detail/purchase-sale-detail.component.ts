@@ -13,12 +13,7 @@ import { UtcToGmtMinus5Pipe } from '../../../../shared/pipes/utc-to-gmt-minus5.p
 @Component({
   selector: 'app-purchase-sale-detail',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    CopCurrencyPipe,
-    UtcToGmtMinus5Pipe,
-  ],
+  imports: [CommonModule, RouterLink, CopCurrencyPipe, UtcToGmtMinus5Pipe],
   templateUrl: './purchase-sale-detail.component.html',
   styleUrls: [
     '../../../../shared/styles/entity-detail-page.css',
@@ -103,21 +98,29 @@ export class PurchaseSaleDetailComponent implements OnInit, OnDestroy {
     if (!this.contract) {
       return '';
     }
-    return this.typeLabels[this.contract.contractType] ?? this.contract.contractType;
+    return (
+      this.typeLabels[this.contract.contractType] ?? this.contract.contractType
+    );
   }
 
   get statusLabel(): string {
     if (!this.contract) {
       return '';
     }
-    return this.statusLabels[this.contract.contractStatus] ?? this.contract.contractStatus;
+    return (
+      this.statusLabels[this.contract.contractStatus] ??
+      this.contract.contractStatus
+    );
   }
 
   get paymentMethodLabel(): string {
     if (!this.contract) {
       return '';
     }
-    return this.paymentLabels[this.contract.paymentMethod] ?? this.contract.paymentMethod;
+    return (
+      this.paymentLabels[this.contract.paymentMethod] ??
+      this.contract.paymentMethod
+    );
   }
 
   protected get clientDetailLink(): (string | number)[] {
