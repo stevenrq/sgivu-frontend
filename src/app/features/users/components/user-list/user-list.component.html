@@ -229,6 +229,14 @@
                     <li>
                       <a
                         class="dropdown-item"
+                        [routerLink]="['/users/profile', user.id]"
+                      >
+                        <i class="bi bi-eye me-2"></i>Ver detalle
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        class="dropdown-item"
                         [routerLink]="['/users', user.id]"
                       >
                         <i class="bi bi-pencil-square me-2"></i>Editar

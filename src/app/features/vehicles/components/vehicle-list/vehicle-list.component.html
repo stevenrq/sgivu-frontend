@@ -552,6 +552,14 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li>
                         <a
+                          [routerLink]="['/vehicles/cars', car.id, 'details']"
+                          class="dropdown-item"
+                        >
+                          <i class="bi bi-eye me-2"></i>Ver detalle
+                        </a>
+                      </li>
+                      <li>
+                        <a
                           [routerLink]="['/vehicles/cars', car.id]"
                           class="dropdown-item"
                         >
@@ -642,6 +650,18 @@
                       <i class="bi bi-three-dots"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <a
+                          [routerLink]="[
+                            '/vehicles/motorcycles',
+                            motorcycle.id,
+                            'details',
+                          ]"
+                          class="dropdown-item"
+                        >
+                          <i class="bi bi-eye me-2"></i>Ver detalle
+                        </a>
+                      </li>
                       <li>
                         <a
                           [routerLink]="[
