@@ -34,6 +34,7 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import { CopCurrencyPipe } from '../../../../shared/pipes/cop-currency.pipe';
+import { RowNavigateDirective } from '../../../../shared/directives/row-navigate.directive';
 import { normalizeMoneyInput } from '../../../../shared/utils/currency.utils';
 
 type VehicleTab = 'car' | 'motorcycle';
@@ -80,6 +81,7 @@ interface VehicleFallbackResult<T extends VehicleEntity> {
     KpiCardComponent,
     DataTableComponent,
     CopCurrencyPipe,
+    RowNavigateDirective,
   ],
   templateUrl: './vehicle-list.component.html',
   styleUrl: './vehicle-list.component.css',

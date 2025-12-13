@@ -65,6 +65,10 @@
     background-color var(--transition);
 }
 
+.table-container tbody tr.row-navigate {
+  cursor: pointer;
+}
+
 .table-container tbody tr:focus-within,
 .table-container tbody tr:has(.dropdown-menu.show) {
   z-index: 5;

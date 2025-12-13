@@ -402,9 +402,7 @@
                 >Precio mínimo</label
               >
               <input
-                (ngModelChange)="
-                  onMotorcyclePriceInput('minSalePrice', $event)
-                "
+                (ngModelChange)="onMotorcyclePriceInput('minSalePrice', $event)"
                 [ngModel]="motorcyclePriceInputs.minSalePrice"
                 class="form-control form-control-sm"
                 id="motoMinPrice"
@@ -419,9 +417,7 @@
                 >Precio máximo</label
               >
               <input
-                (ngModelChange)="
-                  onMotorcyclePriceInput('maxSalePrice', $event)
-                "
+                (ngModelChange)="onMotorcyclePriceInput('maxSalePrice', $event)"
                 [ngModel]="motorcyclePriceInputs.maxSalePrice"
                 class="form-control form-control-sm"
                 id="motoMaxPrice"
@@ -510,23 +506,17 @@
               </tr>
             }
             @for (car of carState.items; track car.id) {
-              <tr>
-                <td class="fw-semibold">
-                  <a
-                    [routerLink]="['/vehicles/cars', car.id, 'details']"
-                    class="vehicle-link fw-semibold"
-                  >
-                    {{ car.plate }}
-                  </a>
-                </td>
+              <tr
+                appRowNavigate
+                [appRowNavigate]="['/vehicles/cars', car.id, 'details']"
+                [appRowNavigateDisabled]="activeState.loading"
+              >
+                <td class="fw-semibold">{{ car.plate }}</td>
                 <td>
-                  <a
-                    [routerLink]="['/vehicles/cars', car.id, 'details']"
-                    class="vehicle-link d-inline-flex flex-column"
-                  >
+                  <span class="d-inline-flex flex-column">
                     <span class="fw-semibold">{{ car.brand }}</span>
                     <small class="text-muted">{{ car.line }}</small>
-                  </a>
+                  </span>
                 </td>
                 <td>{{ car.model }}</td>
                 <td>{{ car.capacity }} pasajeros</td>
@@ -603,23 +593,21 @@
               </tr>
             }
             @for (motorcycle of motorcycleState.items; track motorcycle.id) {
-              <tr>
-                <td class="fw-semibold">
-                  <a
-                    [routerLink]="['/vehicles/motorcycles', motorcycle.id, 'details']"
-                    class="vehicle-link fw-semibold"
-                  >
-                    {{ motorcycle.plate }}
-                  </a>
-                </td>
+              <tr
+                appRowNavigate
+                [appRowNavigate]="[
+                  '/vehicles/motorcycles',
+                  motorcycle.id,
+                  'details',
+                ]"
+                [appRowNavigateDisabled]="activeState.loading"
+              >
+                <td class="fw-semibold">{{ motorcycle.plate }}</td>
                 <td>
-                  <a
-                    [routerLink]="['/vehicles/motorcycles', motorcycle.id, 'details']"
-                    class="vehicle-link d-inline-flex flex-column"
-                  >
+                  <span class="d-inline-flex flex-column">
                     <span class="fw-semibold">{{ motorcycle.brand }}</span>
                     <small class="text-muted">{{ motorcycle.line }}</small>
-                  </a>
+                  </span>
                 </td>
                 <td>{{ motorcycle.model }}</td>
                 <td>{{ motorcycle.motorcycleType }}</td>
