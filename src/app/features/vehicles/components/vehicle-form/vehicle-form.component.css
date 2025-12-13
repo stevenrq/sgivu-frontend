@@ -3,6 +3,17 @@
   margin: 0 auto;
 }
 
+.vehicle-form-page {
+  background: transparent;
+  overflow-y: auto;
+}
+
+.vehicle-form-card {
+  border: 1px solid var(--border) !important;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
 .card {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -28,12 +39,13 @@
   color: var(--muted);
 }
 
-.card-body {
-  padding: 2rem;
+.vehicle-form-footer {
+  background: var(--surface);
+  border-color: var(--border);
 }
 
-.form-floating > label {
-  color: var(--muted);
+.card-body {
+  padding: 2rem;
 }
 
 .form-floating .form-control:focus,
@@ -48,10 +60,15 @@
 }
 
 fieldset {
-  border: 1px dashed var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem 1.1rem;
+  background: var(--surface);
 }
 
 legend {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--muted);
 }
 

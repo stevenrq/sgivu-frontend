@@ -419,13 +419,18 @@ h6 {
 
 .form-floating {
   position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
 }
 
 .form-floating > label {
   position: static;
   transform: none !important;
   inset: auto !important;
-  margin-bottom: 0.35rem;
+  margin: 0;
   color: var(--text);
   background: transparent;
   padding: 0;
@@ -433,6 +438,7 @@ h6 {
   font-weight: 700;
   line-height: 1.2;
   z-index: auto;
+  order: -1;
 }
 
 .form-floating > .form-control:focus ~ label,
@@ -460,18 +466,11 @@ h6 {
 
 .floating-google .form-floating {
   position: static;
-  margin-bottom: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.35rem;
 }
 
 .floating-google .form-floating label {
-  order: -1;
   position: static;
   transform: none;
-  margin-bottom: 0.25rem;
   color: var(--text);
   pointer-events: auto;
   font-weight: 700;

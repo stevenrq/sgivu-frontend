@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe, NgClass, NgForOf, NgIf } from '@angular/common';
+import { FormShellComponent } from '../../../../shared/components/form-shell/form-shell.component';
 import { finalize, firstValueFrom, Observable, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import {
@@ -35,7 +36,14 @@ type MotorcyclePayload = Omit<Motorcycle, 'id'> &
 @Component({
   selector: 'app-vehicle-form',
   standalone: true,
-  imports: [ReactiveFormsModule, NgClass, NgIf, NgForOf, DecimalPipe],
+  imports: [
+    ReactiveFormsModule,
+    NgClass,
+    NgIf,
+    NgForOf,
+    DecimalPipe,
+    FormShellComponent,
+  ],
   templateUrl: './vehicle-form.component.html',
   styleUrl: './vehicle-form.component.css',
 })
