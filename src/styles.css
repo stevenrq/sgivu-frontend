@@ -3,7 +3,7 @@
 /* Tema claro: define tokens base para el modo luz y sirven como fallback global */
 :root {
   color-scheme: light;
-  --bg-page: #f4f6fb;
+  --bg-page: #fff;
   --surface: #ffffff;
   --surface-muted: #f0f4ff;
   --text: #0f172a;
