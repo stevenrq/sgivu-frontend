@@ -41,10 +41,10 @@
           class="detail-avatar client-avatar mb-3"
           loading="lazy"
         />
-        <h1 class="detail-title">{{ heroTitle }}</h1>
-        <p class="detail-subtitle">{{ heroSubtitle }}</p>
+        <h1 class="detail-title detail-hero-title">{{ heroTitle }}</h1>
+        <p class="detail-subtitle detail-hero-subtitle">{{ heroSubtitle }}</p>
         <div class="mt-3 d-flex flex-wrap justify-content-center gap-2">
-          <span class="badge detail-status-pill" [ngClass]="statusBadgeClass">
+          <span class="badge detail-status-pill detail-status-pill-on-hero">
             {{ statusLabel }}
           </span>
           <span
@@ -223,6 +223,13 @@
                 *appHasPermission="updatePermission"
               >
                 <i class="bi bi-pencil-square me-2"></i>Editar cliente
+              </a>
+              <a
+                class="btn btn-outline-primary"
+                [routerLink]="'/purchase-sales/page/0'"
+                [queryParams]="{ clientId: entity.id }"
+              >
+                <i class="bi bi-receipt me-2"></i>Ver contratos
               </a>
               <button
                 class="btn"

@@ -120,6 +120,33 @@ export class PurchaseSaleDetailComponent implements OnInit, OnDestroy {
     return this.paymentLabels[this.contract.paymentMethod] ?? this.contract.paymentMethod;
   }
 
+  protected get clientDetailLink(): (string | number)[] {
+    if (!this.contract) {
+      return ['/clients'];
+    }
+    const summary = this.contract.clientSummary;
+    const type = summary?.type?.toLowerCase();
+    if (type === 'company') {
+      return ['/clients/companies', this.contract.clientId, 'detail'];
+    }
+    if (type === 'person') {
+      return ['/clients/persons', this.contract.clientId, 'detail'];
+    }
+    return ['/clients'];
+  }
+
+  protected get vehicleDetailLink(): (string | number)[] {
+    if (!this.contract || !this.contract.vehicleId) {
+      return ['/vehicles'];
+    }
+    const summary = this.contract.vehicleSummary;
+    const type = summary?.type?.toLowerCase();
+    if (type === 'motorcycle') {
+      return ['/vehicles/motorcycles', this.contract.vehicleId, 'details'];
+    }
+    return ['/vehicles/cars', this.contract.vehicleId, 'details'];
+  }
+
   private loadContract(id: number): void {
     this.loading = true;
     this.error = null;

@@ -17,13 +17,13 @@
 } @else if (contract) {
   <div class="container detail-container mt-5 mb-5">
     <div class="detail-header text-center">
-      <h1 class="detail-title">{{ typeLabel }}</h1>
-      <p class="detail-subtitle">
+      <h1 class="detail-title detail-hero-title">{{ typeLabel }}</h1>
+      <p class="detail-subtitle detail-hero-subtitle">
         Contrato #{{ contract.id }} · Última actualización:
         {{ contract.updatedAt | utcToGmtMinus5 }}
       </p>
       <div class="mt-3 d-flex flex-wrap justify-content-center gap-2">
-        <span class="badge detail-status-pill" [ngClass]="statusBadgeClass">
+        <span class="badge detail-status-pill detail-status-pill-on-hero">
           {{ statusLabel }}
         </span>
         <span class="badge rounded-pill bg-light text-dark detail-status-pill">
@@ -34,6 +34,49 @@
 
     <div class="row g-4">
       <div class="col-lg-8">
+        <div class="card detail-card mb-4">
+          <div class="card-body detail-card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="meta-chip">
+                  <p class="meta-label mb-1">Cliente</p>
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-circle text-primary"></i>
+                    <div>
+                      <div class="fw-semibold">{{ clientName }}</div>
+                      <small class="text-muted">{{ clientIdentifier }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="meta-chip">
+                  <p class="meta-label mb-1">Vehículo</p>
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-truck text-success"></i>
+                    <div>
+                      <div class="fw-semibold">{{ vehicleLabel }}</div>
+                      <small class="text-muted">ID: {{ contract.vehicleId || '—' }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="meta-chip">
+                  <p class="meta-label mb-1">Responsable</p>
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-workspace text-info"></i>
+                    <div>
+                      <div class="fw-semibold">{{ userName }}</div>
+                      <small class="text-muted">Usuario #{{ contract.userId }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card detail-card mb-4">
           <div class="card-header detail-card-header">
             <i class="bi bi-currency-dollar me-2"></i>Valores del contrato
@@ -116,6 +159,45 @@
       <div class="col-lg-4">
         <div class="card detail-card mb-4">
           <div class="card-header detail-card-header">
+            <i class="bi bi-lightning-charge me-2"></i>Acciones rápidas
+          </div>
+          <div class="card-body detail-card-body detail-actions">
+            <div class="d-grid gap-2">
+              <a
+                class="btn btn-primary"
+                [routerLink]="['/purchase-sales/register']"
+              >
+                <i class="bi bi-plus-circle me-2"></i>Registrar nuevo contrato
+              </a>
+              <a
+                class="btn btn-outline-primary"
+                [routerLink]="clientDetailLink"
+              >
+                <i class="bi bi-person-lines-fill me-2"></i>Ver cliente
+              </a>
+              <a
+                class="btn btn-outline-primary"
+                [routerLink]="['/users/profile', contract.userId]"
+              >
+                <i class="bi bi-person-workspace me-2"></i>Ver usuario
+              </a>
+              @if (contract.vehicleId) {
+                <a
+                  class="btn btn-outline-primary"
+                  [routerLink]="vehicleDetailLink"
+                >
+                  <i class="bi bi-truck-front me-2"></i>Ver vehículo
+                </a>
+              }
+              <a class="btn btn-outline-secondary" routerLink="/purchase-sales/page/0">
+                <i class="bi bi-arrow-left me-2"></i>Volver al listado
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card detail-card">
+          <div class="card-header detail-card-header">
             <i class="bi bi-info-circle me-2"></i>Información general
           </div>
           <div class="card-body detail-card-body">
@@ -137,23 +219,6 @@
             <p class="detail-info-value">
               {{ contract.updatedAt | utcToGmtMinus5 }}
             </p>
-          </div>
-        </div>
-
-        <div class="card detail-card">
-          <div class="card-header detail-card-header">
-            <i class="bi bi-gear me-2"></i>Acciones
-          </div>
-          <div class="card-body detail-card-body detail-actions">
-            <a class="btn btn-outline-primary" routerLink="/purchase-sales/page/0">
-              <i class="bi bi-arrow-left me-2"></i>Volver al listado
-            </a>
-            <a
-              class="btn btn-primary"
-              [routerLink]="['/purchase-sales/register']"
-            >
-              <i class="bi bi-plus-circle me-2"></i>Registrar nuevo contrato
-            </a>
           </div>
         </div>
       </div>

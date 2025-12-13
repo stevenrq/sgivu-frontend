@@ -140,6 +140,7 @@ export class PurchaseSaleService {
    * @returns Observable con el contrato hallado.
    */
   getById(id: number): Observable<PurchaseSale> {
+    // El endpoint principal ya devuelve el detalle enriquecido (cliente/usuario/vehículo)
     return this.http.get<PurchaseSale>(`${this.apiUrl}/${id}`);
   }
 

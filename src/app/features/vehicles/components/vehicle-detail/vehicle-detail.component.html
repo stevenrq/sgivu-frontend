@@ -32,15 +32,14 @@
           class="detail-avatar vehicle-avatar mb-3"
           loading="lazy"
         />
-        <h1 class="detail-title">
+        <h1 class="detail-title detail-hero-title">
           {{ vehicle.brand }} {{ vehicle.line }} {{ vehicle.model }}
         </h1>
-        <p class="detail-subtitle">Placa {{ vehicle.plate }} · {{ typeLabel }}</p>
+        <p class="detail-subtitle detail-hero-subtitle">
+          Placa {{ vehicle.plate }} · {{ typeLabel }}
+        </p>
         <div class="mt-3 d-flex flex-wrap justify-content-center gap-2">
-          <span
-            class="badge detail-status-pill"
-            [ngClass]="statusBadgeClass(vehicle.status)"
-          >
+          <span class="badge detail-status-pill detail-status-pill-on-hero">
             {{ statusLabel(vehicle.status) }}
           </span>
           <span class="badge rounded-pill bg-light text-dark detail-status-pill">
@@ -217,34 +216,7 @@
         <div class="col-lg-4">
           <div class="card detail-card mb-4">
             <div class="card-header detail-card-header">
-              <i class="bi bi-journal-text me-2"></i>Resumen
-            </div>
-            <div class="card-body detail-card-body">
-              <div class="summary-item">
-                <p class="detail-info-label mb-1">Tipo</p>
-                <p class="detail-info-value mb-2">{{ typeLabel }}</p>
-              </div>
-              <div class="summary-item">
-                <p class="detail-info-label mb-1">Estado</p>
-                <p class="detail-info-value">
-                  <span
-                    class="badge detail-status-pill"
-                    [ngClass]="statusBadgeClass(vehicle.status)"
-                  >
-                    {{ statusLabel(vehicle.status) }}
-                  </span>
-                </p>
-              </div>
-              <div class="summary-item">
-                <p class="detail-info-label mb-1">Ciudad</p>
-                <p class="detail-info-value">{{ vehicle.cityRegistered }}</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="card detail-card mb-4">
-            <div class="card-header detail-card-header">
-              <i class="bi bi-gear-fill me-2"></i>Acciones
+              <i class="bi bi-lightning-charge me-2"></i>Acciones rápidas
             </div>
             <div class="card-body detail-card-body detail-actions">
               <a
@@ -254,12 +226,19 @@
               >
                 <i class="bi bi-pencil-square me-2"></i>Editar vehículo
               </a>
+              <a
+                class="btn btn-outline-primary"
+                [routerLink]="'/purchase-sales/page/0'"
+                [queryParams]="{ vehicleId: vehicle.id }"
+              >
+                <i class="bi bi-receipt me-2"></i>Ver contratos
+              </a>
               <button
                 *appHasPermission="updatePermission"
                 class="btn"
                 [ngClass]="
                   vehicle.status === VehicleStatus.INACTIVE
-                    ? 'btn-success'
+                    ? 'btn-outline-success'
                     : 'btn-outline-danger'
                 "
                 type="button"
@@ -282,6 +261,33 @@
               <a class="btn btn-outline-secondary" [routerLink]="inventoryLink">
                 <i class="bi bi-box-arrow-in-left me-2"></i>Volver al inventario
               </a>
+            </div>
+          </div>
+
+          <div class="card detail-card mb-4">
+            <div class="card-header detail-card-header">
+              <i class="bi bi-journal-text me-2"></i>Resumen
+            </div>
+            <div class="card-body detail-card-body">
+              <div class="summary-item">
+                <p class="detail-info-label mb-1">Tipo</p>
+                <p class="detail-info-value mb-2">{{ typeLabel }}</p>
+              </div>
+              <div class="summary-item">
+                <p class="detail-info-label mb-1">Estado</p>
+                <p class="detail-info-value">
+                  <span
+                    class="badge detail-status-pill"
+                    [ngClass]="statusBadgeClass(vehicle.status)"
+                  >
+                    {{ statusLabel(vehicle.status) }}
+                  </span>
+                </p>
+              </div>
+              <div class="summary-item">
+                <p class="detail-info-label mb-1">Ciudad</p>
+                <p class="detail-info-value">{{ vehicle.cityRegistered }}</p>
+              </div>
             </div>
           </div>
 

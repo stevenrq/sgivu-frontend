@@ -47,3 +47,18 @@
 .detail-status-pill-inactive {
   background-color: #dc3545 !important;
 }
+
+.detail-hero-title {
+  color: #fff;
+}
+
+.detail-hero-subtitle {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.detail-status-pill-on-hero {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  font-weight: 600;
+}
