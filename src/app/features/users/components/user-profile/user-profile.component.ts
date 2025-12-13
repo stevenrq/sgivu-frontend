@@ -44,10 +44,10 @@ export class UserProfileComponent implements OnInit {
       const idString = params.get('id');
       if (idString) {
         const id = Number(idString);
-        if (!isNaN(id)) {
-          this.loadUserData(id);
-        } else {
+        if (Number.isNaN(id)) {
           this.router.navigateByUrl('/users');
+        } else {
+          this.loadUserData(id);
         }
       } else {
         this.authService.currentAuthenticatedUser$.subscribe({
