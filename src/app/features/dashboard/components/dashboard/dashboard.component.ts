@@ -30,6 +30,7 @@ import {
   DemandPredictionRequest,
   DemandMetrics,
   ModelMetadata,
+  DemandPredictionResponse,
 } from '../../../../shared/models/demand-prediction.model';
 import { VehicleKind } from '../../../purchase-sales/models/vehicle-kind.enum';
 import {
@@ -37,6 +38,7 @@ import {
   mapMotorcyclesToVehicles,
   VehicleOption,
 } from '../../../purchase-sales/models/purchase-sale-reference.model';
+import { DashboardStateService } from '../../services/dashboard-state.service';
 
 interface SegmentOption {
   vehicleType: VehicleKind;
@@ -181,6 +183,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private readonly motorcycleService: MotorcycleService,
     private readonly purchaseSaleService: PurchaseSaleService,
     private readonly demandPredictionService: DemandPredictionService,
+    private readonly dashboardStateService: DashboardStateService,
     private readonly fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
   ) {
@@ -189,6 +192,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.restoreSavedPrediction();
     this.loadDashboardData();
   }
 
@@ -237,6 +241,49 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.push(dashboardSub);
+  }
+
+  private restoreSavedPrediction(): void {
+    const savedState = this.dashboardStateService.getLastPrediction();
+    if (!savedState || !savedState.payload || !savedState.response) {
+      if (savedState) {
+        this.dashboardStateService.clear();
+      }
+      return;
+    }
+
+    const vehicleType =
+      this.normalizeVehicleType(savedState.payload.vehicleType) ??
+      VehicleKind.CAR;
+
+    this.predictionForm.patchValue({
+      vehicleType,
+      brand: savedState.payload.brand,
+      model: savedState.payload.model,
+      line: savedState.payload.line ?? '',
+      horizonMonths: savedState.payload.horizonMonths ?? this.defaultHorizon,
+    });
+
+    this.quickVehicleTerm = savedState.quickVehicleTerm ?? '';
+    this.activeSegmentLabel = savedState.activeSegmentLabel;
+    this.demandData = this.buildForecastChart(
+      savedState.response.predictions ?? [],
+      savedState.response.history ?? [],
+    );
+    this.modelVersion =
+      savedState.response.modelVersion ??
+      savedState.latestModel?.version ??
+      null;
+    this.forecastMetrics =
+      savedState.response.metrics ?? savedState.latestModel?.metrics ?? null;
+    this.latestModel = savedState.latestModel ?? this.latestModel;
+    if (savedState.response.trainedAt) {
+      this.latestModel = {
+        ...(this.latestModel ?? {}),
+        trainedAt: savedState.response.trainedAt,
+      };
+    }
+    this.cdr.markForCheck();
   }
 
   /**
@@ -535,6 +582,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               'El modelo no devolvió predicciones para este segmento.';
           }
           this.predictionLoading = false;
+          this.persistPredictionState(payload, response);
           this.cdr.markForCheck();
         },
         error: (error) => {
@@ -549,6 +597,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
 
     this.subscriptions.push(predictionSub);
+  }
+
+  private persistPredictionState(
+    payload: DemandPredictionRequest,
+    response: DemandPredictionResponse,
+  ): void {
+    if (!this.demandData) {
+      return;
+    }
+
+    const vehicleType =
+      this.normalizeVehicleType(payload.vehicleType) ?? VehicleKind.CAR;
+    const horizonMonths = payload.horizonMonths ?? this.defaultHorizon;
+    const confidence = payload.confidence ?? 0.95;
+
+    this.dashboardStateService.setLastPrediction({
+      payload: {
+        vehicleType,
+        brand: payload.brand,
+        model: payload.model,
+        line: payload.line ?? null,
+        horizonMonths,
+        confidence,
+      },
+      response: {
+        ...response,
+        history: response.history ?? [],
+      },
+      activeSegmentLabel: this.activeSegmentLabel,
+      quickVehicleTerm: this.quickVehicleTerm,
+      latestModel: this.latestModel,
+    });
   }
 
   private buildForecastChart(
