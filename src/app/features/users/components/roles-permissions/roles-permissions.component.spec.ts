@@ -7,10 +7,16 @@ describe('RolesPermissionsComponent', () => {
   let fixture: ComponentFixture<RolesPermissionsComponent>;
 
   beforeEach(async () => {
+    (globalThis as any).bootstrap = {
+      Modal: class {
+        constructor() {}
+        show() {}
+        hide() {}
+      },
+    };
     await TestBed.configureTestingModule({
-      imports: [RolesPermissionsComponent]
-    })
-    .compileComponents();
+      imports: [RolesPermissionsComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(RolesPermissionsComponent);
     component = fixture.componentInstance;
