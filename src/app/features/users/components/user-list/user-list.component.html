@@ -95,18 +95,22 @@
             </select>
           </div>
           <div class="col-6 col-md-2">
-          <label class="form-label filter-label">Estado</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="filters.enabled"
-          >
-            <option [ngValue]="null">Todos</option>
-            <option [ngValue]="true">Activos</option>
-            <option [ngValue]="false">Inactivos</option>
-          </select>
-        </div>
+            <label class="form-label filter-label">Estado</label>
+            <select
+              class="form-select form-select-sm"
+              [(ngModel)]="filters.enabled"
+            >
+              <option [ngValue]="null">Todos</option>
+              <option [ngValue]="true">Activos</option>
+              <option [ngValue]="false">Inactivos</option>
+            </select>
+          </div>
           <div class="col-12 col-md-auto filter-actions mt-2 mt-md-0">
-            <button class="btn btn-primary btn-sm" type="button" (click)="search()">
+            <button
+              class="btn btn-primary btn-sm"
+              type="button"
+              (click)="search()"
+            >
               <i class="bi bi-funnel me-1"></i>Aplicar filtros
             </button>
             <button
@@ -151,19 +155,20 @@
         </ng-container>
         <ng-container table-body>
           @for (user of users; track user.id) {
-            <tr>
+            <tr
+              appRowNavigate
+              [appRowNavigate]="['/users/profile', user.id]"
+              [appRowNavigateDisabled]="isLoading"
+            >
               <td>
                 <div class="d-flex align-items-center">
                   <div class="avatar me-3">
                     {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
                   </div>
                   <div>
-                    <a
-                      class="user-link fw-semibold d-inline-flex flex-column"
-                      [routerLink]="['/users/profile', user.id]"
-                    >
+                    <span class="fw-semibold d-inline-flex flex-column">
                       <span>{{ user.firstName }} {{ user.lastName }}</span>
-                    </a>
+                    </span>
                     <div class="text-muted small">
                       {{ user.address.city }}
                     </div>
@@ -175,23 +180,21 @@
               <td>
                 @for (role of user.roles; track role.id) {
                   @switch (role.name) {
-                    @case ('ADMIN') {
-                      <span class="badge bg-primary me-2">{{
-                        role.name
-                      }}</span>
+                    @case ("ADMIN") {
+                      <span class="badge bg-primary me-2">{{ role.name }}</span>
                     }
-                    @case ('MANAGER') {
+                    @case ("MANAGER") {
                       <span class="badge bg-info text-dark">{{
                         role.name
                       }}</span>
                     }
-                    @case ('SALE') {
+                    @case ("SALE") {
                       <span class="badge bg-secondary">{{ role.name }}</span>
                     }
-                    @case ('PURCHASE') {
+                    @case ("PURCHASE") {
                       <span class="badge bg-dark">{{ role.name }}</span>
                     }
-                    @case ('USER') {
+                    @case ("USER") {
                       <span class="badge badge-role-user me-2">
                         {{ role.name }}
                       </span>
@@ -246,7 +249,7 @@
                             user.enabled ? 'bi-toggle-on' : 'bi-toggle-off'
                           "
                         ></i>
-                        {{ user.enabled ? 'Desactivar' : 'Activar' }}
+                        {{ user.enabled ? "Desactivar" : "Activar" }}
                       </button>
                     </li>
                   </ul>

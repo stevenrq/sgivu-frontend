@@ -24,6 +24,7 @@ import { UserUiHelperService } from '../../../../shared/services/user-ui-helper.
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { KpiCardComponent } from '../../../../shared/components/kpi-card/kpi-card.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { RowNavigateDirective } from '../../../../shared/directives/row-navigate.directive';
 
 /**
  * @description Estado de la tabla de usuarios, incluyendo paginación y métricas activas/inactivas mostradas en los KPIs.
@@ -75,6 +76,7 @@ interface UserListMetadata {
     PageHeaderComponent,
     KpiCardComponent,
     DataTableComponent,
+    RowNavigateDirective,
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css',
