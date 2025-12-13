@@ -256,7 +256,7 @@ export class UserListComponent implements OnInit, OnDestroy {
     state.loading = true;
     state.error = null;
 
-    // Se sincroniza la página solicitada con los contadores globales para que KPIs y tabla reflejen la misma foto de datos.
+    // Pager y contadores se resuelven juntos para evitar KPIs desfasadas respecto a la tabla.
     const loader$ = forkJoin({
       pager: fetchPager(page),
       counts: fetchCounts(),

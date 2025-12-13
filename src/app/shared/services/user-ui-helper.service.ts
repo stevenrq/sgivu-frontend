@@ -10,27 +10,17 @@ export class UserUiHelperService {
   constructor(private readonly userService: UserService) {}
 
   /**
-   * Muestra un diálogo de confirmación para actualizar el estado de un usuario
-   * (activo/inactivo), realiza la petición al backend y gestiona la respuesta.
+   * Centraliza la confirmación SweetAlert y la llamada a `UserService.updateStatus`.
+   * El callback `onSuccess` permite reutilizar la misma rutina en listas o
+   * vistas de detalle para refrescar la UI tras un éxito.
    *
-   * Este método centraliza toda la lógica repetida de confirmación con SweetAlert2,
-   * la llamada al `UserService` y el manejo de errores.
-   * La acción a ejecutar tras un éxito es definida mediante un callback (`onSuccess`),
-   * lo que permite reutilizar el método en distintos componentes (ej. listas, detalles).
-   *
-   * @param id - Identificador único del usuario cuyo estado será actualizado.
-   * @param status - Nuevo estado que se asignará al usuario (`true` = activo, `false` = inactivo).
-   * @param onSuccess - Función de callback que se ejecuta tras una actualización exitosa
-   *                    (por ejemplo, recargar la lista de usuarios o refrescar un perfil).
+   * @param id - Identificador del usuario a actualizar.
+   * @param status - Estado destino (`true` = activo, `false` = inactivo).
+   * @param onSuccess - Acción que se ejecuta tras un éxito (p.ej. recargar la lista).
    *
    * @example
-   * // En componente de lista:
    * const currentPage = this.pager?.number ?? 0;
    * this.userUiHelper.updateStatus(id, status, () => this.loadUsers(currentPage));
-   *
-   * @example
-   * // En componente de detalle:
-   * this.userUiHelper.updateStatus(id, status, () => this.loadUser(this.user!.id));
    */
   updateStatus(id: number, status: boolean, onSuccess: () => void): void {
     Swal.fire({
@@ -66,26 +56,16 @@ export class UserUiHelperService {
   }
 
   /**
-   * Muestra un diálogo de confirmación para eliminar un usuario, realiza la petición
-   * al backend y gestiona la respuesta.
+   * Centraliza la confirmación SweetAlert y la llamada a `UserService.delete`.
+   * El callback `onSuccess` permite decidir cómo refrescar la navegación tras
+   * una eliminación exitosa.
    *
-   * Este método centraliza toda la lógica repetida de confirmación con SweetAlert2,
-   * la llamada al `UserService` y el manejo de errores.
-   * La acción a ejecutar tras un éxito es definida mediante un callback (`onSuccess`),
-   * lo que permite reutilizar el método en distintos componentes (ej. listas, detalles).
-   *
-   * @param id - Identificador único del usuario que será eliminado.
-   * @param onSuccess - Función de callback que se ejecuta tras una eliminación exitosa
-   *                    (por ejemplo, recargar la lista de usuarios o redirigir a otra vista).
+   * @param id - Identificador del usuario a eliminar.
+   * @param onSuccess - Acción tras un éxito (p.ej. recargar la lista o redirigir).
    *
    * @example
-   * // En componente de lista:
    * const currentPage = this.pager?.number ?? 0;
    * this.userUiHelper.delete(id, () => this.loadUsers(currentPage));
-   *
-   * @example
-   * // En componente de detalle:
-   * this.userUiHelper.delete(this.user!.id, () => this.router.navigate(['/users']));
    */
   delete(id: number, onSuccess: () => void): void {
     Swal.fire({

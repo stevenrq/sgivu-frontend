@@ -55,7 +55,7 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   readonly vehicleImages = signal<VehicleImageResponse[]>([]);
 
   selectedFiles: File[] = [];
-  previewUrl: string | null = null; // Solo muestra la primera imagen seleccionada.
+  previewUrl: string | null = null;
   purchasePriceInput = '';
   salePriceInput = '';
   mileageInput = '';
@@ -695,7 +695,7 @@ export class VehicleFormComponent implements OnInit, OnDestroy {
   }
 
   private shouldRetryUpload(error: any): boolean {
-    if (error?.status === 0) return true; // preflight abortada o red bloqueada
+    if (error?.status === 0) return true; // preflight abortada o red bloqueada: se trata como fallo transitorio
     const msg = typeof error?.error === 'string' ? error.error : '';
     return (
       msg.includes('SignatureDoesNotMatch') ||

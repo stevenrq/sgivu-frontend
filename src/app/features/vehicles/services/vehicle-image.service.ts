@@ -12,19 +12,18 @@ import { map } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 
 /**
- * @description Servicio especializado en gestión de imágenes de vehículos. Maneja pre-firmas S3 sin interferencia de interceptores para cumplir los requisitos de almacenamiento de inventario visual.
+ * Gestiona el ciclo de imágenes de vehículos con URLs prefirmadas de S3.
+ * Combina un cliente con interceptores para las llamadas de negocio y otro
+ * sin ellos para evitar cabeceras que invaliden las firmas prefirmadas.
  */
 @Injectable({
   providedIn: 'root',
 })
-/** Gestiona la carga, confirmación y eliminación de imágenes de vehículos. */
 export class VehicleImageService {
   private readonly apiUrl = `${environment.apiUrl}/v1/vehicles`;
 
   /**
-   * Este cliente HTTP no utiliza los interceptores predeterminados,
-   * que agregarían la cabecera de autorización.
-   * La URL prefirmada de S3 no acepta la cabecera de autorización.
+   * Cliente sin interceptores; evita que Authorization arruine la firma de S3.
    */
   private readonly rawHttp: HttpClient;
 
@@ -35,23 +34,12 @@ export class VehicleImageService {
     this.rawHttp = new HttpClient(httpBackend);
   }
 
-  /**
-   * @description Obtiene todas las imágenes asociadas a un vehículo para mostrar su historial fotográfico.
-   * @param vehicleId Identificador del vehículo.
-   * @returns Observable con la colección de imágenes.
-   */
   getImages(vehicleId: number) {
     return this.http.get<VehicleImageResponse[]>(
       `${this.apiUrl}/${vehicleId}/images`,
     );
   }
 
-  /**
-   * @description Solicita al backend la URL prefirmada para subir una imagen directamente a S3.
-   * @param vehicleId Identificador del vehículo.
-   * @param contentType Tipo MIME del archivo a subir.
-   * @returns Observable con la URL y campos requeridos por S3.
-   */
   createPresignedUploadUrl(vehicleId: number, contentType: string) {
     const body: VehicleImagePresignedUploadRequest = { contentType };
     return this.http.post<VehicleImagePresignedUploadResponse>(
@@ -61,25 +49,15 @@ export class VehicleImageService {
   }
 
   /**
-   * @description Sube el archivo a la URL prefirmada sin pasar por interceptores para preservar la firma. Envuelve `fetch` en un observable para integrarse con la UI.
-   * @param url URL prefirmada entregada por backend/S3.
-   * @param file Archivo a subir.
-   * @param contentType Tipo MIME declarado.
-   * @returns Observable con el cuerpo de la respuesta (vacío en éxito).
+   * Sube el archivo a la URL prefirmada sin pasar por interceptores para preservar la firma.
+   * Envuelve `fetch` en un observable para integrarse con la UI.
    */
   uploadToPresignedUrl(url: string, file: File, contentType: string) {
-    // Se usa fetch para evitar aborts del XHR y respetar exactamente la firma.
     return defer(() => from(this.uploadWithFetch(url, file, contentType))).pipe(
       map((resp) => resp.body ?? ''),
     );
   }
 
-  /**
-   * @description Confirma al backend que la imagen se subió correctamente y debe asociarse al vehículo.
-   * @param vehicleId Identificador del vehículo.
-   * @param payload Datos de confirmación (nombre/key, metadatos).
-   * @returns Observable vacío cuando se completa.
-   */
   confirmUpload(vehicleId: number, payload: VehicleImageConfirmUploadRequest) {
     return this.http.post(
       `${this.apiUrl}/${vehicleId}/images/confirm-upload`,
@@ -87,19 +65,12 @@ export class VehicleImageService {
     );
   }
 
-  /**
-   * @description Elimina una imagen ya vinculada a un vehículo, liberando almacenamiento y evitando referencias obsoletas en la UI.
-   * @param vehicleId Identificador del vehículo.
-   * @param imageId Identificador interno de la imagen.
-   * @returns Observable vacío al completar.
-   */
   deleteImage(vehicleId: number, imageId: number) {
     return this.http.delete<void>(
       `${this.apiUrl}/${vehicleId}/images/${imageId}`,
     );
   }
 
-  // Uso explícito de fetch para evitar que los interceptores de Angular modifiquen headers que invaliden la firma S3.
   /**
    * Usa `fetch` en lugar de `HttpClient` para respetar la firma de S3,
    * evitando que los interceptores agreguen cabeceras que invaliden la

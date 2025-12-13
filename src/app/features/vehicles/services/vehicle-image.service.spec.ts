@@ -18,7 +18,7 @@ describe('VehicleImageService', () => {
   it('should request a presigned url with the provided content type', () => {
     service.createPresignedUploadUrl(1, 'image/jpeg').subscribe();
 
-    // No backend mock aquí; el test solo verifica que el servicio exista y no arroje.
+    // Sin mock de backend: solo se valida que la llamada no arroje y respete la firma del contrato.
   });
 
   it('should upload to presigned url without credentials and with content-type header', () => {
@@ -26,9 +26,14 @@ describe('VehicleImageService', () => {
       new Response('', { status: 200 }),
     );
     const file = new File(['img'], 'car.jpg', { type: 'image/jpeg' });
-    service.uploadToPresignedUrl('https://s3/url', file, 'image/jpeg').subscribe();
+    service
+      .uploadToPresignedUrl('https://s3/url', file, 'image/jpeg')
+      .subscribe();
 
-    expect(fetchSpy).toHaveBeenCalledWith('https://s3/url', jasmine.any(Object));
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://s3/url',
+      jasmine.any(Object),
+    );
     const args = fetchSpy.calls.mostRecent().args[1] as RequestInit;
     expect(args?.method).toBe('PUT');
     const headers = args?.headers as Record<string, string>;
