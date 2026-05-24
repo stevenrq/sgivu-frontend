@@ -1,0 +1,75 @@
+<div class="quick-search-host">
+  <!-- Input principal de búsqueda -->
+  <div class="input-group input-group-sm">
+    <span
+      class="input-group-text bg-transparent border-end-0"
+      style="cursor: pointer"
+      role="button"
+      tabindex="0"
+      (click)="onSearchIconClick()"
+      (keyup.enter)="onSearchIconClick()"
+    >
+      <i class="bi bi-search text-muted"></i>
+    </span>
+    <input
+      #searchInput
+      type="text"
+      class="form-control border-start-0 ps-0"
+      [placeholder]="placeholder()"
+      [ngModel]="searchValue()"
+      (ngModelChange)="onInput($event)"
+      (keyup.enter)="onKeyEnter()"
+      (focus)="
+        showDropdown = suggestions().length > 0 && searchValue().length > 0
+      "
+      autocomplete="off"
+    />
+    @if (searchValue()) {
+      <button
+        type="button"
+        class="btn btn-outline-secondary border-start-0"
+        (click)="onClear()"
+        title="Limpiar búsqueda"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    }
+  </div>
+
+  <!-- Dropdown de sugerencias -->
+  @if (showDropdown && suggestions().length > 0) {
+    <div class="quick-search-dropdown">
+      @for (
+        suggestion of suggestions();
+        track suggestion.value + suggestion.type
+      ) {
+        <button
+          type="button"
+          class="dropdown-item"
+          (click)="onSuggestionClick(suggestion)"
+        >
+          <span class="suggestion-label">{{ suggestion.label }}</span>
+          <small class="text-muted d-block">{{ suggestion.context }}</small>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Chips de filtros activos -->
+  @if (activeChips().length > 0) {
+    <div class="d-flex flex-wrap gap-1 mt-2">
+      @for (chip of activeChips(); track chip.filterKey) {
+        <span class="badge rounded-pill active-filter-chip">
+          {{ chip.label }}
+          <button
+            type="button"
+            class="btn-close btn-close-white ms-1"
+            style="font-size: 0.55rem"
+            (click)="onChipRemove(chip.filterKey)"
+            [attr.aria-label]="'Eliminar filtro: ' + chip.label"
+          ></button>
+        </span>
+      }
+    </div>
+  }
+</div>

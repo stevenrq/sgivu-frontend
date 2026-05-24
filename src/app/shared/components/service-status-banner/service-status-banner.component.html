@@ -1,0 +1,27 @@
+@if (serviceHealth.anyServiceDown()) {
+  <div
+    class="service-status-banner"
+    [class]="bannerView().cssClass"
+    role="alert"
+    aria-live="polite"
+  >
+    <i class="bi" [class]="bannerView().icon" aria-hidden="true"></i>
+    <span class="banner-message">{{ bannerView().message }}</span>
+    @if (serviceHealth.isChecking()) {
+      <span
+        class="spinner-border spinner-border-sm"
+        role="status"
+        aria-hidden="true"
+      ></span>
+    }
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-light retry-btn"
+      [disabled]="serviceHealth.isChecking()"
+      (click)="onRetryClick()"
+    >
+      <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+      Reintentar
+    </button>
+  </div>
+}

@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.range-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.range-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted, #6c757d);
+  float: none;
+  margin-bottom: 0.35rem;
+  width: auto;
+}

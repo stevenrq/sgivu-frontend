@@ -1,0 +1,38 @@
+<div class="d-flex flex-wrap align-items-center gap-2">
+  <label
+    for="report-start-date"
+    class="form-label mb-0 text-muted fw-semibold small"
+    >Desde</label
+  >
+  <input
+    id="report-start-date"
+    type="date"
+    class="form-control form-control-sm"
+    [ngModel]="startDate()"
+    (ngModelChange)="startDate.set($event)"
+    style="width: auto"
+  />
+  <label
+    for="report-end-date"
+    class="form-label mb-0 text-muted fw-semibold small"
+    >Hasta</label
+  >
+  <input
+    id="report-end-date"
+    type="date"
+    class="form-control form-control-sm"
+    [ngModel]="endDate()"
+    (ngModelChange)="endDate.set($event)"
+    style="width: auto"
+  />
+  <button type="button" class="btn btn-primary btn-sm" (click)="applyFilter()">
+    <i class="bi bi-funnel me-1"></i>Filtrar
+  </button>
+  <button
+    type="button"
+    class="btn btn-outline-secondary btn-sm"
+    (click)="clearFilter()"
+  >
+    <i class="bi bi-eraser me-1"></i>Limpiar
+  </button>
+</div>

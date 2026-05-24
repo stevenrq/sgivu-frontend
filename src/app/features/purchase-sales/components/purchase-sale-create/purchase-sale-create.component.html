@@ -1,0 +1,522 @@
+<app-form-shell
+  [loading]="formLoading() || isLoadingLookups()"
+  [title]="'Registrar contrato de compraventa'"
+  [subtitle]="
+    'Separa la captura de información de compras y ventas en esta página dedicada.'
+  "
+  [icon]="'bi-card-checklist'"
+  pageClass="purchase-sale-form-page"
+  cardClass="purchase-sale-form-card"
+  headerClass="purchase-sale-form-header"
+  titleClass="purchase-sale-form-title"
+  subtitleClass="purchase-sale-form-subtitle"
+  footerClass="purchase-sale-form-footer"
+>
+  <form
+    form-body
+    class="floating-google purchase-sale-form"
+    [formGroup]="contractFormGroup"
+    (ngSubmit)="submitContract()"
+    novalidate
+  >
+    <div class="row g-3 kpi-row mb-3">
+      <div class="col-md-4">
+        <app-kpi-card
+          label="Contratos Totales"
+          [value]="summaryState().total"
+          icon="bi-file-earmark-text-fill"
+          variant="primary"
+        ></app-kpi-card>
+      </div>
+      <div class="col-md-4">
+        <app-kpi-card
+          label="Compras Registradas"
+          [value]="summaryState().purchases"
+          icon="bi-cart-plus-fill"
+          variant="success"
+        ></app-kpi-card>
+      </div>
+      <div class="col-md-4">
+        <app-kpi-card
+          label="Ventas Registradas"
+          [value]="summaryState().sales"
+          icon="bi-cart-check-fill"
+          variant="warning"
+        ></app-kpi-card>
+      </div>
+    </div>
+
+    @if (hasLookupError()) {
+      <div class="alert alert-danger mb-0">
+        Ocurrió un problema al cargar la información auxiliar. Intenta recargar
+        la página.
+      </div>
+    } @else {
+      <fieldset class="border p-3 pt-2 rounded mb-4">
+        <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+          <i class="bi bi-file-earmark-text me-1"></i>Datos del contrato
+        </legend>
+        <div class="row g-3 mt-0">
+          <div class="col-12">
+            <label
+              for="contractTypePurchase"
+              id="contract-type-label"
+              class="form-label d-flex align-items-center gap-2 mb-2"
+            >
+              <i class="bi bi-toggle2-on text-primary"></i>
+              Tipo de contrato
+            </label>
+            <fieldset
+              class="contract-type-toggle"
+              aria-labelledby="contract-type-label"
+            >
+              <input
+                type="radio"
+                class="btn-check"
+                id="contractTypePurchase"
+                formControlName="contractType"
+                [value]="ContractType.PURCHASE"
+                (change)="onContractTypeChange(ContractType.PURCHASE)"
+              />
+              <label
+                class="contract-type-card"
+                [class.active]="isPurchaseType"
+                for="contractTypePurchase"
+              >
+                <span class="icon-wrapper text-primary bg-primary-subtle">
+                  <i class="bi bi-cart-plus"></i>
+                </span>
+                <div>
+                  <span class="fw-semibold d-block">Contrato de compra</span>
+                  <small class="text-muted"
+                    >Registra ingresos al inventario.</small
+                  >
+                </div>
+              </label>
+
+              <input
+                type="radio"
+                class="btn-check"
+                id="contractTypeSale"
+                formControlName="contractType"
+                [value]="ContractType.SALE"
+                (change)="onContractTypeChange(ContractType.SALE)"
+              />
+              <label
+                class="contract-type-card"
+                [class.active]="isSaleType"
+                for="contractTypeSale"
+              >
+                <span class="icon-wrapper text-success bg-success-subtle">
+                  <i class="bi bi-cart-check"></i>
+                </span>
+                <div>
+                  <span class="fw-semibold d-block">Contrato de venta</span>
+                  <small class="text-muted"
+                    >Valida vehículos listos para la venta.</small
+                  >
+                </div>
+              </label>
+            </fieldset>
+          </div>
+
+          @if (isSaleType) {
+            <div class="col-12">
+              <div class="vehicle-selector-card">
+                <div class="form-floating">
+                  <select
+                    class="form-select"
+                    id="contractVehicleId"
+                    formControlName="vehicleId"
+                    (change)="
+                      onVehicleSelectionChange(
+                        contractFormGroup.controls.vehicleId.value
+                      )
+                    "
+                    [class.is-invalid]="
+                      showControlErrors(
+                        contractFormGroup.controls.vehicleId,
+                        formSubmitted()
+                      )
+                    "
+                  >
+                    <option [ngValue]="null">Selecciona un vehículo</option>
+                    @for (vehicle of availableVehicles(); track vehicle.id) {
+                      <option [ngValue]="vehicle.id">
+                        {{ vehicle.label }}
+                      </option>
+                    }
+                  </select>
+                  <label for="contractVehicleId">Vehículo a vender</label>
+                </div>
+                @if (
+                  showControlErrors(
+                    contractFormGroup.controls.vehicleId,
+                    formSubmitted()
+                  )
+                ) {
+                  <div class="invalid-feedback d-block">
+                    Selecciona el vehículo a vender.
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="contractClientId"
+                formControlName="clientId"
+                [class.is-invalid]="
+                  showControlErrors(
+                    contractFormGroup.controls.clientId,
+                    formSubmitted()
+                  )
+                "
+              >
+                <option [ngValue]="null">Selecciona un cliente</option>
+                @for (client of clients(); track client.id) {
+                  <option [ngValue]="client.id">{{ client.label }}</option>
+                }
+              </select>
+              <label for="contractClientId">Cliente</label>
+            </div>
+            @if (
+              showControlErrors(
+                contractFormGroup.controls.clientId,
+                formSubmitted()
+              )
+            ) {
+              <div class="invalid-feedback d-block">Selecciona un cliente.</div>
+            }
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="contractUserId"
+                formControlName="userId"
+                [class.is-invalid]="
+                  showControlErrors(
+                    contractFormGroup.controls.userId,
+                    formSubmitted()
+                  )
+                "
+              >
+                <option [ngValue]="null">Selecciona un usuario</option>
+                @for (user of users(); track user.id) {
+                  <option [ngValue]="user.id">{{ user.label }}</option>
+                }
+              </select>
+              <label for="contractUserId">Usuario responsable</label>
+            </div>
+            @if (
+              showControlErrors(
+                contractFormGroup.controls.userId,
+                formSubmitted()
+              )
+            ) {
+              <div class="invalid-feedback d-block">
+                Selecciona el usuario responsable.
+              </div>
+            }
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="contractStatus"
+                formControlName="contractStatus"
+                [class.is-invalid]="
+                  showControlErrors(
+                    contractFormGroup.controls.contractStatus,
+                    formSubmitted()
+                  )
+                "
+              >
+                <option [ngValue]="null">Selecciona el estado</option>
+                @for (status of contractStatuses; track status) {
+                  <option [ngValue]="status">
+                    {{ getStatusLabel(status) }}
+                  </option>
+                }
+              </select>
+              <label for="contractStatus">Estado del contrato</label>
+            </div>
+            @if (
+              showControlErrors(
+                contractFormGroup.controls.contractStatus,
+                formSubmitted()
+              )
+            ) {
+              <div class="invalid-feedback d-block">
+                Selecciona el estado del contrato.
+              </div>
+            }
+          </div>
+
+          <div class="col-md-4">
+            @if (isPurchaseType) {
+              <div class="price-field">
+                <label for="contractPurchasePrice">Precio de compra</label>
+                <div class="input-group price-group">
+                  <span class="input-group-text">$</span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    class="form-control"
+                    id="contractPurchasePrice"
+                    formControlName="purchasePrice"
+                    pattern="^[0-9.,\\s$]*$"
+                    [value]="purchasePriceInput()"
+                    (input)="
+                      onPriceInput($any($event.target).value, 'purchasePrice')
+                    "
+                    [class.is-invalid]="
+                      showControlErrors(
+                        contractFormGroup.controls.purchasePrice,
+                        formSubmitted()
+                      )
+                    "
+                    placeholder="Precio de compra"
+                  />
+                </div>
+              </div>
+              @if (contractFormGroup.controls.purchasePrice.value !== null) {
+                <small class="text-muted">{{
+                  formatCurrency(contractFormGroup.controls.purchasePrice.value)
+                }}</small>
+              }
+              @if (
+                showControlErrors(
+                  contractFormGroup.controls.purchasePrice,
+                  formSubmitted()
+                )
+              ) {
+                <div class="invalid-feedback d-block">
+                  Ingresa el precio de compra.
+                </div>
+              }
+            } @else {
+              <div class="price-field">
+                <label for="contractPurchasePriceReadonly"
+                  >Precio de compra</label
+                >
+                <div class="input-group price-group readonly">
+                  <span class="input-group-text">$</span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="contractPurchasePriceReadonly"
+                    [value]="purchasePriceInput() || 'N/D'"
+                    readonly
+                    aria-readonly="true"
+                    tabindex="-1"
+                    placeholder="Precio de compra"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (isSaleType) {
+            <div class="col-md-4">
+              <div class="price-field">
+                <label for="contractSalePrice">Precio de venta</label>
+                <div class="input-group price-group">
+                  <span class="input-group-text">$</span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    class="form-control"
+                    id="contractSalePrice"
+                    formControlName="salePrice"
+                    pattern="^[0-9.,\\s$]*$"
+                    [value]="salePriceInput()"
+                    (input)="
+                      onPriceInput($any($event.target).value, 'salePrice')
+                    "
+                    [class.is-invalid]="
+                      showControlErrors(
+                        contractFormGroup.controls.salePrice,
+                        formSubmitted()
+                      )
+                    "
+                    placeholder="Precio de venta"
+                  />
+                </div>
+              </div>
+              @if (contractFormGroup.controls.salePrice.value !== null) {
+                <small class="text-muted">{{
+                  formatCurrency(contractFormGroup.controls.salePrice.value)
+                }}</small>
+              }
+              @if (
+                showControlErrors(
+                  contractFormGroup.controls.salePrice,
+                  formSubmitted()
+                )
+              ) {
+                <div class="invalid-feedback d-block">
+                  Ingresa el precio de venta.
+                </div>
+              }
+            </div>
+          }
+
+          <div class="col-md-6">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="contractPaymentMethod"
+                formControlName="paymentMethod"
+                [class.is-invalid]="
+                  showControlErrors(
+                    contractFormGroup.controls.paymentMethod,
+                    formSubmitted()
+                  )
+                "
+              >
+                <option [ngValue]="null">Selecciona el método de pago</option>
+                @for (method of paymentMethods; track method) {
+                  <option [ngValue]="method">
+                    {{ getPaymentMethodLabel(method) }}
+                  </option>
+                }
+              </select>
+              <label for="contractPaymentMethod">Método de pago</label>
+            </div>
+            @if (
+              showControlErrors(
+                contractFormGroup.controls.paymentMethod,
+                formSubmitted()
+              )
+            ) {
+              <div class="invalid-feedback d-block">
+                Selecciona el método de pago.
+              </div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="contractPaymentLimitations"
+                formControlName="paymentLimitations"
+                maxlength="200"
+                [class.is-invalid]="
+                  showControlErrors(
+                    contractFormGroup.controls.paymentLimitations,
+                    formSubmitted()
+                  )
+                "
+                placeholder="Limitaciones de pago"
+              />
+              <label for="contractPaymentLimitations"
+                >Limitaciones de pago</label
+              >
+            </div>
+            @if (
+              showControlErrors(
+                contractFormGroup.controls.paymentLimitations,
+                formSubmitted()
+              )
+            ) {
+              <div class="invalid-feedback d-block">
+                Describe las limitaciones de pago.
+              </div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="contractPaymentTerms"
+                formControlName="paymentTerms"
+                maxlength="200"
+                [class.is-invalid]="
+                  showControlErrors(
+                    contractFormGroup.controls.paymentTerms,
+                    formSubmitted()
+                  )
+                "
+                placeholder="Términos de pago"
+              />
+              <label for="contractPaymentTerms">Términos de pago</label>
+            </div>
+            @if (
+              showControlErrors(
+                contractFormGroup.controls.paymentTerms,
+                formSubmitted()
+              )
+            ) {
+              <div class="invalid-feedback d-block">
+                Describe los términos de pago.
+              </div>
+            }
+          </div>
+
+          <div class="col-12">
+            <div class="form-floating">
+              <textarea
+                class="form-control"
+                id="contractObservations"
+                formControlName="observations"
+                rows="2"
+                maxlength="500"
+                placeholder="Observaciones"
+              ></textarea>
+              <label for="contractObservations">Observaciones (opcional)</label>
+            </div>
+          </div>
+        </div>
+
+        @if (isSaleType && !availableVehicles().length) {
+          <div class="alert alert-warning mt-3 mb-0">
+            Debes registrar una compra para contar con vehículos disponibles
+            para la venta.
+          </div>
+        }
+      </fieldset>
+
+      @if (isPurchaseType) {
+        <app-purchase-vehicle-form
+          [vehicleFormGroup]="vehicleFormGroup"
+          [submitted]="formSubmitted()"
+        ></app-purchase-vehicle-form>
+      }
+    }
+  </form>
+
+  <ng-container form-actions>
+    <button
+      class="btn btn-outline-secondary me-2"
+      type="button"
+      (click)="resetContractForm(true)"
+      [disabled]="formLoading()"
+    >
+      Limpiar
+    </button>
+    <button
+      class="btn btn-primary"
+      type="submit"
+      (click)="submitContract()"
+      [disabled]="formLoading()"
+      *appHasPermission="'purchase_sale:create'"
+    >
+      @if (formLoading()) {
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          aria-hidden="true"
+        ></span>
+      }
+      Guardar contrato
+    </button>
+  </ng-container>
+</app-form-shell>

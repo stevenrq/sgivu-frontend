@@ -1,0 +1,150 @@
+<div class="row g-4 mb-4">
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Total Ventas"
+      [value]="totalSales()"
+      icon="bi-cart-check"
+      variant="success"
+    />
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Vendedores Activos"
+      [value]="userPerformance().length"
+      icon="bi-people"
+      variant="primary"
+    />
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Clientes Personas"
+      [value]="clientDistribution().persons"
+      icon="bi-person"
+      variant="info"
+    />
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Contratos Cancelados"
+      [value]="totalCanceled()"
+      icon="bi-x-circle"
+      variant="danger"
+    />
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-8">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Rendimiento por Vendedor</h5>
+      </div>
+      <div class="card-body">
+        <div class="chart-container position-relative">
+          @if (performanceChartData()) {
+            <canvas
+              baseChart
+              [data]="performanceChartData()"
+              [options]="performanceOptions"
+              [type]="'bar'"
+              height="320"
+            ></canvas>
+          } @else {
+            <div class="chart-placeholder text-center text-muted">
+              No hay datos de vendedores.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Personas vs Empresas</h5>
+      </div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        @if (clientDistributionData()) {
+          <canvas
+            baseChart
+            [data]="clientDistributionData()"
+            [options]="doughnutOptions"
+            [type]="'doughnut'"
+            height="280"
+          ></canvas>
+        } @else {
+          <div class="text-center text-muted py-4">Sin datos.</div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-7">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Top Clientes por Volumen</h5>
+      </div>
+      <app-data-table [flat]="true" [minHeight]="0">
+        <ng-container table-head>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">Tipo</th>
+            <th scope="col" class="text-end">Contratos</th>
+            <th scope="col" class="text-end">Total</th>
+          </tr>
+        </ng-container>
+        <ng-container table-body>
+          @for (
+            client of topClients();
+            track client.clientName;
+            let i = $index
+          ) {
+            <tr>
+              <td>{{ i + 1 }}</td>
+              <td>{{ client.clientName }}</td>
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary-emphasis">
+                  {{ client.type }}
+                </span>
+              </td>
+              <td class="text-end">{{ client.contractCount }}</td>
+              <td class="text-end">{{ client.totalSpent | copCurrency }}</td>
+            </tr>
+          }
+        </ng-container>
+        @if (!topClients().length) {
+          <div table-empty class="text-center text-muted py-4">
+            No hay datos de clientes.
+          </div>
+        }
+      </app-data-table>
+    </div>
+  </div>
+  <div class="col-xl-5">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Tendencia de Cancelaciones</h5>
+      </div>
+      <div class="card-body">
+        <div class="chart-container position-relative">
+          @if (canceledTrendData()) {
+            <canvas
+              baseChart
+              [data]="canceledTrendData()"
+              [options]="lineOptions"
+              [type]="'line'"
+              height="280"
+            ></canvas>
+          } @else {
+            <div class="chart-placeholder text-center text-muted">
+              No hay datos de cancelaciones.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

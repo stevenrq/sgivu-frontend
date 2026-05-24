@@ -1,0 +1,15 @@
+.chart-container {
+  min-height: 280px;
+}
+
+.inventory-value {
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+}

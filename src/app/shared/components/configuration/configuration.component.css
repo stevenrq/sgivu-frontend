@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.config-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.config-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.nav-pills .nav-link {
+  color: var(--muted);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: var(--text);
+  background-color: var(--surface-muted);
+  box-shadow: 0 0.25rem 0.75rem rgba(var(--accent-rgb), 0.2);
+}
+
+.nav-pills .nav-link i {
+  margin-right: 0.75rem;
+  width: 20px;
+  text-align: center;
+}
+
+.form-switch .form-check-input {
+  cursor: pointer;
+  width: 3.5em;
+  height: 1.75em;
+}
+
+.form-switch .form-check-input:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}

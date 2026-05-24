@@ -1,0 +1,42 @@
+.activity-log .list-group-item {
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+  border-bottom: 1px solid var(--detail-border-color);
+}
+
+.activity-log .list-group-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  margin-right: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--detail-primary-color);
+  border-color: var(--detail-primary-color);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.detail-hero-title {
+  color: #fff;
+}
+
+.detail-hero-subtitle {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.detail-status-pill-on-hero {
+  background-color: #1d3f8d;
+  color: #f7faff;
+  border: 1px solid color-mix(in srgb, #ffffff 35%, #1d3f8d 65%);
+  font-weight: 700;
+}

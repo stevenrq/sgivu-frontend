@@ -1,0 +1,495 @@
+<fieldset class="border p-3 pt-2 rounded" [formGroup]="vehicleFormGroup()">
+  <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+    <i class="bi bi-truck-front-fill me-1"></i>Datos del vehículo a registrar
+  </legend>
+  <div class="row g-3 mt-0">
+    <div class="col-md-3">
+      <div class="form-floating">
+        <select
+          class="form-select"
+          id="vehicleType"
+          formControlName="vehicleType"
+          (change)="onVehicleTypeChange()"
+          [class.is-invalid]="
+            showControlErrors(
+              vehicleFormGroup().controls.vehicleType,
+              submitted()
+            )
+          "
+        >
+          @for (kind of vehicleKinds; track kind) {
+            <option [ngValue]="kind">
+              {{ kind === "CAR" ? "Automóvil" : "Motocicleta" }}
+            </option>
+          }
+        </select>
+        <label for="vehicleType">Tipo de vehículo</label>
+      </div>
+      @if (
+        showControlErrors(vehicleFormGroup().controls.vehicleType, submitted())
+      ) {
+        <div class="invalid-feedback d-block">
+          Selecciona el tipo de vehículo.
+        </div>
+      }
+    </div>
+    <div class="col-md-3">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleBrand"
+          formControlName="brand"
+          maxlength="20"
+          [class.is-invalid]="
+            showControlErrors(vehicleFormGroup().controls.brand, submitted())
+          "
+          placeholder="Marca"
+        />
+        <label for="vehicleBrand">Marca</label>
+      </div>
+      @if (showControlErrors(vehicleFormGroup().controls.brand, submitted())) {
+        <div class="invalid-feedback d-block">Ingresa la marca.</div>
+      }
+    </div>
+    <div class="col-md-3">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleModel"
+          formControlName="model"
+          maxlength="20"
+          [class.is-invalid]="
+            showControlErrors(vehicleFormGroup().controls.model, submitted())
+          "
+          placeholder="Modelo"
+        />
+        <label for="vehicleModel">Modelo</label>
+      </div>
+      @if (showControlErrors(vehicleFormGroup().controls.model, submitted())) {
+        <div class="invalid-feedback d-block">Ingresa el modelo.</div>
+      }
+    </div>
+    <div class="col-md-3">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleLine"
+          formControlName="line"
+          maxlength="20"
+          [class.is-invalid]="
+            showControlErrors(vehicleFormGroup().controls.line, submitted())
+          "
+          placeholder="Línea"
+        />
+        <label for="vehicleLine">Línea</label>
+      </div>
+      @if (showControlErrors(vehicleFormGroup().controls.line, submitted())) {
+        <div class="invalid-feedback d-block">Ingresa la línea.</div>
+      }
+    </div>
+    <div class="col-md-3">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehiclePlate"
+          formControlName="plate"
+          maxlength="10"
+          [class.is-invalid]="
+            showControlErrors(vehicleFormGroup().controls.plate, submitted())
+          "
+          placeholder="Placa"
+        />
+        <label for="vehiclePlate">Placa</label>
+      </div>
+      @if (showControlErrors(vehicleFormGroup().controls.plate, submitted())) {
+        <div class="invalid-feedback d-block">
+          Ingresa la placa del vehículo.
+        </div>
+      }
+    </div>
+    <div class="col-md-3">
+      <div class="form-floating">
+        <input
+          type="number"
+          min="1"
+          class="form-control"
+          id="vehicleCapacity"
+          formControlName="capacity"
+          [class.is-invalid]="
+            showControlErrors(vehicleFormGroup().controls.capacity, submitted())
+          "
+          placeholder="Capacidad de pasajeros"
+        />
+        <label for="vehicleCapacity">Capacidad de pasajeros</label>
+      </div>
+      @if (
+        showControlErrors(vehicleFormGroup().controls.capacity, submitted())
+      ) {
+        <div class="invalid-feedback d-block">
+          Ingresa la capacidad de pasajeros.
+        </div>
+      }
+    </div>
+    <div class="col-md-3">
+      <div class="form-floating">
+        <input
+          type="number"
+          min="1950"
+          max="2050"
+          class="form-control"
+          id="vehicleYear"
+          formControlName="year"
+          [class.is-invalid]="
+            showControlErrors(vehicleFormGroup().controls.year, submitted())
+          "
+          placeholder="Año"
+        />
+        <label for="vehicleYear">Año</label>
+      </div>
+      @if (showControlErrors(vehicleFormGroup().controls.year, submitted())) {
+        <div class="invalid-feedback d-block">Ingresa el año del vehículo.</div>
+      }
+    </div>
+    <div class="col-md-3">
+      <div class="price-field">
+        <label for="vehicleMileage">Kilometraje</label>
+        <div class="input-group price-group">
+          <span class="input-group-text">km</span>
+          <input
+            type="text"
+            inputmode="numeric"
+            class="form-control"
+            id="vehicleMileage"
+            formControlName="mileage"
+            pattern="^[0-9.,]+$"
+            [value]="vehicleMileageInput"
+            (input)="onMileageInput($any($event.target).value)"
+            [class.is-invalid]="
+              showControlErrors(
+                vehicleFormGroup().controls.mileage,
+                submitted()
+              )
+            "
+            placeholder="Kilometraje"
+          />
+        </div>
+      </div>
+      @if (vehicleFormGroup().controls.mileage.value !== null) {
+        <small class="text-muted"
+          >{{
+            formatMileage(vehicleFormGroup().controls.mileage.value)
+          }}
+          km</small
+        >
+      }
+      @if (
+        showControlErrors(vehicleFormGroup().controls.mileage, submitted())
+      ) {
+        <div class="invalid-feedback d-block">
+          Ingresa el kilometraje en números.
+        </div>
+      }
+    </div>
+    <div class="col-md-4">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleMotorNumber"
+          formControlName="motorNumber"
+          maxlength="30"
+          [class.is-invalid]="
+            showControlErrors(
+              vehicleFormGroup().controls.motorNumber,
+              submitted()
+            )
+          "
+          placeholder="Número de motor"
+        />
+        <label for="vehicleMotorNumber">Número de motor</label>
+      </div>
+      @if (
+        showControlErrors(vehicleFormGroup().controls.motorNumber, submitted())
+      ) {
+        <div class="invalid-feedback d-block">Ingresa el número de motor.</div>
+      }
+    </div>
+    <div class="col-md-4">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleSerialNumber"
+          formControlName="serialNumber"
+          maxlength="30"
+          [class.is-invalid]="
+            showControlErrors(
+              vehicleFormGroup().controls.serialNumber,
+              submitted()
+            )
+          "
+          placeholder="Número serial"
+        />
+        <label for="vehicleSerialNumber">Número serial</label>
+      </div>
+      @if (
+        showControlErrors(vehicleFormGroup().controls.serialNumber, submitted())
+      ) {
+        <div class="invalid-feedback d-block">Ingresa el número serial.</div>
+      }
+    </div>
+    <div class="col-md-4">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleChassisNumber"
+          formControlName="chassisNumber"
+          maxlength="30"
+          [class.is-invalid]="
+            showControlErrors(
+              vehicleFormGroup().controls.chassisNumber,
+              submitted()
+            )
+          "
+          placeholder="Número de chasis"
+        />
+        <label for="vehicleChassisNumber">Número de chasis</label>
+      </div>
+      @if (
+        showControlErrors(
+          vehicleFormGroup().controls.chassisNumber,
+          submitted()
+        )
+      ) {
+        <div class="invalid-feedback d-block">Ingresa el número de chasis.</div>
+      }
+    </div>
+    <div class="col-md-4">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleColor"
+          formControlName="color"
+          maxlength="20"
+          [class.is-invalid]="
+            showControlErrors(vehicleFormGroup().controls.color, submitted())
+          "
+          placeholder="Color"
+        />
+        <label for="vehicleColor">Color</label>
+      </div>
+      @if (showControlErrors(vehicleFormGroup().controls.color, submitted())) {
+        <div class="invalid-feedback d-block">Ingresa el color.</div>
+      }
+    </div>
+    <div class="col-md-4">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleCity"
+          formControlName="cityRegistered"
+          maxlength="30"
+          [class.is-invalid]="
+            showControlErrors(
+              vehicleFormGroup().controls.cityRegistered,
+              submitted()
+            )
+          "
+          placeholder="Ciudad de registro"
+        />
+        <label for="vehicleCity">Ciudad de registro</label>
+      </div>
+      @if (
+        showControlErrors(
+          vehicleFormGroup().controls.cityRegistered,
+          submitted()
+        )
+      ) {
+        <div class="invalid-feedback d-block">
+          Ingresa la ciudad de registro.
+        </div>
+      }
+    </div>
+    <div class="col-md-4">
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="vehicleTransmission"
+          formControlName="transmission"
+          maxlength="20"
+          [class.is-invalid]="
+            showControlErrors(
+              vehicleFormGroup().controls.transmission,
+              submitted()
+            )
+          "
+          placeholder="Transmisión"
+        />
+        <label for="vehicleTransmission">Transmisión</label>
+      </div>
+      @if (
+        showControlErrors(vehicleFormGroup().controls.transmission, submitted())
+      ) {
+        <div class="invalid-feedback d-block">
+          Ingresa el tipo de transmisión.
+        </div>
+      }
+    </div>
+    <div class="col-md-4">
+      <div class="price-field">
+        <label for="vehicleSalePrice">Precio de venta objetivo</label>
+        <div class="input-group price-group">
+          <span class="input-group-text">$</span>
+          <input
+            type="text"
+            inputmode="numeric"
+            class="form-control"
+            id="vehicleSalePrice"
+            formControlName="salePrice"
+            pattern="^[0-9.,\\s$]*$"
+            [value]="vehicleSalePriceInput"
+            (input)="onPriceInput($any($event.target).value)"
+            placeholder="Precio de venta objetivo"
+          />
+        </div>
+      </div>
+      @if (vehicleFormGroup().controls.salePrice.value !== null) {
+        <small class="text-muted">{{
+          formatCurrency(vehicleFormGroup().controls.salePrice.value)
+        }}</small>
+      }
+    </div>
+  </div>
+
+  @if (isCarSelected) {
+    <div class="row g-3 mt-1">
+      <div class="col-md-4">
+        <div class="form-floating">
+          <input
+            type="text"
+            class="form-control"
+            id="vehicleBodyType"
+            formControlName="bodyType"
+            maxlength="20"
+            [class.is-invalid]="
+              showControlErrors(
+                vehicleFormGroup().controls.bodyType,
+                submitted()
+              )
+            "
+            placeholder="Tipo de carrocería"
+          />
+          <label for="vehicleBodyType">Tipo de carrocería</label>
+        </div>
+        @if (
+          showControlErrors(vehicleFormGroup().controls.bodyType, submitted())
+        ) {
+          <div class="invalid-feedback d-block">
+            Ingresa el tipo de carrocería.
+          </div>
+        }
+      </div>
+      <div class="col-md-4">
+        <div class="form-floating">
+          <input
+            type="text"
+            class="form-control"
+            id="vehicleFuelType"
+            formControlName="fuelType"
+            maxlength="20"
+            [class.is-invalid]="
+              showControlErrors(
+                vehicleFormGroup().controls.fuelType,
+                submitted()
+              )
+            "
+            placeholder="Tipo de combustible"
+          />
+          <label for="vehicleFuelType">Tipo de combustible</label>
+        </div>
+        @if (
+          showControlErrors(vehicleFormGroup().controls.fuelType, submitted())
+        ) {
+          <div class="invalid-feedback d-block">
+            Ingresa el tipo de combustible.
+          </div>
+        }
+      </div>
+      <div class="col-md-4">
+        <div class="form-floating">
+          <input
+            type="number"
+            min="2"
+            max="6"
+            class="form-control"
+            id="vehicleDoors"
+            formControlName="numberOfDoors"
+            [class.is-invalid]="
+              showControlErrors(
+                vehicleFormGroup().controls.numberOfDoors,
+                submitted()
+              )
+            "
+            placeholder="Número de puertas"
+          />
+          <label for="vehicleDoors">Número de puertas</label>
+        </div>
+        @if (
+          showControlErrors(
+            vehicleFormGroup().controls.numberOfDoors,
+            submitted()
+          )
+        ) {
+          <div class="invalid-feedback d-block">
+            Ingresa el número de puertas.
+          </div>
+        }
+      </div>
+    </div>
+  }
+  @if (isMotorcycleSelected) {
+    <div class="row g-3 mt-1">
+      <div class="col-md-4">
+        <div class="form-floating">
+          <input
+            type="text"
+            class="form-control"
+            id="vehicleMotorcycleType"
+            formControlName="motorcycleType"
+            maxlength="20"
+            [class.is-invalid]="
+              showControlErrors(
+                vehicleFormGroup().controls.motorcycleType,
+                submitted()
+              )
+            "
+            placeholder="Tipo de motocicleta"
+          />
+          <label for="vehicleMotorcycleType">Tipo de motocicleta</label>
+        </div>
+        @if (
+          showControlErrors(
+            vehicleFormGroup().controls.motorcycleType,
+            submitted()
+          )
+        ) {
+          <div class="invalid-feedback d-block">
+            Indica el tipo de motocicleta.
+          </div>
+        }
+      </div>
+    </div>
+  }
+  <small class="text-muted d-block mt-3">
+    El vehículo quedará disponible en el inventario una vez se cree el contrato
+    de compra.
+  </small>
+</fieldset>

@@ -1,0 +1,35 @@
+<div class="outage-shell" role="alert" aria-live="assertive">
+  <div class="outage-card">
+    <i
+      class="bi outage-icon"
+      [class]="outageView().icon"
+      aria-hidden="true"
+    ></i>
+    <h1 class="outage-title">{{ outageView().title }}</h1>
+    <p class="outage-description">{{ outageView().description }}</p>
+
+    <div class="outage-actions">
+      <div class="outage-status" aria-live="polite">
+        @if (serviceHealth.isChecking()) {
+          <span
+            class="spinner-border spinner-border-sm"
+            aria-hidden="true"
+          ></span>
+          <span>Comprobando conexión…</span>
+        } @else {
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+          <span>Reintentando en {{ secondsToNextRetry() }}s…</span>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-primary rounded-pill px-4 py-2"
+        [disabled]="serviceHealth.isChecking()"
+        (click)="onRetryClick()"
+      >
+        Reintentar ahora
+      </button>
+    </div>
+  </div>
+</div>

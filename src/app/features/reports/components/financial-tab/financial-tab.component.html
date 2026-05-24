@@ -1,0 +1,137 @@
+<div class="row g-4 mb-4">
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Ingresos Totales"
+      [value]="formatCurrency(totalRevenue())"
+      icon="bi-graph-up-arrow"
+      variant="success"
+    />
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Egresos Totales"
+      [value]="formatCurrency(totalExpenses())"
+      icon="bi-graph-down-arrow"
+      variant="danger"
+    />
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Utilidad Neta"
+      [value]="formatCurrency(netProfit())"
+      icon="bi-cash-coin"
+      [variant]="netProfit() >= 0 ? 'success' : 'danger'"
+    />
+  </div>
+  <div class="col-md-6 col-xl-3">
+    <app-kpi-card
+      label="Margen Promedio de Reventa"
+      [value]="avgMarginPct() + '%'"
+      description="Ganancia promedio sobre el precio de compra por vehículo vendido"
+      icon="bi-percent"
+      variant="info"
+    />
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-8">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Ingresos vs Egresos</h5>
+      </div>
+      <div class="card-body">
+        <div class="chart-container position-relative">
+          @if (revenueVsExpensesData()) {
+            <canvas
+              baseChart
+              [data]="revenueVsExpensesData()"
+              [options]="revenueChartOptions"
+              [type]="'bar'"
+              height="320"
+            ></canvas>
+          } @else {
+            <div class="chart-placeholder text-center text-muted">
+              No hay datos financieros para mostrar.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Ingresos por Marca</h5>
+      </div>
+      <div class="card-body">
+        <div class="chart-container position-relative">
+          @if (revenueByBrandData()) {
+            <canvas
+              baseChart
+              [data]="revenueByBrandData()"
+              [options]="brandChartOptions"
+              [type]="'bar'"
+              height="320"
+            ></canvas>
+          } @else {
+            <div class="chart-placeholder text-center text-muted">
+              No hay datos de marcas.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (profitMargins().length > 0) {
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Margen de Ganancia por Vehículo</h5>
+        </div>
+        <app-data-table
+          [flat]="true"
+          [stickyHeader]="true"
+          [maxHeight]="480"
+          [loading]="isLoading()"
+        >
+          <ng-container table-head>
+            <tr>
+              <th scope="col">Vehículo</th>
+              <th scope="col" class="text-end">Precio Compra</th>
+              <th scope="col" class="text-end">Precio Venta</th>
+              <th scope="col" class="text-end">Margen</th>
+              <th scope="col" class="text-end">Margen %</th>
+            </tr>
+          </ng-container>
+          <ng-container table-body>
+            @for (row of profitMargins(); track row.vehicleLabel) {
+              <tr>
+                <td>{{ row.vehicleLabel }}</td>
+                <td class="text-end">{{ row.purchasePrice | copCurrency }}</td>
+                <td class="text-end">{{ row.salePrice | copCurrency }}</td>
+                <td
+                  class="text-end"
+                  [class.text-success]="row.margin >= 0"
+                  [class.text-danger]="row.margin < 0"
+                >
+                  {{ row.margin | copCurrency }}
+                </td>
+                <td
+                  class="text-end"
+                  [class.text-success]="row.marginPct >= 0"
+                  [class.text-danger]="row.marginPct < 0"
+                >
+                  {{ row.marginPct.toFixed(1) }}%
+                </td>
+              </tr>
+            }
+          </ng-container>
+        </app-data-table>
+      </div>
+    </div>
+  </div>
+}

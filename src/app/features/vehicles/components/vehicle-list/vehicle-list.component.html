@@ -1,0 +1,46 @@
+<div class="container-fluid">
+  <app-page-header
+    subtitle="Administra el inventario de automóviles y motocicletas registrados en SGIVU."
+    title="Gestión de Vehículos"
+  >
+    <div
+      class="d-flex align-items-center gap-3 flex-wrap justify-content-end"
+      page-header-actions
+    >
+      <div aria-label="Tipo de vehículo" class="btn-group toggle-group">
+        <button
+          (click)="switchTab('car')"
+          *appHasPermission="'car:read'"
+          [class.active]="activeTab() === 'car'"
+          class="btn btn-outline-primary me-3"
+          type="button"
+        >
+          <i class="bi bi-car-front-fill me-2"></i>Automóviles
+        </button>
+        <button
+          (click)="switchTab('motorcycle')"
+          *appHasPermission="'motorcycle:read'"
+          [class.active]="activeTab() === 'motorcycle'"
+          class="btn btn-outline-primary"
+          type="button"
+        >
+          <i class="bi bi-bicycle me-2"></i>Motocicletas
+        </button>
+      </div>
+      <button
+        (click)="startPurchaseFlow()"
+        *appHasPermission="'purchase_sale:create'"
+        class="btn btn-primary"
+        type="button"
+      >
+        <i class="bi bi-plus-circle me-2"></i>{{ createLabel }}
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (activeTab() === "car") {
+    <app-car-list />
+  } @else {
+    <app-motorcycle-list />
+  }
+</div>

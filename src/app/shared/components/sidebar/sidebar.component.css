@@ -1,0 +1,213 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.sidebar-wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.sidebar-desktop-toggle {
+  width: 100%;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0;
+  background: var(--surface);
+  color: var(--muted);
+  transition:
+    color var(--transition),
+    background-color var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
+}
+
+.sidebar-desktop-toggle i {
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.sidebar-desktop-toggle:hover,
+.sidebar-desktop-toggle:focus-visible {
+  color: var(--text);
+  background: var(--surface-muted);
+  border-color: rgba(var(--accent-rgb), 0.4);
+  transform: translateY(-1px);
+}
+
+.sidebar {
+  position: sticky;
+  top: 1rem;
+  height: auto;
+  max-height: calc(100vh - 2rem);
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 0.9rem 1rem 1rem;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-y: auto;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.sidebar__tools {
+  display: flex;
+  width: 100%;
+  justify-content: stretch;
+  margin-bottom: 0.45rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(var(--accent-rgb), 0.12);
+}
+
+.sidebar.sidebar-collapsed {
+  padding: 1rem 0.7rem;
+  align-items: center;
+}
+
+.sidebar.sidebar-collapsed .sidebar__tools {
+  justify-content: center;
+  margin-bottom: 0.2rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.sidebar.sidebar-collapsed .sidebar-desktop-toggle {
+  width: 46px;
+  height: 46px;
+}
+
+.sidebar.sidebar-collapsed .sidebar__group-label,
+.sidebar.sidebar-collapsed .sidebar__link span {
+  display: none;
+}
+
+.sidebar.sidebar-collapsed .sidebar__links {
+  width: 100%;
+}
+
+.sidebar.sidebar-collapsed .sidebar__link {
+  justify-content: center;
+  padding: 0.65rem 0.5rem;
+}
+
+.sidebar.sidebar-collapsed .sidebar__link i {
+  width: auto;
+}
+
+.sidebar.sidebar-collapsed li.active > .sidebar__link {
+  border-left: 1px solid rgba(var(--accent-rgb), 0.4);
+  padding-left: 0.5rem;
+}
+
+.sidebar__group-label {
+  margin: 0.85rem 0 0.35rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.sidebar > .sidebar__group-label:first-of-type {
+  margin-top: 0.2rem;
+}
+
+.sidebar__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 14px;
+  color: var(--muted);
+  font-weight: 700;
+  border: 1px solid transparent;
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.sidebar__link i {
+  width: 22px;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+.sidebar__link:hover,
+.sidebar__link:focus-visible {
+  color: var(--text);
+  background: var(--surface-muted);
+  transform: translateX(4px);
+}
+
+.sidebar__link:hover i,
+.sidebar__link:focus-visible i {
+  transform: scale(1.12);
+  color: var(--accent);
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+li.active > .sidebar__link {
+  color: var(--text);
+  background: var(--accent-soft);
+  box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.2);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(0.75rem - 2px);
+}
+
+li.active > .sidebar__link i {
+  color: var(--accent);
+}
+
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.sidebar-toggle i {
+  color: var(--accent);
+}
+
+.sidebar-toggle-label {
+  font-size: 0.95rem;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 991.98px) {
+  :host {
+    display: none;
+  }
+}

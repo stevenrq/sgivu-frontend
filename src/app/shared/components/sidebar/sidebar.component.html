@@ -1,0 +1,174 @@
+<div class="sidebar-wrapper">
+  @if (isMobileView()) {
+    <button
+      type="button"
+      class="sidebar-toggle"
+      (click)="toggleSidebar()"
+      aria-label="Abrir menú lateral"
+      [attr.aria-expanded]="isSidebarOpen()"
+      aria-controls="appSidebar"
+    >
+      <i
+        class="bi"
+        [class.bi-list]="!isSidebarOpen()"
+        [class.bi-x-lg]="isSidebarOpen()"
+      ></i>
+      <span class="sidebar-toggle-label">
+        {{ isSidebarOpen() ? "Cerrar" : "Menú" }}
+      </span>
+    </button>
+  }
+
+  @if (isMobileView()) {
+    <button
+      type="button"
+      class="sidebar-backdrop"
+      [class.show]="isSidebarOpen()"
+      (click)="closeSidebar()"
+      [attr.tabindex]="isSidebarOpen() ? 0 : -1"
+      [attr.aria-hidden]="!isSidebarOpen() ? true : null"
+      aria-label="Cerrar menú lateral"
+      (keydown.escape)="closeSidebar()"
+    ></button>
+  }
+
+  <nav
+    id="appSidebar"
+    class="sidebar"
+    [class.sidebar-open]="isSidebarOpen() || !isMobileView()"
+    [class.sidebar-collapsed]="isDesktopCollapsed() && !isMobileView()"
+    aria-label="Navegación principal"
+    [attr.aria-hidden]="!isSidebarOpen() && isMobileView() ? true : null"
+  >
+    @if (!isMobileView()) {
+      <div class="sidebar__tools">
+        <button
+          type="button"
+          class="sidebar-desktop-toggle"
+          (click)="toggleDesktopSidebar()"
+          [attr.aria-expanded]="!isDesktopCollapsed()"
+          aria-controls="appSidebar"
+          [attr.aria-label]="
+            isDesktopCollapsed()
+              ? 'Expandir barra lateral'
+              : 'Contraer barra lateral'
+          "
+          [attr.title]="isDesktopCollapsed() ? 'Expandir' : 'Contraer'"
+        >
+          <i
+            class="bi"
+            [class.bi-chevron-left]="!isDesktopCollapsed()"
+            [class.bi-chevron-right]="isDesktopCollapsed()"
+          ></i>
+        </button>
+      </div>
+    }
+
+    <div class="sidebar__group-label">Resumen</div>
+    <ul class="sidebar__links">
+      <li routerLinkActive="active">
+        <a
+          routerLink="/dashboard"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Panel' : null"
+        >
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Panel</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/vehicles"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Vehículos' : null"
+        >
+          <i class="bi bi-car-front-fill"></i>
+          <span>Vehículos</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/clients"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Clientes' : null"
+        >
+          <i class="bi bi-people-fill"></i>
+          <span>Clientes</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/purchase-sales"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Compras y Ventas' : null"
+        >
+          <i class="bi bi-receipt"></i>
+          <span>Compras y Ventas</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar__group-label">Operación</div>
+    <ul class="sidebar__links">
+      <li routerLinkActive="active">
+        <a
+          routerLink="/reports"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Reportes' : null"
+        >
+          <i class="bi bi-file-earmark-bar-graph-fill"></i>
+          <span>Reportes</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/maintenance"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Mantenimiento' : null"
+        >
+          <i class="bi bi-tools"></i>
+          <span>Mantenimiento</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/users"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Usuarios' : null"
+        >
+          <i class="bi bi-person-badge-fill"></i>
+          <span>Usuarios</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/settings"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Configuración' : null"
+        >
+          <i class="bi bi-gear-fill"></i>
+          <span>Configuración</span>
+        </a>
+      </li>
+      <li routerLinkActive="active">
+        <a
+          routerLink="/roles-permissions"
+          (click)="handleNavigation()"
+          class="sidebar__link"
+          [attr.aria-label]="isDesktopCollapsed() ? 'Roles y Permisos' : null"
+        >
+          <i class="bi bi-shield-lock"></i>
+          <span>Roles y Permisos</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

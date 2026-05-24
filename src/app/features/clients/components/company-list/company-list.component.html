@@ -1,0 +1,312 @@
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <app-kpi-card
+      label="Empresas registradas"
+      [value]="listManager.total()"
+      icon="bi-buildings"
+      variant="primary"
+    ></app-kpi-card>
+  </div>
+  <div class="col-md-4">
+    <app-kpi-card
+      label="Empresas activas"
+      [value]="listManager.active()"
+      icon="bi-building-check"
+      variant="success"
+    ></app-kpi-card>
+  </div>
+  <div class="col-md-4">
+    <app-kpi-card
+      label="Empresas inactivas"
+      [value]="listManager.inactive()"
+      icon="bi-building-dash"
+      variant="warning"
+    ></app-kpi-card>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header bg-white py-3">
+    <div class="d-flex flex-wrap align-items-start justify-content-between">
+      <div>
+        <h5 class="card-title mb-1">Empresas registradas</h5>
+        <p class="text-muted small mb-0">
+          Administra clientes empresas, sus datos tributarios y estado.
+        </p>
+      </div>
+    </div>
+
+    <!-- Barra de búsqueda principal -->
+    <div class="mt-3">
+      <div class="d-flex gap-2 align-items-start flex-wrap">
+        <div class="flex-fill" style="min-width: 220px; max-width: 480px">
+          <app-quick-search-bar
+            placeholder="Buscar por razón social..."
+            [searchValue]="filters.companyName ?? ''"
+            [activeChips]="activeChips"
+            (searchValueChange)="onSearchValueChange($event)"
+            (searchSubmitted)="applyFilters()"
+            (cleared)="clearSearchTerm()"
+            (chipRemoved)="removeFilter($event)"
+          />
+        </div>
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          type="button"
+          [attr.aria-expanded]="showAdvancedFilters"
+          (click)="showAdvancedFilters = !showAdvancedFilters"
+        >
+          <i class="bi bi-sliders me-1"></i>Más filtros
+          @if (advancedFiltersCount > 0) {
+            <span class="badge rounded-pill bg-primary ms-1">{{
+              advancedFiltersCount
+            }}</span>
+          }
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
+          type="button"
+          (click)="applyFilters()"
+        >
+          <i class="bi bi-funnel me-1"></i>Aplicar
+        </button>
+      </div>
+
+      <!-- Panel colapsable de filtros avanzados -->
+      <div class="mt-3" [hidden]="!showAdvancedFilters">
+        <div class="advanced-filters-panel p-3">
+          <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-3">
+              <label class="form-label filter-label" for="companyFilterTaxId"
+                >NIT</label
+              >
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                id="companyFilterTaxId"
+                [(ngModel)]="filters.taxId"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label filter-label" for="companyFilterEmail"
+                >Correo</label
+              >
+              <input
+                type="email"
+                class="form-control form-control-sm"
+                id="companyFilterEmail"
+                [(ngModel)]="filters.email"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-12 col-md-3">
+              <label
+                class="form-label filter-label"
+                for="companyFilterPhoneNumber"
+                >Teléfono</label
+              >
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                id="companyFilterPhoneNumber"
+                [(ngModel)]="filters.phoneNumber"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label filter-label" for="companyFilterCity"
+                >Ciudad</label
+              >
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                id="companyFilterCity"
+                [(ngModel)]="filters.city"
+                (keyup.enter)="applyFilters()"
+              />
+            </div>
+            <div class="col-12">
+              <app-filter-chip-group
+                label="Estado"
+                [options]="enabledChipOptions"
+                [selected]="filters.enabled ?? ''"
+                allLabel="Todas"
+                allValue=""
+                (selectedChange)="filters.enabled = $any($event)"
+              />
+            </div>
+            <div class="col-12 d-flex gap-2 justify-content-end">
+              <button
+                class="btn btn-primary btn-sm"
+                type="button"
+                (click)="applyFilters()"
+              >
+                <i class="bi bi-funnel me-1"></i>Aplicar
+              </button>
+              <button
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                (click)="clearFilters()"
+              >
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (listManager.error()) {
+    <div class="alert alert-danger rounded-0 mb-0">
+      {{ listManager.error() }}
+    </div>
+  }
+
+  <div class="card-body p-0">
+    <app-data-table
+      [loading]="listManager.loading()"
+      [minHeight]="320"
+      loadingLabel="Cargando empresas..."
+    >
+      <ng-container table-head>
+        <tr>
+          <th scope="col">Razón social</th>
+          <th scope="col">NIT</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Teléfono</th>
+          <th scope="col">Estado</th>
+          <th
+            scope="col"
+            class="text-center"
+            *appHasPermission="'company:read'"
+          >
+            Acciones
+          </th>
+        </tr>
+      </ng-container>
+      <ng-container table-body>
+        @if (!listManager.loading() && listManager.items().length === 0) {
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">
+              No existen empresas registradas en este momento.
+            </td>
+          </tr>
+        } @else {
+          @for (company of listManager.items(); track company.id) {
+            <tr
+              appRowNavigate
+              [appRowNavigate]="['/clients/companies', company.id, 'detail']"
+              [appRowNavigateDisabled]="listManager.loading()"
+            >
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar me-3">
+                    {{ company.companyName.charAt(0) || "E" }}
+                  </div>
+                  <div>
+                    <span class="fw-semibold d-inline-flex flex-column">
+                      <span>{{ company.companyName }}</span>
+                    </span>
+                    <div class="text-muted small">
+                      <i class="bi bi-geo-alt me-1"></i>
+                      {{ company.address.city || "Ciudad no definida" }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ company.taxId }}</td>
+              <td>{{ company.email }}</td>
+              <td>{{ company.phoneNumber }}</td>
+              <td>
+                @if (company.enabled) {
+                  <span
+                    class="badge bg-success-subtle text-success-emphasis rounded-pill"
+                  >
+                    Activa
+                  </span>
+                } @else {
+                  <span
+                    class="badge bg-warning-subtle text-warning-emphasis rounded-pill"
+                  >
+                    Inactiva
+                  </span>
+                }
+              </td>
+              <td class="text-center" *appHasPermission="'company:read'">
+                <div class="dropdown">
+                  <button
+                    class="btn btn-outline-secondary btn-sm btn-icon"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i class="bi bi-three-dots"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a
+                        class="dropdown-item"
+                        [routerLink]="[
+                          '/clients/companies',
+                          company.id,
+                          'detail',
+                        ]"
+                      >
+                        <i class="bi bi-eye me-2"></i>Ver detalle
+                      </a>
+                    </li>
+                    <li *appHasPermission="'company:update'">
+                      <a
+                        class="dropdown-item"
+                        [routerLink]="['/clients/companies', company.id]"
+                      >
+                        <i class="bi bi-pencil-square me-2"></i>Editar
+                      </a>
+                    </li>
+                    <li *appHasPermission="'company:update'">
+                      <button
+                        class="dropdown-item d-flex align-items-center"
+                        type="button"
+                        (click)="toggleStatus(company)"
+                      >
+                        <i
+                          class="bi me-2"
+                          [ngClass]="
+                            company.enabled ? 'bi-toggle-on' : 'bi-toggle-off'
+                          "
+                        ></i>
+                        {{ company.enabled ? "Desactivar" : "Activar" }}
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </ng-container>
+    </app-data-table>
+  </div>
+
+  @if (
+    listManager.pager() &&
+    listManager.pager()!.totalPages &&
+    listManager.pager()!.totalPages > 0
+  ) {
+    <div
+      class="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2"
+    >
+      <span class="text-muted"
+        >Mostrando {{ listManager.pager()!.numberOfElements }} de
+        {{ listManager.pager()!.totalElements }} {{ pagerLabel }}</span
+      >
+      <app-pager
+        [pager]="listManager.pager()!"
+        [url]="pagerUrl"
+        [queryParams]="activePagerQueryParams"
+      ></app-pager>
+    </div>
+  }
+</div>

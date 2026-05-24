@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  margin-bottom: 1.75rem;
+}
+
+.page-header__text {
+  min-width: 220px;
+}
+
+.page-header__eyebrow {
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.page-header__actions:empty {
+  display: none;
+}
+
+.page-header__text h1 {
+  letter-spacing: 0.01em;
+}

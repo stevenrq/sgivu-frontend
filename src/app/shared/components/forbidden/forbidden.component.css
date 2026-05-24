@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.error-code {
+  font-size: 6rem;
+  font-weight: 700;
+  color: #dc3545;
+}
+.error-icon {
+  width: 100px;
+  height: 100px;
+  color: #dc3545;
+}

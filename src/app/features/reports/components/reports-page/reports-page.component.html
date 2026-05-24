@@ -1,0 +1,102 @@
+<div class="container-fluid reports-page">
+  <app-page-header
+    title="Reportes"
+    subtitle="Análisis y métricas del negocio"
+    eyebrow="Operación"
+  />
+
+  @if (loadError()) {
+    <div class="alert alert-danger mb-4" role="alert">{{ loadError() }}</div>
+  }
+
+  <div
+    class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"
+  >
+    <app-report-date-filter (dateRangeChange)="onDateRangeChange($event)" />
+    <app-report-export-bar [startDate]="startDate()" [endDate]="endDate()" />
+  </div>
+
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'financial'"
+        (click)="activeTab.set('financial')"
+      >
+        <i class="bi bi-cash-stack me-1"></i> Financiero
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'inventory'"
+        (click)="activeTab.set('inventory')"
+      >
+        <i class="bi bi-box-seam me-1"></i> Inventario
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'sales-clients'"
+        (click)="activeTab.set('sales-clients')"
+      >
+        <i class="bi bi-people me-1"></i> Ventas y Clientes
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab() === 'profitability'"
+        (click)="activeTab.set('profitability')"
+      >
+        <i class="bi bi-calculator me-1"></i> Rentabilidad
+      </button>
+    </li>
+  </ul>
+
+  @if (isLoading()) {
+    <div class="row g-4">
+      @for (i of [0, 1, 2, 3]; track i) {
+        <div class="col-md-6 col-xl-3">
+          <app-skeleton-loader variant="card"></app-skeleton-loader>
+        </div>
+      }
+      <div class="col-12">
+        <app-skeleton-loader
+          variant="chart"
+          height="340px"
+        ></app-skeleton-loader>
+      </div>
+    </div>
+  } @else {
+    @switch (activeTab()) {
+      @case ("financial") {
+        <app-financial-tab
+          [contracts]="filteredContracts()"
+          [isLoading]="isLoading()"
+        />
+      }
+      @case ("inventory") {
+        <app-inventory-tab
+          [contracts]="filteredContracts()"
+          [cars]="cars()"
+          [motorcycles]="motorcycles()"
+          [isLoading]="isLoading()"
+        />
+      }
+      @case ("sales-clients") {
+        <app-sales-clients-tab
+          [contracts]="filteredContracts()"
+          [isLoading]="isLoading()"
+        />
+      }
+      @case ("profitability") {
+        <app-profitability-tab
+          [contracts]="filteredContracts()"
+          [isLoading]="isLoading()"
+        />
+      }
+    }
+  }
+</div>

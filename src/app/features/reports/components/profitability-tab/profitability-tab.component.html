@@ -1,0 +1,49 @@
+<div class="row g-4 mb-4">
+  <div class="col-xl-6">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Velocidad de Venta por Marca</h5>
+      </div>
+      <div class="card-body">
+        <div class="chart-container position-relative">
+          @if (saleVelocity().length > 0) {
+            <canvas
+              baseChart
+              [data]="velocityChartData()"
+              [options]="velocityOptions"
+              [type]="'bar'"
+              height="280"
+            ></canvas>
+          } @else {
+            <div class="chart-placeholder text-center text-muted">
+              No hay datos de velocidad de venta.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Resumen del Inventario Actual</h5>
+      </div>
+      <div class="card-body d-flex align-items-center">
+        <div class="row w-100 text-center">
+          <div class="col-4">
+            <div class="fs-2 fw-bold text-primary inventory-value">{{ inventoryValue().vehicleCount }}</div>
+            <div class="text-muted small">Vehículos</div>
+          </div>
+          <div class="col-4">
+            <div class="fs-5 fw-bold text-success inventory-value">{{ formatCurrency(inventoryValue().totalPurchaseValue) }}</div>
+            <div class="text-muted small">Valor Total</div>
+          </div>
+          <div class="col-4">
+            <div class="fs-5 fw-bold text-info inventory-value">{{ formatCurrency(inventoryValue().avgValue) }}</div>
+            <div class="text-muted small">Valor Promedio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

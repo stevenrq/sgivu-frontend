@@ -1,0 +1,68 @@
+.client-detail-hero {
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-strong) 100%
+  );
+}
+
+.client-avatar {
+  width: 140px;
+  height: 140px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--detail-border-color);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.client-progress {
+  height: 0.75rem;
+  background-color: var(--detail-border-color);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.client-progress .progress-bar {
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.detail-actions .btn {
+  width: 100%;
+}
+
+.checklist .bi {
+  width: 36px;
+}
+
+.detail-status-pill-active {
+  background-color: #198754 !important;
+}
+
+.detail-status-pill-inactive {
+  background-color: #dc3545 !important;
+}
+
+.detail-hero-title {
+  color: #fff;
+}
+
+.detail-hero-subtitle {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.detail-status-pill-on-hero {
+  background-color: #1d3f8d;
+  color: #f7faff;
+  border: 1px solid color-mix(in srgb, #ffffff 35%, #1d3f8d 65%);
+  font-weight: 700;
+}

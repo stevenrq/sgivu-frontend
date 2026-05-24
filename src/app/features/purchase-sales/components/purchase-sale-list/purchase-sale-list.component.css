@@ -1,0 +1,57 @@
+:host {
+  display: block;
+}
+
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(14, 30, 37, 0.12);
+}
+
+.card-header {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.advanced-filters-panel {
+  background-color: var(--surface-muted, #f8f9fa);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 0.5rem);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted, #6c757d);
+  margin-bottom: 0.25rem;
+}
+
+.form-select-sm {
+  padding-right: 1.75rem;
+}
