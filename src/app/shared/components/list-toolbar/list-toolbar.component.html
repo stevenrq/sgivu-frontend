@@ -1,0 +1,44 @@
+<div class="mt-3">
+  <div class="d-flex gap-2 align-items-start flex-wrap">
+    <div class="flex-fill list-toolbar-search">
+      <app-quick-search-bar
+        [placeholder]="placeholder()"
+        [searchValue]="searchValue()"
+        [suggestions]="suggestions()"
+        [activeChips]="activeChips()"
+        (searchValueChange)="searchValueChange.emit($event)"
+        (suggestionSelected)="suggestionSelected.emit($event)"
+        (searchSubmitted)="searchSubmitted.emit()"
+        (cleared)="cleared.emit()"
+        (chipRemoved)="chipRemoved.emit($event)"
+      />
+    </div>
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      type="button"
+      [attr.aria-expanded]="showAdvancedFilters()"
+      (click)="toggleAdvancedFilters()"
+    >
+      <i class="bi bi-sliders me-1"></i>Más filtros
+      @if (advancedFiltersCount() > 0) {
+        <span class="badge rounded-pill bg-primary ms-1">{{
+          advancedFiltersCount()
+        }}</span>
+      }
+    </button>
+    <button
+      class="btn btn-primary btn-sm"
+      type="button"
+      (click)="applied.emit()"
+    >
+      <i class="bi bi-funnel me-1"></i>Aplicar
+    </button>
+  </div>
+
+  <!-- Panel colapsable de filtros avanzados (contenido proyectado por cada listado) -->
+  <div class="mt-3" [hidden]="!showAdvancedFilters()">
+    <div class="advanced-filters-panel p-3">
+      <ng-content select="[advanced-filters]" />
+    </div>
+  </div>
+</div>

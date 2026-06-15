@@ -1,0 +1,117 @@
+---
+title: "Gestión de Roles y Permisos"
+description: "Feature de gestión de roles y permisos en SGIVU: editor de permisos por rol"
+---
+
+# Gestión de Roles y Permisos
+
+Permite a los administradores gestionar los roles del sistema y los permisos asignados a cada rol. Los permisos siguen el formato `recurso:accion` y son la base del sistema RBAC de SGIVU.
+
+**Ubicación**: `src/app/features/roles/`  
+**Ruta**: `/roles`  
+**Permiso requerido**: `role:update`
+
+## Permisos del Sistema
+
+Los permisos disponibles en la aplicación:
+
+### Usuarios
+
+| Permiso       | Acción                |
+| ------------- | --------------------- |
+| `user:read`   | Ver lista de usuarios |
+| `user:create` | Crear usuarios        |
+| `user:update` | Editar usuarios       |
+| `user:delete` | Eliminar usuarios     |
+
+### Clientes
+
+| Permiso          | Acción            |
+| ---------------- | ----------------- |
+| `person:read`    | Ver personas      |
+| `person:create`  | Crear personas    |
+| `person:update`  | Editar personas   |
+| `person:delete`  | Eliminar personas |
+| `company:read`   | Ver empresas      |
+| `company:create` | Crear empresas    |
+| `company:update` | Editar empresas   |
+| `company:delete` | Eliminar empresas |
+
+### Vehículos
+
+| Permiso                 | Acción                    |
+| ----------------------- | ------------------------- |
+| `vehicle:read`          | Ver inventario            |
+| `vehicle:create`        | Registrar vehículos       |
+| `vehicle:update`        | Editar vehículos          |
+| `vehicle:delete`        | Eliminar vehículos        |
+| `vehicle:manage_images` | Subir y eliminar imágenes |
+
+### Contratos de Compraventa
+
+| Permiso                | Acción                   |
+| ---------------------- | ------------------------ |
+| `purchase_sale:read`   | Ver contratos y reportes |
+| `purchase_sale:create` | Crear contratos          |
+| `purchase_sale:update` | Editar contratos         |
+| `purchase_sale:delete` | Cancelar contratos       |
+
+### Roles
+
+| Permiso       | Acción                      |
+| ------------- | --------------------------- |
+| `role:read`   | Ver roles                   |
+| `role:update` | Modificar permisos de roles |
+
+## Componentes
+
+### `RoleListComponent`
+
+**Ruta**: `/roles`
+
+Lista de todos los roles del sistema con el número de permisos asignados y opción de editar cada uno.
+
+### `RolePermissionsEditorComponent`
+
+Editor avanzado de permisos por rol:
+
+- Permisos organizados por recurso (usuarios, clientes, vehículos, etc.)
+- Checkboxes individuales por permiso con seleccionar/deseleccionar todos por grupo
+- Guardado con confirmación vía SweetAlert2
+
+**Permiso requerido para acceder**: `role:update`
+
+## Servicios
+
+### `RoleService`
+
+**Ruta**: `src/app/features/roles/services/role.service.ts`
+
+Gestiona roles y asignación de permisos:
+
+| Método HTTP | Endpoint                     | Acción                           |
+| ----------- | ---------------------------- | -------------------------------- |
+| `GET`       | `/v1/roles`                  | Listar roles                     |
+| `GET`       | `/v1/permissions`            | Catálogo de permisos disponibles |
+| `PUT`       | `/v1/roles/{id}/permissions` | Actualizar permisos de un rol    |
+
+## Utilidades
+
+### `permission-catalog.utils.ts`
+
+Organiza el catálogo de permisos del sistema por recurso para estructurar el editor de checkboxes. Convierte la lista plana de permisos del backend en grupos lógicos por dominio.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Autorización RBAC"
+    icon="lock"
+    href="/architecture/authorization"
+  >
+    Cómo se aplican los permisos en guards y directivas
+  </Card>
+  <Card title="Gestión de Usuarios" icon="users" href="/features/users">
+    Asignar roles a usuarios
+  </Card>
+</CardGroup>

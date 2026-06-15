@@ -1,0 +1,151 @@
+---
+title: "Instalación"
+description: "Instalación completa de sgivu-frontend con el stack backend en local"
+---
+
+# Instalación
+
+Esta guía cubre la instalación del frontend junto al stack backend completo para desarrollo local en Windows + WSL (Ubuntu).
+
+## Requisitos del Sistema
+
+### Herramientas de Desarrollo
+
+- **Node.js v24** — fijado en `.nvmrc`. Con nvm: `nvm install && nvm use`
+- **npm 8+** — incluido con Node.js
+- **Git**
+
+### Backend (opcional para desarrollo)
+
+Para trabajar con datos reales necesitas los siguientes servicios del repo `stevenrq/sgivu`:
+
+| Servicio          | Puerto | Rol                                |
+| ----------------- | ------ | ---------------------------------- |
+| `sgivu-gateway`   | 8080   | API Gateway + BFF                  |
+| `sgivu-auth`      | 9000   | Servidor de autorización OAuth 2.1 |
+| `sgivu-config`    | —      | Configuración centralizada         |
+| `sgivu-discovery` | —      | Registro de servicios Eureka       |
+
+<Note>
+  El backend se levanta con Docker Compose desde el repo `sgivu`:
+  `infra/compose/sgivu-docker-compose`. Ver la [documentación del
+  backend](https://sgivu.mintlify.app/getting-started/docker-deployment) para el
+  procedimiento completo.
+</Note>
+
+## Instalación del Frontend
+
+<Steps>
+  <Step title="Clonar el repositorio">
+    ```bash
+    git clone https://github.com/stevenrq/sgivu-frontend.git
+    cd sgivu-frontend
+    ```
+  </Step>
+  <Step title="Usar la versión correcta de Node">
+    ```bash
+    nvm use    # Lee automáticamente .nvmrc (Node v24)
+    ```
+  </Step>
+  <Step title="Instalar dependencias">
+    ```bash
+    npm install
+    ```
+
+    Esto instala, entre otras:
+    - Angular 21.0.5 y Angular CLI
+    - Bootstrap 5.3.8 + Bootstrap Icons
+    - Chart.js y ng2-charts
+    - SweetAlert2
+    - Vitest y Playwright (herramientas de test)
+    - ESLint, Prettier, Husky
+
+  </Step>
+  <Step title="Instalar Chromium para Playwright (opcional, para e2e)">
+    ```bash
+    npx playwright install chromium
+    ```
+
+    En WSL con Ubuntu 26.04 puede fallar con "does not support chromium on ubuntu26.04". Usa:
+
+    ```bash
+    PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 npx playwright install chromium
+    ```
+
+  </Step>
+  <Step title="Generar archivos de entorno">
+    ```bash
+    cp src/environments/environment.example.ts src/environments/environment.ts
+    cp src/environments/environment.development.example.ts src/environments/environment.development.ts
+    ```
+
+    Edita `src/environments/environment.development.ts` con las URLs de tu entorno local. Ver [Configuración de Entornos](/getting-started/environments).
+
+  </Step>
+</Steps>
+
+## Configurar `/etc/hosts` (WSL)
+
+Para que el navegador resuelva los hostnames de los contenedores Docker, agrega en WSL:
+
+```bash
+echo "127.0.0.1 sgivu-auth" | sudo tee -a /etc/hosts
+echo "127.0.0.1 sgivu-gateway" | sudo tee -a /etc/hosts
+```
+
+Esto es necesario porque el servidor de autorización verifica que el `issuer` coincida con el hostname en la URL de redirección OAuth.
+
+## Levantar el Stack Completo
+
+<Steps>
+  <Step title="Iniciar backend con Docker Compose">
+    ```bash
+    # En el repo sgivu
+    cd infra/compose
+    docker compose -f sgivu-docker-compose.yml up -d
+    ```
+  </Step>
+  <Step title="Iniciar el frontend">
+    ```bash
+    # En el repo sgivu-frontend
+    npm run start
+    ```
+
+    App disponible en **http://localhost:4200**.
+
+  </Step>
+</Steps>
+
+## Verificar la Instalación
+
+```bash
+# Revisar versión de Node
+node -v   # Debe ser v24.x.x
+
+# Ejecutar tests unitarios (sin navegador, solo Node + jsdom)
+CI=true npm run test
+
+# Build de producción
+npm run build
+```
+
+Si el build termina sin errores, la instalación es correcta.
+
+<Warning>
+  `sudo` no está disponible de forma no interactiva en este entorno de desarrollo. Si necesitas instalar paquetes del sistema (por ejemplo para Playwright en WSL), ejecuta el comando manualmente en tu terminal: `sudo apt install -y <paquete>`.
+</Warning>
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Configuración de Entornos"
+    icon="gear"
+    href="/getting-started/environments"
+  >
+    Variables por entorno: apiUrl, authHealthCheckUrl, clientId
+  </Card>
+  <Card title="Despliegue" icon="cloud" href="/getting-started/deployment">
+    Build y publicación en hosting estático
+  </Card>
+</CardGroup>

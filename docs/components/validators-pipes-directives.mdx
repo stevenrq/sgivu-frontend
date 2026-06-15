@@ -1,0 +1,137 @@
+---
+title: "Validators, Pipes y Directivas"
+description: "Validators de formulario, pipes personalizados y directivas de sgivu-frontend"
+---
+
+# Validators, Pipes y Directivas
+
+## Validators de Formulario
+
+**Ruta**: `src/app/shared/validators/form.validator.ts`
+
+Validators personalizados de Angular para uso en Reactive Forms. Úsalos siempre antes de escribir uno nuevo.
+
+### Validators Individuales
+
+```typescript
+import {
+  lengthValidator,
+  noWhitespaceValidator,
+  noSpecialCharactersValidator,
+  passwordStrengthValidator,
+} from "@shared/validators/form.validator";
+```
+
+| Validator                        | Descripción                                                           | Clave de error      |
+| -------------------------------- | --------------------------------------------------------------------- | ------------------- |
+| `lengthValidator(min, max)`      | Longitud entre min y max (chars o dígitos)                            | `length`            |
+| `noWhitespaceValidator()`        | Falla si el campo es solo espacios                                    | `whitespace`        |
+| `noSpecialCharactersValidator()` | Solo alfanuméricos (sin `!@#$%…`)                                     | `specialCharacters` |
+| `passwordStrengthValidator()`    | Requiere ≥1 mayúscula, ≥1 minúscula, ≥1 dígito, ≥1 especial, ≥6 chars | `passwordStrength`  |
+
+### Presets
+
+```typescript
+import {
+  textFieldValidators,
+  numericFieldValidators,
+} from '@shared/validators/form.validator';
+
+// textFieldValidators(min, max) → [required, lengthValidator(min,max), noWhitespaceValidator()]
+firstName: new FormControl('', textFieldValidators(2, 80)),
+
+// numericFieldValidators(min, max) → [required, lengthValidator(min,max)]
+documentNumber: new FormControl('', numericFieldValidators(5, 20)),
+```
+
+---
+
+## Pipes Personalizados
+
+### `COPCurrencyPipe`
+
+**Selector**: `copCurrency`  
+**Ruta**: `src/app/shared/pipes/cop-currency.pipe.ts`
+
+Formatea un número como Peso Colombiano con símbolo `$`, separador de miles y sin decimales:
+
+```html
+<!-- 15000000 → $ 15.000.000 -->
+{{ vehicle.price | copCurrency }}
+```
+
+Equivalente a `number:'1.0-0':'es-CO'` pero con el símbolo `$` y el prefijo correcto para COP.
+
+### `UtcToGmtMinus5Pipe`
+
+**Selector**: `utcToGmtMinus5`  
+**Ruta**: `src/app/shared/pipes/utc-to-gmt-minus5.pipe.ts`
+
+Convierte una fecha/string UTC a la zona horaria colombiana (GMT-5) y la formatea para la UI:
+
+```html
+<!-- "2025-06-14T18:30:00Z" → "14/06/2025 13:30" -->
+{{ contract.createdAt | utcToGmtMinus5 }}
+```
+
+Colombia no observa horario de verano (DST), por lo que la conversión es siempre UTC-5.
+
+---
+
+## Directivas
+
+### `*appHasPermission` (estructural)
+
+**Selector**: `*appHasPermission`  
+**Ruta**: `src/app/shared/directives/has-permission.directive.ts`
+
+Muestra u oculta elementos DOM según los permisos del usuario autenticado. Ver [Autorización RBAC](/architecture/authorization) para el detalle completo.
+
+```html
+<!-- Un solo permiso -->
+<button *appHasPermission="'user:create'">Crear Usuario</button>
+
+<!-- Lista de permisos — lógica OR por defecto (basta uno) -->
+<div *appHasPermission="['vehicle:update', 'vehicle:create']">Editar</div>
+
+<!-- Lógica AND (requiere todos) -->
+<div *appHasPermission="['role:read', 'role:update']; logic: 'AND'">
+  Gestionar Roles
+</div>
+```
+
+### `RowNavigateDirective`
+
+**Selector**: `[appRowNavigate]`  
+**Ruta**: `src/app/shared/directives/row-navigate.directive.ts`
+
+Hace que una fila de tabla (`<tr>`) sea navegable con un click, redirigiéndola a una URL:
+
+```html
+<tr [appRowNavigate]="['/users', user.id]">
+  <!-- …celdas… -->
+</tr>
+```
+
+Aplica cursor pointer y los estilos hover correctos para indicar que la fila es clickeable.
+
+---
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Formularios Reactivos"
+    icon="input-text"
+    href="/architecture/forms"
+  >
+    Cómo usar estos validators en FormGroup tipados
+  </Card>
+  <Card
+    title="Autorización RBAC"
+    icon="lock"
+    href="/architecture/authorization"
+  >
+    Detalle de permissionGuard y *appHasPermission
+  </Card>
+</CardGroup>

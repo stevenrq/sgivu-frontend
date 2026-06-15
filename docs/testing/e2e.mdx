@@ -1,0 +1,150 @@
+---
+title: "Tests E2E"
+description: "Suite Playwright de sgivu-frontend: smoke tests con red simulada y auditoría de accesibilidad"
+---
+
+# Tests E2E
+
+sgivu-frontend tiene una suite de **smoke tests** con **Playwright** que verifica los flujos críticos de la aplicación sin necesitar un backend real. Toda la red del gateway se simula con `page.route()`.
+
+## Por Qué Sin Backend Real
+
+El flujo OAuth 2.1/PKCE real no se puede automatizar de forma headless: requiere un formulario de login real en `sgivu-auth`, que a su vez necesita la infraestructura completa del backend (gateway, auth, Redis, discovery, config, microservicios).
+
+La solución: **interceptar todas las peticiones HTTP en Playwright** y devolver respuestas simuladas. Los tests verifican el comportamiento de la UI ante datos conocidos, sin dependencias externas.
+
+## Estructura de la Suite
+
+```
+e2e/
+├── fixtures/
+│   └── api-mocks.ts          # Configuración de mocks de red
+├── users.spec.ts             # Listar, crear y filtrar usuarios
+├── dashboard.spec.ts         # Visualización de KPIs
+├── purchase-sales.spec.ts    # CRUD de contratos
+├── roles.spec.ts             # Gestión de permisos
+├── purchase-sale-create.spec.ts # Flujo de creación asistida
+├── mobile-viewport.spec.ts   # Responsive en viewport móvil
+└── accessibility.spec.ts     # Auditoría axe-core
+```
+
+## API Mocks
+
+**Ruta**: `e2e/fixtures/api-mocks.ts`
+
+Simula toda la API del gateway con datos de semilla:
+
+```typescript
+// Datos de semilla predefinidos
+const SESSION = {
+  /* usuario administrador autenticado */
+};
+const ADMIN_USER = {
+  /* datos completos del admin */
+};
+const PERMISSIONS = [
+  /* lista de permisos del sistema */
+];
+const ROLES = [
+  /* roles disponibles */
+];
+
+// Helpers
+function springPage<T>(items: T[], page = 0, size = 10) {
+  // Genera una respuesta Spring Data REST paginada
+  return {
+    content: items,
+    totalElements: items.length,
+    totalPages: Math.ceil(items.length / size),
+    number: page,
+    size,
+  };
+}
+
+// Configuración de mocks con page.route()
+export async function setupApiMocks(page: Page): Promise<void> {
+  await page.route("**/auth/session", (route) =>
+    route.fulfill({ json: SESSION }),
+  );
+  await page.route("**/v1/users**", (route) =>
+    route.fulfill({ json: springPage([ADMIN_USER]) }),
+  );
+  // …más rutas
+}
+```
+
+## Ejecutar los Tests
+
+```bash
+# Instalar Chromium (primera vez)
+npx playwright install chromium
+
+# En WSL con Ubuntu 26.04
+PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 npx playwright install chromium
+
+# Ejecutar la suite completa
+npm run e2e
+
+# Ejecutar un spec específico
+npx playwright test e2e/users.spec.ts
+
+# Ver el reporte HTML (tras un fallo)
+npx playwright show-report
+```
+
+La suite levanta `ng serve` automáticamente (`webServer` en `playwright.config.ts`) y lo cierra al terminar. Si ya hay un servidor en :4200, lo reutiliza.
+
+## Configuración
+
+**Ruta**: `playwright.config.ts`
+
+```typescript
+export default defineConfig({
+  testDir: "./e2e",
+  fullyParallel: true,
+  retries: process.env["CI"] ? 2 : 0,
+  use: {
+    baseURL: "http://localhost:4200",
+    trace: "on-first-retry",
+  },
+  webServer: {
+    command: "npm start",
+    url: "http://localhost:4200",
+    reuseExistingServer: !process.env["CI"],
+  },
+});
+```
+
+## Accesibilidad con axe-core
+
+La suite incluye auditorías de accesibilidad usando `@axe-core/playwright`:
+
+```typescript
+// accessibility.spec.ts
+import AxeBuilder from "@axe-core/playwright";
+
+test("El dashboard no debe tener violaciones de accesibilidad", async ({
+  page,
+}) => {
+  await page.goto("/dashboard");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toHaveLength(0);
+});
+```
+
+Las violaciones detectadas por axe-core (contraste insuficiente, falta de `aria-label`, etc.) hacen fallar el test.
+
+## Login en Manual vs. E2E
+
+Los tests e2e simulan la sesión directamente (el mock de `/auth/session` devuelve un usuario autenticado). Para probar el **flujo real de login OAuth** hay que hacerlo manualmente con el backend levantado — no se puede automatizar headless.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Pipeline CI" icon="git-branch" href="/testing/ci">
+    Cómo se ejecuta la suite en GitHub Actions
+  </Card>
+  <Card title="Tests Unitarios" icon="beaker" href="/testing/unit">
+    Vitest y patrones de prueba unitaria
+  </Card>
+</CardGroup>

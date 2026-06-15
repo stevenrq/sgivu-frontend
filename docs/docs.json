@@ -1,0 +1,128 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "SGIVU Frontend",
+  "theme": "mint",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#07C983",
+    "dark": "#15803D"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/stevenrq/sgivu-frontend"
+    },
+    "links": [
+      { "label": "Plataforma SGIVU", "href": "https://sgivu.mintlify.app" }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/stevenrq/sgivu-frontend"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentación",
+        "groups": [
+          {
+            "group": "Descripción General",
+            "pages": ["introduction", "architecture"]
+          },
+          {
+            "group": "Primeros Pasos",
+            "pages": [
+              "getting-started/quickstart",
+              "getting-started/installation",
+              "getting-started/environments",
+              "getting-started/deployment"
+            ]
+          },
+          {
+            "group": "Funcionalidades",
+            "pages": [
+              "features/dashboard",
+              "features/users",
+              "features/clients",
+              "features/vehicles",
+              "features/purchase-sales",
+              "features/reports",
+              "features/roles-permissions"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Arquitectura",
+        "groups": [
+          {
+            "group": "Fundamentos Angular",
+            "pages": [
+              "architecture/zoneless-signals",
+              "architecture/standalone-lazy-loading",
+              "architecture/project-structure",
+              "architecture/state-management"
+            ]
+          },
+          {
+            "group": "Seguridad",
+            "pages": [
+              "architecture/authentication",
+              "architecture/authorization"
+            ]
+          },
+          {
+            "group": "UI y Formularios",
+            "pages": ["architecture/theming", "architecture/forms"]
+          }
+        ]
+      },
+      {
+        "tab": "Componentes",
+        "groups": [
+          {
+            "group": "Catálogo",
+            "pages": [
+              "components/shared-components",
+              "components/shared-utils",
+              "components/validators-pipes-directives",
+              "components/compodoc"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Integración",
+        "groups": [
+          {
+            "group": "Backend (BFF)",
+            "pages": ["integration/gateway", "integration/demand-prediction"]
+          }
+        ]
+      },
+      {
+        "tab": "Testing",
+        "groups": [
+          {
+            "group": "Pruebas",
+            "pages": ["testing/unit", "testing/e2e", "testing/ci"]
+          }
+        ]
+      },
+      {
+        "tab": "Referencia",
+        "groups": [
+          {
+            "group": "Convenciones",
+            "pages": [
+              "reference/code-style",
+              "reference/git-workflow",
+              "reference/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

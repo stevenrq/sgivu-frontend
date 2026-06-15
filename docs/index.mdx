@@ -1,0 +1,111 @@
+---
+title: "SGIVU Frontend — Aplicación Angular"
+description: "SPA Angular 21 del ecosistema SGIVU: administración de inventario de vehículos, contratos de compraventa y predicción de demanda ML"
+---
+
+<Note>
+  **Preview local** — Esta documentación se consulta en local con `mint dev`
+  desde la carpeta `docs/`. No está desplegada en internet: la capa gratuita de
+  Mintlify solo permite un sitio publicado, que es la [documentación de la
+  plataforma SGIVU](https://sgivu.mintlify.app). Si acabas de clonar el repo,
+  ejecuta `npm i -g mint && cd docs && mint dev` y abre `http://localhost:3000`.
+</Note>
+
+<Note>
+  **sgivu-frontend** es la interfaz de usuario oficial del ecosistema SGIVU. Se
+  comunica exclusivamente con `sgivu-gateway` siguiendo el patrón BFF, y delega
+  toda la autenticación OAuth 2.1/PKCE al backend.
+</Note>
+
+## Funcionalidades Principales
+
+<CardGroup cols={2}>
+  <Card
+    title="Autenticación y Autorización"
+    icon="shield-check"
+    href="/architecture/authentication"
+  >
+    OAuth 2.1 sin librerías cliente: BFF puro con sesiones en gateway y RBAC con
+    permisos `recurso:accion`
+  </Card>
+  <Card title="Gestión de Inventario" icon="car" href="/features/vehicles">
+    Catálogo de autos y motos con carga de imágenes a S3 vía URLs prefirmadas
+  </Card>
+  <Card
+    title="Predicción de Demanda"
+    icon="chart-line"
+    href="/integration/demand-prediction"
+  >
+    Panel ML integrado con métricas RMSE/MAE/MAPE/WAPE/R² y reentrenamiento
+    asíncrono
+  </Card>
+  <Card
+    title="Angular Moderno"
+    icon="code"
+    href="/architecture/zoneless-signals"
+  >
+    Zoneless, signals, standalone components y OnPush en toda la app
+  </Card>
+</CardGroup>
+
+## Acceso Rápido
+
+<CardGroup cols={2}>
+  <Card title="Inicio Rápido" icon="rocket" href="/getting-started/quickstart">
+    Levanta la app en minutos
+  </Card>
+  <Card title="Arquitectura" icon="sitemap" href="/architecture">
+    Patrones zoneless, signals y BFF
+  </Card>
+  <Card
+    title="Componentes Compartidos"
+    icon="puzzle-piece"
+    href="/components/shared-components"
+  >
+    Catálogo de componentes y utilidades reutilizables
+  </Card>
+  <Card title="Plataforma SGIVU" icon="cubes" href="https://sgivu.mintlify.app">
+    Documentación completa del backend y la plataforma
+  </Card>
+</CardGroup>
+
+## Stack Tecnológico
+
+- **Framework**: Angular 21.0.5 con TypeScript 5.9.3
+- **Detección de Cambios**: Zoneless (`provideZonelessChangeDetection`) + OnPush + Signals
+- **UI**: Bootstrap 5.3.8 + Bootstrap Icons 1.13.1 + Manrope (tipografía)
+- **Gráficos**: Chart.js 4.5.1 + ng2-charts 8.0.0 (tree-shaken)
+- **Alertas**: SweetAlert2 11.26.10
+- **HTTP**: `HttpClient` con interceptors funcionales + `withCredentials: true`
+- **Pruebas unitarias**: Vitest 4 + jsdom (sin navegador)
+- **Pruebas E2E**: Playwright 1.60 + axe-core (red simulada, sin backend)
+- **Runtime**: Node.js v24 (fijado en `.nvmrc`)
+
+## Aspectos Destacados de la Arquitectura
+
+<Steps>
+  <Step title="Zoneless + Signals">
+    La app usa `provideZonelessChangeDetection()`: sin zone.js, toda la reactividad pasa por signals, computed signals y `toSignal()`. El estado mutable siempre es privado; las plantillas solo leen signals de solo lectura.
+  </Step>
+  <Step title="BFF Puro">
+    No hay librerías OAuth en el cliente. El gateway gestiona el flujo PKCE, emite una cookie de sesión y el frontend solo consulta `/auth/session`. El interceptor `defaultOAuthInterceptor` agrega `withCredentials: true` y redirige en 401.
+  </Step>
+  <Step title="Standalone + Lazy Loading">
+    Todos los componentes son standalone (sin NgModules). Cada feature carga bajo demanda desde `app.routes.ts` y expone su propio `<feature>.routes.ts`.
+  </Step>
+  <Step title="RBAC con permisos granulares">
+    Permisos en formato `recurso:accion` (ej. `purchase_sale:read`, `vehicle:delete`). El `permissionGuard` y la directiva `*appHasPermission` aplican lógica OR o AND para controlar acceso a rutas y elementos de UI.
+  </Step>
+</Steps>
+
+<CardGroup cols={1}>
+  <Card
+    title="Guía de Inicio Rápido"
+    icon="play"
+    href="/getting-started/quickstart"
+    horizontal
+  >
+    Clona el repo, instala dependencias y levanta la app en desarrollo en 3
+    pasos
+  </Card>
+</CardGroup>

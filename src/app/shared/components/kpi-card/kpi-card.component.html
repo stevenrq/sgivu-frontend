@@ -1,0 +1,17 @@
+<div class="card kpi-card" [class]="'kpi-card--' + variant()">
+  <div class="card-body">
+    <div class="icon-circle" [class]="'icon-' + variant()">
+      <i class="bi" [class]="icon()"></i>
+    </div>
+    <div class="kpi-body">
+      <p class="card-subtitle text-muted mb-1">{{ label() }}</p>
+      <p class="kpi-value mb-0">
+        {{ value() ?? "—" }}
+      </p>
+      @if (description()) {
+        <small class="text-muted">{{ description() }}</small>
+      }
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

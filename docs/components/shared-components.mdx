@@ -1,0 +1,182 @@
+---
+title: "Componentes Compartidos"
+description: "Catálogo de componentes UI reutilizables de sgivu-frontend en shared/components/"
+---
+
+# Componentes Compartidos
+
+Los componentes en `src/app/shared/components/` son genéricos y se reutilizan en múltiples features. Todos son standalone, OnPush y usan signals o `input()`/`output()` funcionales.
+
+<Note>
+  Para el catálogo navegable con documentación de props, inputs y ejemplos
+  visuales, usa Compodoc: `npm run docs:serve` → http://localhost:8080. Ver
+  [Compodoc](/components/compodoc).
+</Note>
+
+## Componentes de Datos
+
+### `DataTableComponent`
+
+Tabla de datos genérica con:
+
+- Definición declarativa de columnas (nombre, header, template de celda personalizable)
+- Skeleton loader animado mientras carga
+- Densidad compacta por defecto
+- Scroll vertical interno cuando los datos superan la altura máxima del contenedor
+- Encabezados fijos (sticky headers) para tablas largas
+- Soporte de navegación por fila (`RowNavigateDirective`)
+
+```html
+<app-data-table [data]="users()" [columns]="columns" [loading]="loading()" />
+```
+
+### `PagerComponent`
+
+Controles de paginación:
+
+- Botones anterior/siguiente y primera/última página
+- Selector de tamaño de página
+- Indicador de total de registros y rango actual
+- Usa `RouterLink` para sincronizar la paginación con la URL
+
+```html
+<app-pager
+  [page]="currentPage()"
+  [totalPages]="totalPages()"
+  [baseUrl]="'/users/page'"
+/>
+```
+
+## Componentes de Dashboard
+
+### `KpiCardComponent`
+
+Tarjeta de indicador clave para el dashboard y páginas de listado:
+
+- Icono (Bootstrap Icons)
+- Label y valor principal
+- Variante de color (primary, success, warning, danger)
+
+```html
+<app-kpi-card
+  icon="people"
+  label="Usuarios Activos"
+  [value]="activeUsers()"
+  variant="success"
+/>
+```
+
+## Componentes de Estructura
+
+### `PageHeaderComponent`
+
+Encabezado estandarizado de página:
+
+- Icono + título + descripción opcional
+- Slot para acciones (botones, buscadores)
+
+### `FormShellComponent`
+
+Contenedor para formularios de creación/edición:
+
+- Encabezado de página
+- Loading overlay durante el guardado
+- Botones Guardar y Cancelar en el footer
+- Manejo de estado de carga con `input()` funcional
+
+### `NavbarComponent` / `SidebarComponent`
+
+Barra de navegación superior y menú lateral colapsable. El sidebar adapta su contenido según los permisos del usuario usando `*appHasPermission`.
+
+## Componentes de Búsqueda y Filtros
+
+### `QuickSearchBarComponent`
+
+Buscador rápido con:
+
+- Debounce configurable (300ms por defecto)
+- Limpieza con un click
+- Emite `output()` funcional con el término de búsqueda
+
+### `FilterChipGroupComponent`
+
+Muestra los filtros activos como chips removibles:
+
+- Un chip por filtro con etiqueta y valor
+- Botón "X" para eliminar filtro individual
+- Botón "Limpiar todo"
+
+### `ListToolbarComponent`
+
+Barra de herramientas para páginas de listado:
+
+- Botón de acción principal (ej. "Crear")
+- Slot para buscador y chips de filtro
+- Botón de exportación (opcional)
+
+## Componentes de Estado
+
+### `EmptyStateComponent`
+
+Pantalla vacía cuando no hay datos:
+
+- Icono, título y descripción configurables
+- Acción opcional (botón "Crear primero")
+
+### `SkeletonComponent`
+
+Loader esqueletal animado (efecto shimmer) para indicar carga sin mostrar un spinner.
+
+### `LoadingOverlayComponent`
+
+Overlay semi-transparente que bloquea la UI durante operaciones en curso.
+
+### `ServiceStatusBannerComponent`
+
+Banner sticky que aparece automáticamente cuando uno o más microservicios no responden, sin impedir el uso de las secciones disponibles.
+
+### `ServiceUnavailableComponent`
+
+Pantalla completa de indisponibilidad total del servicio.
+
+## Componentes de Navegación
+
+### `ForbiddenComponent`
+
+Pantalla 403: acceso denegado con enlace de regreso al dashboard.
+
+### `NotFoundComponent`
+
+Pantalla 404: recurso no encontrado.
+
+## Componentes de Configuración
+
+### `SettingsComponent`
+
+Panel de configuración del usuario:
+
+- Selector de tema (claro / oscuro / sistema)
+- Información de la cuenta
+
+### `ConfigurationComponent`
+
+Panel de configuración avanzada de la aplicación.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Utilidades Compartidas"
+    icon="wrench"
+    href="/components/shared-utils"
+  >
+    Factories, managers y helpers
+  </Card>
+  <Card
+    title="Validators, Pipes y Directivas"
+    icon="filter"
+    href="/components/validators-pipes-directives"
+  >
+    Validators de formulario, pipes y *appHasPermission
+  </Card>
+</CardGroup>

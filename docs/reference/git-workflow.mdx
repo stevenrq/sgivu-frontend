@@ -1,0 +1,94 @@
+---
+title: "Flujo de Git"
+description: "Convenciones de git en sgivu-frontend: Conventional Commits, trunk-based y hooks"
+---
+
+# Flujo de Git
+
+## Estrategia de Ramas
+
+sgivu-frontend usa **trunk-based development**: ramas cortas y de vida breve que se integran a `main` vía pull request.
+
+```
+main          ← rama principal, siempre deployable
+  └── feature/vehicle-image-manager   ← feature branch (días, no semanas)
+  └── fix/auth-interceptor-loop        ← fix branch
+  └── refactor/move-filters-to-shared  ← refactor branch
+  └── chore/update-angular-21          ← chore branch
+```
+
+**No existe** rama `develop`, `staging` ni `release/`. Cada merge a `main` es potencialmente desplegable.
+
+## Conventional Commits
+
+Los mensajes de commit deben seguir el formato **Conventional Commits** (validado por commitlint en el hook `commit-msg`):
+
+```
+<tipo>(<scope>): <descripción en inglés>
+
+[cuerpo opcional]
+
+[footer opcional]
+```
+
+### Tipos Válidos
+
+| Tipo       | Cuándo usar                                     |
+| ---------- | ----------------------------------------------- |
+| `feat`     | Nueva funcionalidad                             |
+| `fix`      | Corrección de bug                               |
+| `refactor` | Cambio de código sin nueva funcionalidad ni bug |
+| `chore`    | Mantenimiento, dependencias, configuración      |
+| `docs`     | Solo documentación                              |
+| `test`     | Agregar o corregir tests                        |
+| `style`    | Formateo, sin cambio de lógica                  |
+| `perf`     | Mejora de rendimiento                           |
+| `ci`       | Cambios en el pipeline CI                       |
+
+### Ejemplos
+
+```bash
+feat(vehicles): add image upload to vehicle form
+fix(auth): prevent login redirect loop on /auth/session 401
+refactor(shared): move filter-chip-group to shared/components
+chore(deps): upgrade angular to 21.0.5
+test(users): add unit tests for UserService.delete
+docs: add Mintlify documentation site
+```
+
+## Hooks de Git (Husky)
+
+### `pre-commit` (lint-staged)
+
+Antes de cada commit, lint-staged procesa los archivos en staging:
+
+1. **ESLint** con auto-fix en `*.ts` y `*.html`
+2. **Prettier** con auto-write en `*.{ts,html,css,js,json,md}`
+
+Si lint-staged reformatea archivos:
+
+```bash
+git add -u           # Agregar los archivos reformateados
+git commit -m "..."  # Reintentar el commit
+```
+
+### `commit-msg` (commitlint)
+
+Valida que el mensaje siga Conventional Commits. Un mensaje inválido como `"update stuff"` hace fallar el hook.
+
+## Pull Requests
+
+- Una sola responsabilidad por PR (mismo principio que los commits)
+- El CI debe pasar antes de mergear (Prettier + lint + tests + build + e2e)
+- Prefer `Squash and merge` para mantener el historial de `main` limpio
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Pipeline CI" icon="git-branch" href="/testing/ci">
+    Qué valida el CI antes de mergear
+  </Card>
+  <Card title="Estilo de Código" icon="code" href="/reference/code-style">
+    Convenciones de nomenclatura y comentarios
+  </Card>
+</CardGroup>

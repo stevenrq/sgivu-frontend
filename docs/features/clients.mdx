@@ -1,0 +1,109 @@
+---
+title: "Gestión de Clientes"
+description: "Feature de gestión de clientes de SGIVU: personas naturales y empresas"
+---
+
+# Gestión de Clientes
+
+Gestiona los clientes del concesionario: **personas naturales** y **empresas**. Los clientes participan en los contratos de compraventa como compradores o vendedores.
+
+**Ubicación**: `src/app/features/clients/`  
+**Rutas**: `/clients/*`
+
+## Permisos Requeridos
+
+| Tipo de Cliente | Leer           | Crear            | Editar           | Eliminar         |
+| --------------- | -------------- | ---------------- | ---------------- | ---------------- |
+| Persona         | `person:read`  | `person:create`  | `person:update`  | `person:delete`  |
+| Empresa         | `company:read` | `company:create` | `company:update` | `company:delete` |
+
+## Componentes
+
+### `ClientListComponent`
+
+**Ruta**: `/clients`
+
+Vista unificada con pestañas (Personas / Empresas) que:
+
+- Muestra lista paginada con `DataTableComponent`
+- Filtros por nombre, número de documento/NIT
+- Chips de filtro removibles y búsqueda rápida
+- KPIs: total personas, total empresas
+
+### `PersonFormComponent` / `CompanyFormComponent`
+
+**Rutas personas**: `/clients/persons/create`, `/clients/persons/:id/edit`  
+**Rutas empresas**: `/clients/companies/create`, `/clients/companies/:id/edit`
+
+Formularios con:
+
+- Datos de identificación (tipo/número de documento para personas; NIT para empresas)
+- Datos de contacto (email, teléfono)
+- Dirección completa (helpers de `address-form.utils.ts`)
+- Empresa: representante legal vinculable a una persona existente
+
+## Servicios
+
+### `PersonService`
+
+**Ruta**: `src/app/features/clients/services/person.service.ts`
+
+CRUD de personas con estado en signals. Endpoints: `GET/POST/PUT/DELETE /v1/persons`.
+
+### `CompanyService`
+
+**Ruta**: `src/app/features/clients/services/company.service.ts`
+
+CRUD de empresas. Endpoints: `GET/POST/PUT/DELETE /v1/companies`.
+
+### `ClientUIHelperService`
+
+**Ruta**: `src/app/features/clients/services/client-ui-helper.service.ts`
+
+Utilitarios de presentación: formateo de nombre completo, tipo de documento, representante legal, etc.
+
+## Modelos
+
+```typescript
+interface Person {
+  id: string;
+  firstName: string;
+  lastName: string;
+  documentType: "CC" | "CE" | "PASSPORT" | "NIT";
+  documentNumber: string;
+  email?: string;
+  phone?: string;
+  address?: Address;
+}
+
+interface Company {
+  id: string;
+  name: string;
+  taxId: string; // NIT
+  legalRepresentative?: Person;
+  email?: string;
+  phone?: string;
+  address?: Address;
+}
+
+type Client = Person | Company;
+```
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Contratos de Compraventa"
+    icon="handshake"
+    href="/features/purchase-sales"
+  >
+    Cómo se asocian los clientes a contratos
+  </Card>
+  <Card
+    title="Componentes Compartidos"
+    icon="puzzle-piece"
+    href="/components/shared-components"
+  >
+    DataTableComponent, FilterChipGroupComponent y más
+  </Card>
+</CardGroup>

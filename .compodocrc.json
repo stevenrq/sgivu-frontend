@@ -1,0 +1,18 @@
+{
+  "tsconfig": "./tsconfig.doc.json",
+  "output": "compodoc",
+  "theme": "material",
+  "name": "sgivu-frontend",
+  "language": "es-ES",
+  "hideGenerator": true,
+  "disablePrivate": true,
+  "disableInternal": true,
+  "disableLifeCycleHooks": false,
+  "excludeExternals": true,
+  "exclude": [
+    "**/*.spec.ts",
+    "src/environments/**",
+    "e2e/**",
+    "src/test-setup.ts"
+  ]
+}

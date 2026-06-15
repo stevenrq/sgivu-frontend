@@ -1,0 +1,93 @@
+.vehicle-form-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vehicle-form-page {
+  background: transparent;
+  overflow-y: auto;
+}
+
+.vehicle-form-card {
+  border: 1px solid var(--border) !important;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background-color: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.card-header {
+  padding: 1.75rem 1.75rem 1.25rem;
+  background-color: var(--surface);
+}
+
+.vehicle-form__header {
+  background: var(--surface);
+}
+
+.vehicle-form__title {
+  color: var(--text);
+}
+
+.vehicle-form__subtitle {
+  color: var(--muted);
+}
+
+.vehicle-form-footer {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+.form-floating .form-control:focus,
+.form-floating .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.15);
+}
+
+.form-check-input:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem 1.1rem;
+  background: var(--surface);
+}
+
+legend {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: var(--overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.btn {
+  padding-inline: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1.5rem;
+  }
+}

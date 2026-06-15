@@ -1,0 +1,21 @@
+@if (showFullOutage()) {
+  <app-service-unavailable />
+} @else {
+  <div
+    class="app-shell"
+    [class.app-shell--sidebar-collapsed]="isSidebarCollapsed()"
+  >
+    <app-sidebar
+      (sidebarCollapsedChange)="onSidebarCollapsedChange($event)"
+    ></app-sidebar>
+
+    <div class="main-area">
+      <app-service-status-banner></app-service-status-banner>
+      <app-navbar></app-navbar>
+
+      <main class="page-surface">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+}

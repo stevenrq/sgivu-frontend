@@ -1,0 +1,84 @@
+@switch (variant()) {
+  @case ("card") {
+    @for (i of items; track i) {
+      <div
+        class="skeleton-card"
+        [style.width]="width()"
+        [style.height]="height()"
+      >
+        <div class="skeleton-card__icon skeleton-shimmer"></div>
+        <div class="skeleton-card__body">
+          <div
+            class="skeleton-line skeleton-shimmer"
+            style="width: 60%; height: 12px"
+          ></div>
+          <div
+            class="skeleton-line skeleton-shimmer"
+            style="width: 40%; height: 22px; margin-top: 8px"
+          ></div>
+        </div>
+      </div>
+    }
+  }
+
+  @case ("table-row") {
+    @for (i of items; track i) {
+      <div class="skeleton-table-row">
+        <div class="skeleton-cell skeleton-shimmer" style="width: 25%"></div>
+        <div class="skeleton-cell skeleton-shimmer" style="width: 30%"></div>
+        <div class="skeleton-cell skeleton-shimmer" style="width: 20%"></div>
+        <div class="skeleton-cell skeleton-shimmer" style="width: 15%"></div>
+      </div>
+    }
+  }
+
+  @case ("chart") {
+    <div
+      class="skeleton-chart skeleton-shimmer"
+      [style.width]="width() ?? '100%'"
+      [style.height]="height() ?? '260px'"
+    >
+      <div class="skeleton-chart__bars">
+        <div class="skeleton-chart__bar" style="height: 45%"></div>
+        <div class="skeleton-chart__bar" style="height: 70%"></div>
+        <div class="skeleton-chart__bar" style="height: 55%"></div>
+        <div class="skeleton-chart__bar" style="height: 85%"></div>
+        <div class="skeleton-chart__bar" style="height: 60%"></div>
+        <div class="skeleton-chart__bar" style="height: 75%"></div>
+        <div class="skeleton-chart__bar" style="height: 40%"></div>
+      </div>
+    </div>
+  }
+
+  @case ("pie-chart") {
+    <div
+      class="skeleton-pie-chart"
+      [style.width]="width() ?? '100%'"
+      [style.height]="height() ?? '260px'"
+    >
+      <div class="skeleton-pie-chart__ring skeleton-shimmer">
+        <div class="skeleton-pie-chart__hole"></div>
+      </div>
+    </div>
+  }
+
+  @case ("circle") {
+    @for (i of items; track i) {
+      <div
+        class="skeleton-circle skeleton-shimmer"
+        [style.width]="width() ?? '44px'"
+        [style.height]="height() ?? '44px'"
+      ></div>
+    }
+  }
+
+  @default {
+    @for (i of items; track i) {
+      <div
+        class="skeleton-line skeleton-shimmer"
+        [style.width]="width() ?? (i === items.length - 1 ? '65%' : '100%')"
+        [style.height]="height() ?? '14px'"
+      ></div>
+    }
+  }
+}

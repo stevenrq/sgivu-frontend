@@ -1,0 +1,173 @@
+---
+title: "Formularios Reactivos"
+description: "Reactive Forms tipados y validators personalizados en sgivu-frontend"
+---
+
+# Formularios Reactivos
+
+sgivu-frontend usa **Reactive Forms tipados** con validators personalizados y presets reutilizables. El patrón garantiza que el tipo del formulario coincida con el modelo de datos en tiempo de compilación.
+
+## Patrón Base
+
+Los formularios usan `FormGroup<FormControls>` tipado directamente, sin `FormBuilder`:
+
+```typescript
+import { FormGroup, FormControl, Validators } from "@angular/forms";
+import {
+  textFieldValidators,
+  passwordStrengthValidator,
+} from "@shared/validators/form.validator";
+
+interface UserFormControls {
+  username: FormControl<string | null>;
+  email: FormControl<string | null>;
+  password: FormControl<string | null>;
+}
+
+@Component({
+  /* … */
+})
+export class UserFormComponent {
+  protected readonly form = new FormGroup<UserFormControls>({
+    username: new FormControl("", textFieldValidators(3, 50)),
+    email: new FormControl("", [Validators.required, Validators.email]),
+    password: new FormControl("", [
+      Validators.required,
+      passwordStrengthValidator(),
+    ]),
+  });
+
+  protected onSubmit(): void {
+    if (this.form.invalid) return;
+    const value = this.form.getRawValue(); // Tipado como UserFormControls values
+    this.userService.create(value).subscribe(/* … */);
+  }
+}
+```
+
+**Por qué sin `FormBuilder`**: El tipado genérico de `FormBuilder.group()` es menos preciso que `new FormGroup<Controls>({})`. Con `FormGroup` tipado directamente, el compilador conoce el tipo exacto de cada control.
+
+## Validators Personalizados
+
+**Ruta**: `src/app/shared/validators/form.validator.ts`
+
+### Validators Individuales
+
+| Validator                        | Descripción                                                                     |
+| -------------------------------- | ------------------------------------------------------------------------------- |
+| `lengthValidator(min, max)`      | Longitud mínima/máxima (funciona con string y number)                           |
+| `noWhitespaceValidator()`        | Rechaza campos que son solo espacios en blanco                                  |
+| `noSpecialCharactersValidator()` | Solo permite caracteres alfanuméricos                                           |
+| `passwordStrengthValidator()`    | Requiere mayúscula, minúscula, dígito y carácter especial (mínimo 6 caracteres) |
+
+### Presets (Combinaciones Listas para Usar)
+
+```typescript
+// Para campos de texto (nombre, descripción, etc.)
+textFieldValidators(min: number, max: number): ValidatorFn[]
+// Equivale a: [Validators.required, lengthValidator(min, max), noWhitespaceValidator()]
+
+// Para campos numéricos
+numericFieldValidators(min: number, max: number): ValidatorFn[]
+// Equivale a: [Validators.required, lengthValidator(min, max)]
+```
+
+Usa siempre los presets antes de escribir validators nuevos — cubren la mayoría de los casos.
+
+### Ejemplo Real
+
+```typescript
+// Campos típicos en formularios de SGIVU
+{
+  firstName: new FormControl('', textFieldValidators(2, 80)),
+  lastName: new FormControl('', textFieldValidators(2, 80)),
+  documentNumber: new FormControl('', numericFieldValidators(5, 20)),
+  price: new FormControl<number | null>(null, [
+    Validators.required,
+    Validators.min(0),
+  ]),
+  password: new FormControl('', [
+    Validators.required,
+    passwordStrengthValidator(),
+  ]),
+}
+```
+
+## Estado de Formulario con Signals
+
+Para leer el estado del formulario en plantillas con `OnPush`, usa `toSignal()`:
+
+```typescript
+@Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+export class FilterComponent {
+  protected readonly searchControl = new FormControl("");
+
+  // toSignal convierte el Observable en un Signal compatible con OnPush
+  protected readonly searchValue = toSignal(this.searchControl.valueChanges, {
+    initialValue: "",
+  });
+
+  // Derived value — se recalcula solo cuando searchValue cambia
+  protected readonly hasActiveSearch = computed(
+    () => (this.searchValue() ?? "").trim().length > 0,
+  );
+}
+```
+
+<Note>
+  Sin `toSignal()`, un componente OnPush no detectaría los cambios del
+  `valueChanges` Observable porque Angular no monitorea cambios de propiedades
+  planas — solo cambios de signals o de inputs.
+</Note>
+
+## Wrapper de Formulario: `FormShellComponent`
+
+Los formularios de creación/edición usan `FormShellComponent` como contenedor:
+
+```html
+<app-form-shell
+  [title]="'Crear Usuario'"
+  [loading]="loading()"
+  (save)="onSubmit()"
+  (cancel)="router.navigate(['/users'])"
+>
+  <!-- Contenido del formulario -->
+  <div class="floating-google">
+    <input
+      formControlName="username"
+      class="form-control"
+      placeholder="Username"
+    />
+    <label>Username</label>
+  </div>
+</app-form-shell>
+```
+
+`FormShellComponent` proporciona el encabezado, los botones de Guardar/Cancelar y el loading overlay, para que los formularios de cada feature no repitan esta estructura.
+
+## Utilidades de Formulario
+
+**Ruta**: `src/app/shared/utils/form.utils.ts`
+
+```typescript
+markFormGroupTouched(form: FormGroup): void
+// Marca todos los controles como tocados para mostrar errores de validación
+
+getFormValidationErrors(form: FormGroup): string[]
+// Extrae todos los errores del formulario para mostrarlos en bloque
+```
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Validators y Pipes"
+    icon="filter"
+    href="/components/validators-pipes-directives"
+  >
+    Referencia completa de validators, pipes y directivas
+  </Card>
+  <Card title="Theming" icon="palette" href="/architecture/theming">
+    Estilo .floating-google y variables de tema
+  </Card>
+</CardGroup>

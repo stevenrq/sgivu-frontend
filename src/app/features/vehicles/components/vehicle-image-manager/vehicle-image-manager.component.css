@@ -1,0 +1,32 @@
+/* Reglas heredadas de vehicle-form.component.css que aplican al fieldset movido
+   (la encapsulación de Angular impide que las del padre crucen el límite). */
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem 1.1rem;
+  background: var(--surface);
+}
+
+legend {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.btn {
+  padding-inline: 1.5rem;
+}
+
+.thumbnail-card {
+  width: 150px;
+}
+
+.thumbnail-img {
+  height: 100px;
+  object-fit: cover;
+}
+
+.image-preview {
+  max-width: 250px;
+  width: 100%;
+}

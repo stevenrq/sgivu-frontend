@@ -1,0 +1,132 @@
+---
+title: "Integración con el Gateway"
+description: "Cómo sgivu-frontend se comunica con sgivu-gateway: interceptors, salud de servicios y manejo de errores"
+---
+
+# Integración con el Gateway
+
+sgivu-frontend se comunica **exclusivamente** con `sgivu-gateway`. No hay llamadas directas a microservicios individuales. El gateway actúa como BFF (Backend For Frontend): proxea las peticiones de negocio y gestiona la autenticación OAuth 2.1.
+
+## Arquitectura de Comunicación
+
+```
+Angular HttpClient
+  → defaultOAuthInterceptor (añade withCredentials, maneja 401)
+  → serviceHealthInterceptor (detecta servicios caídos)
+  → sgivu-gateway :8080
+      ├── /auth/session       (verificación de sesión)
+      ├── /v1/users/*         → sgivu-user
+      ├── /v1/vehicles/*      → sgivu-vehicle (cars, motorcycles, images)
+      ├── /v1/clients/*       → sgivu-client (persons, companies)
+      ├── /v1/purchase-sales/*→ sgivu-purchase-sale
+      └── /v1/ml/*            → sgivu-ml (predict, retrain, models)
+```
+
+## Interceptores HTTP
+
+### `defaultOAuthInterceptor`
+
+Registrado en `app.config.ts` como primer interceptor:
+
+```typescript
+provideHttpClient(
+  withInterceptors([defaultOAuthInterceptor, serviceHealthInterceptor]),
+);
+```
+
+Responsabilidades:
+
+- Agrega `withCredentials: true` a todas las peticiones (envía la cookie de sesión)
+- Captura errores `401` y redirige al flujo de login
+- Excepciones: `/auth/session`, `/logout` y requests con el header `SKIP_HEALTH_HEADER`
+
+### `serviceHealthInterceptor`
+
+Detecta cuándo los microservicios no están disponibles:
+
+- Captura errores de red (`0`) y errores `503`/`504`
+- Notifica a `ServiceHealthService` cuándo un servicio falla o se recupera
+- Usa el header `SKIP_HEALTH_HEADER` en sus propios health-checks para no crear bucles
+
+## `ServiceHealthService`
+
+**Ruta**: `src/app/shared/services/service-health.service.ts`
+
+Monitorea la disponibilidad de los microservicios:
+
+```typescript
+readonly gatewayAvailable: Signal<boolean>
+readonly authAvailable: Signal<boolean>
+readonly anyServiceDown: Signal<boolean>  // computed
+```
+
+Cuando `anyServiceDown()` es `true`, el `AppComponent` muestra el `ServiceStatusBannerComponent` con información del servicio caído, sin bloquear la navegación a secciones que sí funcionan.
+
+## Configuración de URLs
+
+Las URLs del gateway se configuran por entorno:
+
+```typescript
+// environment.development.ts
+apiUrl: "http://localhost:8080"; // Base para /v1/* y /auth/*
+authHealthCheckUrl: "http://localhost:9000"; // Para health-check de sgivu-auth
+```
+
+Todos los servicios de dominio construyen sus endpoints como:
+
+```typescript
+private readonly apiUrl = `${environment.apiUrl}/v1/vehicles`;
+```
+
+## Manejo de Errores HTTP
+
+Los errores del gateway se manejan con `error-handler.utils.ts`:
+
+```typescript
+this.carService.create(car).subscribe({
+  next: () => this.toastService.success("Vehículo creado"),
+  error: (err) => this.toastService.error(extractErrorMessage(err)),
+});
+```
+
+`extractErrorMessage()` maneja los formatos de error del gateway Spring Boot:
+
+- `{ message: "..." }` — mensaje directo
+- `{ errors: [{ field, message }] }` — errores de validación `@Valid`
+- Error de red (sin body) — mensaje genérico
+
+Los errores técnicos se loguean en consola; la UI muestra solo mensajes en español.
+
+## Documentación de la API
+
+La referencia completa de los endpoints del gateway (parámetros, cuerpos, respuestas, códigos de estado) está en la documentación del backend:
+
+<CardGroup cols={1}>
+  <Card
+    title="Referencia API de SGIVU"
+    icon="code"
+    href="https://sgivu.mintlify.app/api/auth/oauth2"
+    horizontal
+  >
+    Documentación de todos los endpoints disponibles en el gateway
+  </Card>
+</CardGroup>
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Autenticación BFF"
+    icon="shield-check"
+    href="/architecture/authentication"
+  >
+    Detalle del flujo OAuth y el interceptor
+  </Card>
+  <Card
+    title="Predicción de Demanda"
+    icon="brain"
+    href="/integration/demand-prediction"
+  >
+    Integración específica con el servicio ML
+  </Card>
+</CardGroup>

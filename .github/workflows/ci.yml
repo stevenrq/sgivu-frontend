@@ -1,0 +1,73 @@
+# Pipeline de integración continua: formato, lint, tests y build de producción
+# (los budgets de angular.json actúan como gate de tamaño del bundle).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Los environments reales están gitignorados; CI usa las plantillas versionadas.
+      - name: Generar environments desde plantillas
+        run: |
+          cp src/environments/environment.example.ts src/environments/environment.ts
+          cp src/environments/environment.development.example.ts src/environments/environment.development.ts
+
+      - name: Verificar formato (Prettier)
+        run: npx prettier --check .
+
+      - name: Lint (angular-eslint)
+        run: npm run lint
+
+      - name: Tests unitarios con cobertura (Vitest)
+        run: npx ng test --watch=false --coverage
+
+      - name: Build de producción (con budgets)
+        run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Generar environments desde plantillas
+        run: |
+          cp src/environments/environment.example.ts src/environments/environment.ts
+          cp src/environments/environment.development.example.ts src/environments/environment.development.ts
+
+      - name: Instalar Chromium de Playwright
+        run: npx playwright install --with-deps chromium
+
+      # Smoke suite con la red del gateway simulada (sin backend); incluye axe-core.
+      - name: Smoke suite e2e (Playwright)
+        run: npm run e2e
+
+      - name: Subir reporte de Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7

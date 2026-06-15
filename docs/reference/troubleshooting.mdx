@@ -1,0 +1,158 @@
+---
+title: "Solución de Problemas"
+description: "Diagnóstico de errores comunes en sgivu-frontend: 401, CORS, rutas SPA, Playwright y más"
+---
+
+# Solución de Problemas
+
+## Errores 401 / 403 en Peticiones XHR
+
+**Síntoma**: Las peticiones a `/v1/*` devuelven `401 Unauthorized` o `403 Forbidden`.
+
+**Diagnóstico**:
+
+1. Abre DevTools → pestaña Network → busca `/auth/session`
+2. Si devuelve 401 → no hay sesión activa → inicia sesión
+3. Si devuelve 200 pero las APIs devuelven 403 → el usuario no tiene el permiso requerido
+
+**Soluciones**:
+
+- Verificar que `apiUrl` en `environment.development.ts` apunta a `http://localhost:8080`
+- Verificar que `sgivu-gateway` está corriendo: `docker ps | grep sgivu-gateway`
+- Limpiar cookies del navegador y volver a iniciar sesión
+- Verificar que el rol del usuario tiene los permisos necesarios en la feature de Roles
+
+## Auth Health-Check Falla
+
+**Síntoma**: El banner de servicios caídos aparece al cargar la app.
+
+**Diagnóstico**: `serviceHealthInterceptor` detectó que `sgivu-auth` o `sgivu-gateway` no responden.
+
+**Soluciones**:
+
+- Verificar que `authHealthCheckUrl` en `environment.development.ts` es `http://localhost:9000` (puerto expuesto por Docker, no el hostname interno)
+- Verificar que el contenedor `sgivu-auth` está corriendo y healthy: `docker ps`
+- En WSL: asegurarse de que `sgivu-auth` está en `/etc/hosts` apuntando a `127.0.0.1`
+
+## Rutas 404 Tras Despliegue Estático
+
+**Síntoma**: La app funciona en local pero la navegación directa a `/vehicles/cars` devuelve 404 en producción.
+
+**Causa**: El servidor intenta servir un archivo `vehicles/cars.html` que no existe — la reescritura SPA no está configurada.
+
+**Soluciones por plataforma**:
+
+<AccordionGroup>
+  <Accordion title="Nginx">
+    ```nginx
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    ```
+  </Accordion>
+  <Accordion title="AWS S3">
+    En la configuración del bucket → Hosting de sitio web estático → Documento de error: `index.html`
+  </Accordion>
+  <Accordion title="Vercel (vercel.json)">
+    ```json
+    {
+      "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+    }
+    ```
+  </Accordion>
+  <Accordion title="Netlify (_redirects en public/)">
+    ```
+    /*  /index.html  200
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## No Se Puede Resolver el Hostname `sgivu-auth`
+
+**Síntoma**: Error de CORS o "net::ERR_NAME_NOT_RESOLVED" al hacer login.
+
+**Causa**: El navegador no puede resolver el hostname `sgivu-auth` que usa el servidor de autorización.
+
+**Solución** (WSL / Linux):
+
+```bash
+echo "127.0.0.1 sgivu-auth" | sudo tee -a /etc/hosts
+echo "127.0.0.1 sgivu-gateway" | sudo tee -a /etc/hosts
+```
+
+**Solución alternativa**: Cambiar `authHealthCheckUrl` en `environment.development.ts` a `http://localhost:9000`.
+
+## Errores de CORS
+
+**Síntoma**: DevTools muestra "CORS policy: No 'Access-Control-Allow-Origin' header".
+
+**Causas y soluciones**:
+
+1. El origen del frontend no está en los orígenes permitidos de `sgivu-gateway` → revisar `application.yml` del gateway
+2. Las cookies no se envían → verificar que `withCredentials: true` llega al servidor (el interceptor lo agrega automáticamente)
+3. El servidor devuelve `Access-Control-Allow-Origin: *` pero el frontend usa `withCredentials` → el gateway debe especificar el origen exacto
+
+## Playwright: Instalación de Chromium Falla en WSL
+
+**Síntoma**: `npx playwright install chromium` falla con "does not support chromium on ubuntu26.04".
+
+**Solución**:
+
+```bash
+PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 npx playwright install chromium
+```
+
+## Build Falla por Presupuesto de Bundle
+
+**Síntoma**: `npm run build` falla con "bundle exceeded maximum budget".
+
+**Diagnóstico**: Algún chunk excede 1.5 MB (initial) o algún estilo de componente excede 12 kB.
+
+**Soluciones**:
+
+- Verificar que Chart.js usa tree-shaking manual (no `withDefaultRegisterables()`)
+- Verificar que no se importan módulos pesados directamente en el bundle inicial (deben estar en features lazy-loaded)
+- Analizar el bundle: `npx ng build --stats-json && npx webpack-bundle-analyzer dist/sgivu-frontend/stats.json`
+
+## Commit Falla por Reformateo de Husky
+
+**Síntoma**: El commit falla con "lint-staged reformatted files".
+
+**Causa**: lint-staged (Prettier o ESLint con --fix) modificó archivos durante el hook pre-commit.
+
+**Solución**:
+
+```bash
+git add -u    # Agregar los archivos modificados por lint-staged
+git commit    # Reintentar con el mismo mensaje
+```
+
+## Módulo No Encontrado en Build
+
+**Síntoma**: Error de importación al compilar.
+
+**Soluciones**:
+
+```bash
+# Limpiar caché de Angular
+rm -rf .angular/cache
+
+# Reinstalar dependencias
+rm -rf node_modules package-lock.json
+npm install
+```
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Configuración de Entornos"
+    icon="gear"
+    href="/getting-started/environments"
+  >
+    Variables apiUrl, authHealthCheckUrl y clientId
+  </Card>
+  <Card title="Despliegue" icon="cloud" href="/getting-started/deployment">
+    Guía completa de despliegue en hosting estático
+  </Card>
+</CardGroup>

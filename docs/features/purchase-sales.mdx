@@ -1,0 +1,150 @@
+---
+title: "Contratos de Compraventa"
+description: "Feature de gestión de contratos de compra y venta de vehículos en SGIVU"
+---
+
+# Contratos de Compraventa
+
+Gestiona los contratos de compra y venta de vehículos. Cada contrato vincula un vehículo con un cliente y registra el monto, método de pago y estado del proceso.
+
+**Ubicación**: `src/app/features/purchase-sales/`  
+**Rutas**: `/purchase-sales/*`
+
+## Permisos Requeridos
+
+| Acción            | Permiso                |
+| ----------------- | ---------------------- |
+| Ver contratos     | `purchase_sale:read`   |
+| Crear contrato    | `purchase_sale:create` |
+| Editar contrato   | `purchase_sale:update` |
+| Cancelar contrato | `purchase_sale:delete` |
+
+<Note>
+  El formato del permiso es `purchase_sale` (con guión bajo), no `transaction`
+  ni `purchase-sale`.
+</Note>
+
+## Tipos de Contrato
+
+| Tipo         | Descripción                                                     |
+| ------------ | --------------------------------------------------------------- |
+| **PURCHASE** | El concesionario compra un vehículo a un proveedor o particular |
+| **SALE**     | El concesionario vende un vehículo a un cliente                 |
+
+## Estados del Contrato
+
+| Estado      | Descripción                        |
+| ----------- | ---------------------------------- |
+| `PENDING`   | Creado, pendiente de formalización |
+| `ACTIVE`    | Contrato activo y en curso         |
+| `COMPLETED` | Transacción completada             |
+| `CANCELED`  | Cancelado                          |
+
+## Componentes
+
+### `PurchaseSaleListComponent`
+
+**Rutas**: `/purchase-sales/page/:page`
+
+Lista paginada con:
+
+- Pestañas por tipo (Todas / Compras / Ventas)
+- Filtros por estado, rango de fechas, cliente, vehículo
+- Búsqueda rápida con sugerencias de búsquedas recientes
+- Visualización de montos en COP (`COPCurrencyPipe`)
+- KPIs: contratos activos, completados, cancelados, monto total
+
+### `PurchaseSaleCreateComponent`
+
+**Ruta**: `/purchase-sales/create`
+
+Flujo asistido multi-paso para crear un contrato:
+
+1. Seleccionar tipo de contrato (Compra / Venta)
+2. Buscar y seleccionar cliente
+3. Buscar y seleccionar vehículo disponible
+4. Ingresar precio, método de pago y notas
+5. Confirmar y crear
+
+### `PurchaseSaleDetailComponent`
+
+**Ruta**: `/purchase-sales/:id`
+
+Detalle completo del contrato con historial de cambios de estado (`ContractStatusHistoryService`).
+
+## Servicios
+
+### `PurchaseSaleService`
+
+**Ruta**: `src/app/features/purchase-sales/services/purchase-sale.service.ts`
+
+Operaciones principales. Endpoint de búsqueda con filtros complejos:
+
+```typescript
+// Búsqueda con filtros POST (no GET con query params)
+POST /v1/purchase-sales/search
+{
+  "page": 0,
+  "size": 10,
+  "type": "SALE",
+  "status": "ACTIVE",
+  "startDate": "2025-01-01",
+  "endDate": "2025-12-31"
+}
+```
+
+### `PurchaseSaleLookupService`
+
+Búsqueda de clientes y vehículos para el formulario de creación:
+
+- `searchClients(query)` → lista de personas y empresas
+- `searchVehicles(query)` → vehículos disponibles
+
+### `PurchaseSaleReportService`
+
+Genera reportes agregados por período. Ver [Reportes](/features/reports).
+
+### `ContractStatusHistoryService`
+
+Consulta el historial de cambios de estado de un contrato para mostrarlo en la vista de detalle.
+
+### `PurchaseSaleUIHelperService`
+
+Formateo de tipos, estados, métodos de pago y fechas para la UI.
+
+## Modelos
+
+```typescript
+interface PurchaseSale {
+  id: string;
+  type: "PURCHASE" | "SALE";
+  vehicle: VehicleReference;
+  client: ClientReference;
+  amount: number;
+  paymentMethod: string;
+  status: ContractStatus;
+  date: string;
+  notes?: string;
+}
+```
+
+## Utilidades
+
+### `filter-query.utils.ts`
+
+Serializa los filtros de búsqueda a los parámetros que espera el endpoint `/v1/purchase-sales/search`.
+
+### `quick-search.utils.ts`
+
+Gestiona sugerencias de búsqueda rápida: consultas recientes y términos más usados.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Reportes" icon="chart-bar" href="/features/reports">
+    Análisis financiero, inventario y rentabilidad
+  </Card>
+  <Card title="Gestión de Vehículos" icon="car" href="/features/vehicles">
+    Estados de vehículo y su relación con contratos
+  </Card>
+</CardGroup>

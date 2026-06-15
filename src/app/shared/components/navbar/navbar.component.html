@@ -1,0 +1,165 @@
+<nav class="topbar">
+  <div class="topbar__brand">
+    <div class="brand-mark">
+      <i class="bi bi-ev-front-fill"></i>
+    </div>
+    <div class="brand-copy d-lg-none">
+      <span class="brand-title">SGIVU</span>
+    </div>
+  </div>
+
+  <button
+    class="topbar__toggle"
+    type="button"
+    (click)="toggleMenu()"
+    aria-controls="sgivuNavbar"
+    [attr.aria-expanded]="isMenuOpen()"
+    aria-label="Alternar navegación"
+  >
+    <i class="bi" [class]="isMenuOpen() ? 'bi-x-lg' : 'bi-list'"></i>
+  </button>
+
+  <div
+    #navbarCollapse
+    class="topbar__menu collapse"
+    id="sgivuNavbar"
+    [class.show]="!isMobileView() || isMenuOpen()"
+  >
+    <ul class="topbar__links">
+      <li>
+        <a
+          class="topbar__link"
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="handleNavigation()"
+        >
+          <i class="bi bi-speedometer2"></i>
+          <span>Panel</span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="topbar__link"
+          routerLink="/vehicles"
+          routerLinkActive="active"
+          (click)="handleNavigation()"
+        >
+          <i class="bi bi-truck-front"></i>
+          <span>Vehículos</span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="topbar__link"
+          routerLink="/clients"
+          routerLinkActive="active"
+          (click)="handleNavigation()"
+        >
+          <i class="bi bi-people"></i>
+          <span>Clientes</span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="topbar__link"
+          routerLink="/purchase-sales"
+          routerLinkActive="active"
+          (click)="handleNavigation()"
+        >
+          <i class="bi bi-receipt-cutoff"></i>
+          <span>Compras y Ventas</span>
+        </a>
+      </li>
+      <li>
+        <a
+          class="topbar__link"
+          routerLink="/reports"
+          routerLinkActive="active"
+          (click)="handleNavigation()"
+        >
+          <i class="bi bi-file-earmark-bar-graph-fill"></i>
+          <span>Reportes</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="topbar__actions">
+      @let theme = activeTheme();
+      <button
+        type="button"
+        class="theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-pressed]="theme === 'dark'"
+        [attr.aria-label]="
+          theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'
+        "
+      >
+        <i
+          class="bi"
+          [class]="
+            theme === 'dark' ? 'bi-brightness-high-fill' : 'bi-moon-stars-fill'
+          "
+        ></i>
+        <span class="theme-toggle__label">
+          {{ theme === "dark" ? "Modo claro" : "Modo oscuro" }}
+        </span>
+      </button>
+
+      @if (isReadyAndAuthenticated()) {
+        @let user = this.user();
+        @if (user) {
+          <div class="dropdown topbar__profile">
+            <button
+              class="topbar__profile-btn dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <div class="avatar" aria-hidden="true">
+                {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+              </div>
+              <div class="user-info">
+                <strong>{{ user.username }}</strong>
+              </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a
+                  class="dropdown-item"
+                  routerLink="/users/profile"
+                  (click)="handleNavigation()"
+                  >Mi Perfil</a
+                >
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  routerLink="/settings"
+                  (click)="handleNavigation()"
+                  >Configuración</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <button class="dropdown-item" type="button" (click)="logout()">
+                  Cerrar sesión
+                </button>
+              </li>
+            </ul>
+          </div>
+        }
+      } @else {
+        <output
+          class="topbar__loading"
+          aria-live="polite"
+          aria-label="Cargando"
+        >
+          <span class="dot" aria-hidden="true"></span>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="dot" aria-hidden="true"></span>
+        </output>
+      }
+    </div>
+  </div>
+</nav>

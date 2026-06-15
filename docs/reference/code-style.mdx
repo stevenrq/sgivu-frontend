@@ -1,0 +1,107 @@
+---
+title: "Estilo de Código"
+description: "Convenciones de código, idioma, nomenclatura y jerarquía de UI en sgivu-frontend"
+---
+
+# Estilo de Código
+
+## Regla de Idioma
+
+sgivu-frontend separa claramente el idioma según quién lee el artefacto:
+
+| Qué                                                  | Idioma                | Ejemplo                                        |
+| ---------------------------------------------------- | --------------------- | ---------------------------------------------- |
+| Código fuente (clases, métodos, variables, archivos) | **Inglés**            | `UserService`, `loadPage()`, `isLoading`       |
+| Comentarios y documentación en código                | **Español**           | `// Valida que el usuario tenga sesión activa` |
+| Textos visibles en la UI (labels, mensajes, errores) | **Español**           | `"Usuario creado exitosamente"`                |
+| `describe()` e `it()` en tests                       | **Español**           | `it('Debe propagar el error')`                 |
+| Mensajes de commit                                   | **Inglés**            | `feat(users): add pagination to user list`     |
+| Nombres de archivos y carpetas                       | **Inglés** kebab-case | `user-list.component.ts`                       |
+
+## Nomenclatura de Componentes
+
+```typescript
+// Componentes: selector app- + kebab-case
+@Component({ selector: 'app-user-list' })
+
+// Directivas: selector app + camelCase
+@Directive({ selector: '[appHasPermission]' })
+```
+
+## Calidad de Código
+
+Principios aplicados en toda la base de código:
+
+- **SOLID**: una responsabilidad por clase/servicio
+- **DRY**: reutilizar utils de `shared/` antes de crear nuevas
+- **Clean Code**: métodos pequeños, nombres expresivos, sin valores mágicos
+- **Fail-secure**: el `permissionGuard` deniega si falta la configuración
+
+## `input()` y `output()` Funcionales
+
+Donde sea posible, usar las APIs funcionales en lugar de decoradores:
+
+```typescript
+// Preferido
+readonly title = input<string>('');
+readonly selected = output<Item>();
+
+// Solo si hay razón específica
+@Input() title = '';
+@Output() selected = new EventEmitter<Item>();
+```
+
+## Regla de Comentarios
+
+Escribe comentarios solo cuando el **por qué** no es obvio: restricciones ocultas, invariantes sutiles, workarounds de bugs específicos. No comentar lo que hace el código (los nombres ya lo dicen):
+
+```typescript
+// ❌ No — el nombre lo dice
+// Establece el usuario autenticado
+this._user.set(user);
+
+// ✅ Sí — explica el porqué no obvio
+// Excluimos /auth/session del manejo de 401 porque ese endpoint
+// devuelve 401 para indicar "no hay sesión" — es el mecanismo normal.
+if (req.url.includes("/auth/session")) return next(req);
+```
+
+## Nomenclatura de Tests
+
+**Patrón**: resultado esperado + condición. Agrupa por método con `describe` anidados:
+
+```typescript
+describe("AuthService", () => {
+  describe("initializeAuthentication()", () => {
+    it("Debe marcar isDoneLoading como true cuando no hay sesión activa", async () => {});
+    it("Debe poblar el usuario autenticado cuando la sesión es válida", async () => {});
+  });
+
+  describe("startLoginFlow()", () => {
+    it("Debe redirigir al endpoint de autorización del gateway", () => {});
+  });
+});
+```
+
+- Un test = una expectativa clara
+- Si el nombre tiene "y" probablemente son dos tests
+- El nombre debe explicar **qué se rompió y en qué escenario** si el test falla
+
+## Jerarquía de Botones
+
+Consulta la referencia en [Theming y Estilos](/architecture/theming#jerarquía-de-botones).
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Flujo de Git" icon="git-branch" href="/reference/git-workflow">
+    Conventional Commits y trunk-based development
+  </Card>
+  <Card
+    title="Solución de Problemas"
+    icon="wrench"
+    href="/reference/troubleshooting"
+  >
+    Diagnóstico de errores comunes
+  </Card>
+</CardGroup>

@@ -1,0 +1,93 @@
+---
+title: "Compodoc"
+description: "Catálogo de clases y servicios de sgivu-frontend generado con Compodoc"
+---
+
+# Compodoc
+
+sgivu-frontend incluye [Compodoc](https://compodoc.app/) para generar documentación técnica automática a partir de los JSDoc del código fuente. Es el complemento a esta documentación Mintlify: mientras esta guía explica el "por qué" y los patrones, Compodoc ofrece la referencia detallada de cada clase, servicio, componente y ruta.
+
+## Levantar Compodoc Localmente
+
+```bash
+npm run docs:serve
+```
+
+Genera la documentación y la sirve en **http://localhost:8080** con hot-reload.
+
+Para solo generar los archivos sin servirlos:
+
+```bash
+npm run docs
+```
+
+La salida se genera en `compodoc/` (en la raíz del repo, gitignoreada — es un artefacto generado, no se versiona).
+
+<Note>
+  La salida de Compodoc se genera **fuera** de `docs/` a propósito: sus web
+  components (`compodoc-menu`) entran en conflicto con el runtime de Mintlify si
+  conviven dentro de la raíz de contenido, rompiendo el preview local de la
+  documentación.
+</Note>
+
+## Qué Incluye Compodoc
+
+<CardGroup cols={2}>
+  <Card title="Componentes" icon="puzzle-piece">
+    Inputs, outputs, propiedades, métodos y templates de cada componente
+    standalone
+  </Card>
+  <Card title="Servicios" icon="server">
+    Métodos públicos, inyecciones y signals expuestos por cada servicio
+  </Card>
+  <Card title="Módulos y Rutas" icon="sitemap">
+    Árbol de rutas de la aplicación con guards y lazy loading
+  </Card>
+  <Card title="Cobertura" icon="chart-bar">
+    Porcentaje de documentación JSDoc por archivo
+  </Card>
+</CardGroup>
+
+## Configuración
+
+La configuración de Compodoc está en `tsconfig.doc.json`:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts", "src/test-setup.ts"]
+}
+```
+
+Incluye todos los archivos TypeScript de `src/` excepto los tests.
+
+## Relación con Esta Documentación
+
+| Compodoc                        | Documentación Mintlify (este sitio)     |
+| ------------------------------- | --------------------------------------- |
+| Referencia de APIs de clases    | Guías de arquitectura y patrones        |
+| Inputs y outputs de componentes | Cuándo y cómo usar cada componente      |
+| Firma de métodos de servicios   | Flujos y decisiones de diseño           |
+| Árbol de rutas                  | Diagrama de arquitectura y lazy loading |
+
+Usa esta documentación para entender el diseño y Compodoc para consultar la API exacta de un componente o servicio.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Componentes Compartidos"
+    icon="puzzle-piece"
+    href="/components/shared-components"
+  >
+    Guía de uso de los componentes más importantes
+  </Card>
+  <Card
+    title="Utilidades Compartidas"
+    icon="wrench"
+    href="/components/shared-utils"
+  >
+    Factories y helpers disponibles
+  </Card>
+</CardGroup>

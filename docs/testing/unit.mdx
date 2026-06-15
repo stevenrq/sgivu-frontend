@@ -1,0 +1,135 @@
+---
+title: "Tests Unitarios"
+description: "Tests unitarios en sgivu-frontend: Vitest, jsdom y patrones de prueba"
+---
+
+# Tests Unitarios
+
+sgivu-frontend usa **Vitest** como test runner con **jsdom** como entorno DOM simulado. Los tests corren completamente en Node.js — sin navegador, sin Chrome, sin configuración especial en WSL.
+
+## Stack de Testing
+
+| Herramienta           | Versión | Rol                                   |
+| --------------------- | ------- | ------------------------------------- |
+| Vitest                | 4.1.8   | Test runner + assertions              |
+| jsdom                 | —       | DOM simulado en Node.js               |
+| `@vitest/coverage-v8` | 4.1.8   | Cobertura con V8                      |
+| Angular TestBed       | —       | Contexto de inyección de dependencias |
+
+## Ejecutar Tests
+
+```bash
+# En modo watch (TTY interactivo)
+npm run test
+
+# Una sola pasada (para CI o scripts)
+CI=true npm run test
+
+# Con informe de cobertura
+npm run test:coverage
+```
+
+## Setup Global
+
+**Ruta**: `src/test-setup.ts`
+
+```typescript
+import { afterEach, vi } from "vitest";
+
+// Stub de window.matchMedia — jsdom no lo implementa
+// ThemeService lo usa al inicializarse, así que todos los tests lo necesitan
+const matchMediaStub = (query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+});
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: matchMediaStub,
+});
+
+// Restaura todos los spies automáticamente entre tests
+// (equivalente al comportamiento de Jasmine con restoreAllMocks)
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+```
+
+## Patrón de Tests
+
+Los tests siguen el patrón **resultado esperado + condición**, agrupados por método con `describe` anidados:
+
+```typescript
+// user.service.spec.ts
+describe("UserService", () => {
+  describe("create()", () => {
+    it("Debe agregar el nuevo usuario al estado y actualizar el contador", async () => {
+      // …
+    });
+
+    it("Debe propagar el error y no modificar el estado cuando la API falla", async () => {
+      // …
+    });
+  });
+
+  describe("delete()", () => {
+    it("Debe eliminar el usuario del estado tras confirmación", async () => {
+      // …
+    });
+  });
+});
+```
+
+**Reglas de nomenclatura:**
+
+- `describe()` e `it()` en **español** (lo que lee un humano)
+- Nombres de funciones/métodos de test en **inglés** (lo que ejecuta la máquina)
+- Nombres descriptivos del comportamiento, no de la implementación
+
+## Espiar `localStorage` / `sessionStorage`
+
+jsdom implementa Storage como un Proxy — espiar la instancia directamente no intercepta las llamadas. Usa `vi.spyOn(Storage.prototype, ...)`:
+
+```typescript
+it("Debe persistir la predicción en localStorage", () => {
+  const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+  service.savePrediction(mockPrediction);
+
+  expect(setItemSpy).toHaveBeenCalledWith(
+    "dashboard:lastPrediction",
+    JSON.stringify(mockPrediction),
+  );
+});
+```
+
+## Configuración en `angular.json`
+
+```json
+"test": {
+  "builder": "@angular/build:unit-test",
+  "options": {
+    "runner": "vitest",
+    "setupFiles": ["src/test-setup.ts"],
+    "coverageReporters": ["text", "lcov"]
+  }
+}
+```
+
+Los umbrales de cobertura también se configuran en `angular.json` y el build falla si no se alcanzan.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Tests E2E" icon="browser" href="/testing/e2e">
+    Suite Playwright con red simulada
+  </Card>
+  <Card title="Pipeline CI" icon="git-branch" href="/testing/ci">
+    Cómo se ejecutan los tests en GitHub Actions
+  </Card>
+</CardGroup>

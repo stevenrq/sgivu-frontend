@@ -1,0 +1,95 @@
+---
+title: "Inicio Rápido"
+description: "Levanta sgivu-frontend en desarrollo en 3 pasos"
+---
+
+# Inicio Rápido
+
+<Note>
+  Este quickstart levanta solo el frontend con red simulada (modo e2e sin
+  backend). Para trabajar con datos reales necesitas los servicios backend del
+  repo `sgivu` — ver [Instalación](/getting-started/installation).
+</Note>
+
+## Requisitos Previos
+
+- **Node.js v24** (fijado en `.nvmrc`; usa `nvm use` si tienes nvm instalado)
+- **npm 8+** (incluido con Node.js)
+- **Git**
+
+## Paso a Paso
+
+<Steps>
+  <Step title="Clonar el repositorio">
+    ```bash
+    git clone https://github.com/stevenrq/sgivu-frontend.git
+    cd sgivu-frontend
+    ```
+  </Step>
+  <Step title="Instalar dependencias">
+    ```bash
+    npm install
+    ```
+  </Step>
+  <Step title="Generar archivos de entorno">
+    Los archivos `environment.ts` están gitignoreados. Généralos desde las plantillas versionadas:
+
+    ```bash
+    cp src/environments/environment.example.ts src/environments/environment.ts
+    cp src/environments/environment.development.example.ts src/environments/environment.development.ts
+    ```
+
+    <Note>
+      El CI de GitHub Actions genera estos archivos automáticamente. En local, edita `environment.development.ts` para apuntar al gateway que uses.
+    </Note>
+
+  </Step>
+  <Step title="Levantar el servidor de desarrollo">
+    ```bash
+    npm run start
+    ```
+
+    La app queda disponible en **http://localhost:4200**. Angular CLI recarga automáticamente al guardar archivos.
+
+  </Step>
+</Steps>
+
+## Comandos Esenciales
+
+| Comando                 | Descripción                                                        |
+| ----------------------- | ------------------------------------------------------------------ |
+| `npm run start`         | Servidor de desarrollo en :4200                                    |
+| `npm run test`          | Tests unitarios Vitest (watch en TTY, una pasada en CI)            |
+| `npm run test:coverage` | Tests con informe de cobertura                                     |
+| `npm run e2e`           | Suite Playwright (levanta `ng serve` y simula la red, sin backend) |
+| `npm run lint`          | ESLint con reglas angular-eslint                                   |
+| `npm run build`         | Build de producción → `dist/sgivu-frontend/`                       |
+| `npm run docs:serve`    | Compodoc en :8080 (catálogo de clases y servicios)                 |
+
+## Verificar que Todo Funciona
+
+```bash
+# Linting
+npm run lint
+
+# Tests unitarios (una pasada, sin watch)
+CI=true npm run test
+
+# Build de producción (verifica presupuestos de bundle)
+npm run build
+```
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Instalación completa"
+    icon="download"
+    href="/getting-started/installation"
+  >
+    Configura el stack completo con backend
+  </Card>
+  <Card title="Entornos" icon="gear" href="/getting-started/environments">
+    Variables y configuración por entorno
+  </Card>
+</CardGroup>

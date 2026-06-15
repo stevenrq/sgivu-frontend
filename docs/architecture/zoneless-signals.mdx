@@ -1,0 +1,164 @@
+---
+title: "Zoneless y Signals"
+description: "Cómo funciona la reactividad sin Zone.js en sgivu-frontend: signals, computed y toSignal"
+---
+
+# Zoneless y Signals
+
+sgivu-frontend usa **detección de cambios zoneless** junto con **Angular Signals** para toda la reactividad. Entender estos dos mecanismos juntos es clave para trabajar con la aplicación.
+
+<Note>
+  Esta sección es especialmente útil si estás aprendiendo Angular moderno. Los
+  conceptos se explican con el "por qué" antes del "cómo".
+</Note>
+
+## ¿Por Qué Zoneless?
+
+Históricamente Angular usaba Zone.js para detectar cuándo algo cambiaba en la app (clicks, promesas, timers…) y disparar re-renderizados. Zone.js funciona "parcheando" las APIs del navegador de forma global, lo que puede causar renders innecesarios.
+
+Con **zoneless**, Angular no necesita parchear nada: se renderiza **solo cuando un signal cambia**. El resultado es una app más predecible, más eficiente y más fácil de razonar.
+
+```typescript
+// app.config.ts — el único cambio necesario a nivel de configuración
+provideZonelessChangeDetection(),
+```
+
+La consecuencia inmediata: **`ChangeDetectionStrategy.OnPush` es obligatorio en todos los componentes**. Sin Zone.js, Angular solo revisa un componente si uno de sus signals cambió. Si usas una propiedad mutable plana, los cambios no se reflejarán en la UI.
+
+## ¿Qué es un Signal?
+
+Un signal es un contenedor reactivo para un valor. Cuando el valor cambia, cualquier template o `computed` que lo lea se actualiza automáticamente.
+
+```typescript
+// Crear un signal
+const count = signal(0);
+
+// Leer el valor (se llama como función)
+console.log(count()); // 0
+
+// Actualizar el valor
+count.set(1);
+count.update((v) => v + 1);
+```
+
+## Patrón de Estado en Servicios
+
+El patrón obligatorio en sgivu-frontend para estado en servicios:
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class UserService {
+  // Signal PRIVADO (mutable) — solo el servicio lo modifica
+  private readonly _users = signal<User[]>([]);
+  private readonly _loading = signal(false);
+
+  // Signals PÚBLICOS (de solo lectura) — los componentes solo leen
+  readonly users = this._users.asReadonly();
+  readonly loading = this._loading.asReadonly();
+
+  // Valor DERIVADO (computed) — se recalcula automáticamente
+  readonly activeUsers = computed(() => this._users().filter((u) => u.enabled));
+
+  loadUsers(): void {
+    this._loading.set(true);
+    this.http.get<User[]>("/v1/users").subscribe({
+      next: (users) => {
+        this._users.set(users);
+        this._loading.set(false);
+      },
+      error: () => this._loading.set(false),
+    });
+  }
+}
+```
+
+**Por qué este patrón:**
+
+- El signal mutable es privado → el estado solo cambia desde el servicio (encapsulación, como en Redux)
+- `asReadonly()` expone el signal sin el método `set()` → los componentes no pueden modificar el estado directamente
+- `computed()` deriva valores automáticamente → no hay que "acordarse" de actualizar valores calculados
+
+## `computed()`: Valores Derivados
+
+`computed()` crea un signal cuyo valor se recalcula **solo cuando sus dependencias cambian**. Es lazy y memoizado:
+
+```typescript
+// Solo se recalcula cuando _users() o searchQuery() cambian
+readonly filteredUsers = computed(() => {
+  const query = this.searchQuery().toLowerCase();
+  return this._users().filter(u =>
+    u.username.toLowerCase().includes(query)
+  );
+});
+```
+
+En un componente con `OnPush`, el template se re-renderiza solo cuando un signal que usa cambia. Si `_users` cambia pero `searchQuery` no, `filteredUsers` vuelve a ejecutarse y el template se actualiza.
+
+## `toSignal()`: De Observable a Signal
+
+Para datos que llegan como Observables (formularios reactivos, rutas, etc.) existe `toSignal()`:
+
+```typescript
+import { toSignal } from "@angular/core/rxjs-interop";
+
+@Component({
+  /* … */
+})
+export class FilterComponent {
+  readonly searchControl = new FormControl("");
+
+  // Convierte el Observable del control a un signal
+  // Ideal para escuchar cambios en formularios con OnPush
+  readonly searchValue = toSignal(this.searchControl.valueChanges, {
+    initialValue: "",
+  });
+
+  // Ahora puedes usar searchValue() en computed() y templates
+  readonly hasSearch = computed(() => (this.searchValue() ?? "").length > 0);
+}
+```
+
+**Cuándo usar `toSignal()`**: Cuando tienes estado de formulario que cambia por callbacks asíncronos. Sin `toSignal()`, un componente OnPush no detectaría los cambios del `valueChanges`.
+
+## `effect()`: Efectos Secundarios Reactivos
+
+Para reaccionar a cambios de signals con efectos secundarios (guardar en localStorage, disparar analíticas, etc.):
+
+```typescript
+effect(() => {
+  // Este bloque se ejecuta cada vez que theme() cambia
+  document.documentElement.dataset["theme"] = this.theme();
+});
+```
+
+<Warning>
+  No uses `effect()` para sincronizar estado entre signals — usa `computed()`
+  para eso. `effect()` es para efectos secundarios reales (DOM, localStorage,
+  logs).
+</Warning>
+
+## Resumen de Reglas
+
+| Regla                                      | Motivo                                                                |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| `OnPush` en todos los componentes          | Sin Zone.js, es la única forma de que Angular renderice el componente |
+| Signal mutable → privado en el servicio    | Encapsulación del estado, patrón análogo a Redux                      |
+| Exponer con `asReadonly()`                 | Los componentes no deben modificar estado de servicios directamente   |
+| `computed()` para valores derivados        | Automático, lazy y memoizado; sin riesgo de olvidar sincronizar       |
+| `toSignal()` para formularios reactivos    | Hace que `valueChanges` sea compatible con `OnPush`                   |
+| No mutar propiedades planas en componentes | El render zoneless no las detecta                                     |
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Gestión de Estado"
+    icon="database"
+    href="/architecture/state-management"
+  >
+    CrudOperationsFactory y ListPageManager con signals
+  </Card>
+  <Card title="Formularios" icon="input-text" href="/architecture/forms">
+    Reactive Forms tipados y validators personalizados
+  </Card>
+</CardGroup>

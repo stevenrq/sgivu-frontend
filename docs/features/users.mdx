@@ -1,0 +1,133 @@
+---
+title: "Gestión de Usuarios"
+description: "Feature de gestión de usuarios de SGIVU: CRUD, perfiles y asignación de roles"
+---
+
+# Gestión de Usuarios
+
+Permite a los administradores gestionar las cuentas de usuario del sistema: crear, editar, activar/desactivar y ver perfiles. Los usuarios tienen roles que determinan qué acciones pueden realizar en la aplicación.
+
+**Ubicación**: `src/app/features/users/`  
+**Rutas**: `/users/*`
+
+## Permisos Requeridos
+
+| Acción                | Permiso       |
+| --------------------- | ------------- |
+| Ver lista de usuarios | `user:read`   |
+| Crear usuario         | `user:create` |
+| Editar usuario        | `user:update` |
+| Eliminar usuario      | `user:delete` |
+
+## Componentes
+
+### `UserListComponent`
+
+**Ruta**: `/users/page/:page`
+
+Lista paginada de usuarios con:
+
+- Búsqueda por nombre, username o email
+- Filtros por rol y estado (activo/inactivo)
+- Chips de filtro removibles (`FilterChipGroupComponent`)
+- Barra rápida de búsqueda con debounce (`QuickSearchBarComponent`)
+- Tabla con `DataTableComponent` (paginación, columnas configurables)
+- Contadores KPI: total, activos, inactivos
+
+### `UserFormComponent`
+
+**Rutas**: `/users/create`, `/users/:id/edit`
+
+Formulario de creación/edición con:
+
+- Datos de la persona asociada (nombre, apellidos, tipo de documento, número)
+- Credenciales (username, email, contraseña con `passwordStrengthValidator`)
+- Asignación de uno o más roles
+- Dirección (componente de formulario de dirección reutilizable)
+- Wrapper `FormShellComponent` con loading overlay y botones de acción
+
+### `UserProfileComponent`
+
+**Ruta**: `/users/:id`
+
+Vista de perfil con información completa, roles asignados y acceso a editar.
+
+## Servicio
+
+### `UserService`
+
+**Ruta**: `src/app/features/users/services/user.service.ts`
+
+Gestiona el estado con signals usando `CrudOperationsFactory`:
+
+```typescript
+// Estado expuesto como signals de solo lectura
+readonly users = this._users.asReadonly();
+readonly loading = this._loading.asReadonly();
+readonly totalElements = this._totalElements.asReadonly();
+readonly activeCount = computed(() => /* ... */);
+```
+
+Endpoints que consume (via `${apiUrl}/v1/users`):
+
+| Método HTTP | Endpoint                | Acción          |
+| ----------- | ----------------------- | --------------- |
+| `GET`       | `/v1/users?page=&size=` | Listar paginado |
+| `GET`       | `/v1/users/{id}`        | Obtener por ID  |
+| `POST`      | `/v1/users`             | Crear           |
+| `PUT`       | `/v1/users/{id}`        | Actualizar      |
+| `DELETE`    | `/v1/users/{id}`        | Eliminar        |
+
+## Modelos
+
+```typescript
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  enabled: boolean;
+  person: Person;
+  roles: Role[];
+}
+
+interface Person {
+  id: string;
+  firstName: string;
+  lastName: string;
+  documentType: string;
+  documentNumber: string;
+  phone?: string;
+  address?: Address;
+}
+```
+
+## Resolver
+
+`userProfileResolver` precarga los datos del usuario antes de activar la ruta de perfil, evitando que el componente aparezca vacío mientras carga:
+
+```typescript
+{
+  path: ':id',
+  component: UserProfileComponent,
+  resolve: { user: userProfileResolver },
+}
+```
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Gestión de Roles"
+    icon="shield-check"
+    href="/features/roles-permissions"
+  >
+    Asignación de permisos a roles
+  </Card>
+  <Card
+    title="Autorización RBAC"
+    icon="lock"
+    href="/architecture/authorization"
+  >
+    Cómo funcionan los permisos en la app
+  </Card>
+</CardGroup>

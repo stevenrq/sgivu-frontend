@@ -1,0 +1,113 @@
+:host {
+  display: block;
+}
+
+.kpi-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(var(--accent-rgb), 0.05),
+      rgba(var(--accent-strong-rgb), 0)
+    ),
+    var(--surface);
+  --tone-bg: var(--accent-soft);
+  --tone-color: var(--accent);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+.kpi-card .card-body {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.kpi-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(var(--accent-rgb), 0.06),
+    transparent 28%
+  );
+  opacity: 0.9;
+}
+
+.icon-circle {
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  background-color: var(--tone-bg);
+  color: var(--tone-color);
+}
+
+.kpi-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.12);
+  border-color: rgba(var(--accent-rgb), 0.35);
+}
+
+.card-subtitle {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.kpi-value {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+  font-weight: 800;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  word-break: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-card--success {
+  --tone-bg: rgba(16, 185, 129, 0.12);
+  --tone-color: #0f5132;
+}
+
+.kpi-card--warning {
+  --tone-bg: rgba(251, 191, 36, 0.14);
+  --tone-color: #8c5b00;
+}
+
+.kpi-card--danger {
+  --tone-bg: rgba(239, 68, 68, 0.12);
+  --tone-color: #842029;
+}
+
+.kpi-card--info {
+  --tone-bg: rgba(14, 165, 233, 0.14);
+  --tone-color: #0b6b8f;
+}
+
+.kpi-card--dark {
+  --tone-bg: rgba(255, 255, 255, 0.12);
+  --tone-color: var(--text);
+}

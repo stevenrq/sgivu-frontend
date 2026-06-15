@@ -1,0 +1,108 @@
+---
+title: "Reportes"
+description: "Feature de reportes analíticos de SGIVU: financiero, inventario, ventas por cliente y rentabilidad"
+---
+
+# Reportes
+
+El módulo de reportes ofrece análisis detallados del negocio en cuatro pestañas temáticas, con exportación a PDF, Excel y CSV.
+
+**Ubicación**: `src/app/features/reports/`  
+**Ruta**: `/reports`  
+**Permiso requerido**: `purchase_sale:read`
+
+## Pestañas de Análisis
+
+<CardGroup cols={2}>
+  <Card title="Financiero" icon="dollar-sign">
+    Ingresos y egresos por período, comparativa mensual, totales de contratos
+    completados
+  </Card>
+  <Card title="Inventario" icon="warehouse">
+    Distribución de vehículos por estado, tiempo promedio en inventario,
+    rotación por tipo
+  </Card>
+  <Card title="Ventas por Cliente" icon="users">
+    Ranking de clientes por volumen de compra, historial de transacciones por
+    cliente
+  </Card>
+  <Card title="Rentabilidad" icon="trending-up">
+    Margen por vehículo (precio de compra vs. precio de venta), rentabilidad por
+    período
+  </Card>
+</CardGroup>
+
+## Componentes
+
+### `ReportsPageComponent`
+
+Componente principal que gestiona las 4 pestañas con Bootstrap Tabs (importado vía ESM en `main.ts`). Cada pestaña es un sub-componente independiente con su propio conjunto de gráficos y KPIs.
+
+### `ReportDateFilterComponent`
+
+Selector de rango de fechas reutilizable. Emite los rangos seleccionados como `output()` funcional para que el componente padre recargue los datos.
+
+### `ReportExportBarComponent`
+
+Barra de exportación con botones PDF, Excel y CSV. Genera el archivo en el cliente a partir de los datos ya cargados.
+
+## Utilidades
+
+### `report-aggregation.utils.ts`
+
+Funciones de agregación puras sobre los datos de contratos:
+
+- Totales y subtotales por período
+- Agrupación por cliente, tipo de vehículo, método de pago
+- Cálculo de rentabilidad (precio compra vs. venta)
+
+### `report-chart.utils.ts`
+
+Transformación de datos agregados al formato de Chart.js (`ChartData`, `ChartOptions`). Configura colores, etiquetas y escalas para cada tipo de gráfico (line, bar, doughnut).
+
+## Visualizaciones
+
+Los gráficos usan Chart.js con tree-shaking manual — solo se registran los controladores necesarios en `app.config.ts`:
+
+```typescript
+provideCharts({
+  registerables: [
+    LineController,
+    BarController,
+    DoughnutController,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    ArcElement,
+    Tooltip,
+    Legend,
+  ],
+});
+```
+
+## Exportación
+
+| Formato   | Implementación                                 |
+| --------- | ---------------------------------------------- |
+| **PDF**   | Generado en el cliente vía librería de PDF     |
+| **Excel** | Generado en el cliente con datos tabulares     |
+| **CSV**   | Serialización directa de los datos de la tabla |
+
+La exportación no requiere llamada adicional al backend — usa los datos ya cargados en la sesión.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Contratos de Compraventa"
+    icon="handshake"
+    href="/features/purchase-sales"
+  >
+    Los contratos son la fuente de datos de los reportes
+  </Card>
+  <Card title="Dashboard ML" icon="chart-line" href="/features/dashboard">
+    Predicción de demanda futura
+  </Card>
+</CardGroup>

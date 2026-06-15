@@ -1,0 +1,119 @@
+---
+title: "Estructura del Proyecto"
+description: "Organización de carpetas de sgivu-frontend y criterio shared vs. feature"
+---
+
+# Estructura del Proyecto
+
+sgivu-frontend sigue una arquitectura orientada a features, donde cada dominio de negocio vive en su propia carpeta con componentes, servicios, modelos y rutas agrupados por responsabilidad.
+
+## Árbol Principal
+
+```
+sgivu-frontend/
+├── src/
+│   ├── main.ts                     # Bootstrap: imports ESM de Bootstrap JS
+│   ├── app/
+│   │   ├── app.component.ts        # Raíz: layout, navbar, sidebar, banner servicios
+│   │   ├── app.config.ts           # ApplicationConfig (providers, interceptors, locale)
+│   │   ├── app.routes.ts           # Rutas raíz con lazy loading
+│   │   ├── features/               # Un directorio por dominio de negocio
+│   │   │   ├── auth/
+│   │   │   ├── dashboard/
+│   │   │   ├── users/
+│   │   │   ├── clients/
+│   │   │   ├── vehicles/
+│   │   │   ├── purchase-sales/
+│   │   │   ├── reports/
+│   │   │   └── roles/
+│   │   └── shared/                 # Código reutilizado por ≥2 features
+│   │       ├── components/
+│   │       ├── services/
+│   │       ├── directives/
+│   │       ├── pipes/
+│   │       ├── validators/
+│   │       ├── models/
+│   │       └── utils/
+│   ├── environments/               # Archivos gitignoreados (generados desde .example.ts)
+│   └── styles.css                  # Estilos globales (incluye .floating-google)
+├── e2e/                            # Suite Playwright
+│   ├── fixtures/api-mocks.ts       # Mocks de red para tests sin backend
+│   └── *.spec.ts
+├── docs/                           # Documentación Mintlify (este sitio)
+│   └── compodoc/                   # Generado por Compodoc, gitignoreado
+├── public/                         # Assets estáticos (favicon.ico)
+├── angular.json                    # Configuración Angular CLI (budgets, styles)
+├── tsconfig.json                   # Configuración TypeScript (strict mode)
+├── tsconfig.doc.json               # Config de Compodoc
+└── .github/workflows/ci.yml        # Pipeline CI
+```
+
+## Estructura Interna de un Feature
+
+Cada feature sigue la misma estructura interna:
+
+```
+features/vehicles/
+├── components/
+│   ├── car-list/
+│   │   ├── car-list.component.ts
+│   │   └── car-list.component.html
+│   ├── car-form/
+│   ├── vehicle-detail/
+│   └── vehicle-image-manager/
+├── services/
+│   ├── car.service.ts
+│   ├── motorcycle.service.ts
+│   ├── vehicle-image.service.ts
+│   ├── vehicle-image-upload.service.ts
+│   └── vehicle-ui-helper.service.ts
+├── models/
+│   ├── car.model.ts
+│   ├── motorcycle.model.ts
+│   └── vehicle.model.ts
+└── vehicle.routes.ts               # Rutas del feature
+```
+
+## Criterio: ¿Shared o Feature?
+
+La regla es clara: un artefacto va a `shared/` **solo si lo usan ≥ 2 features** o es genuinamente genérico sin conocimiento de dominio.
+
+| Va a `shared/`                                               | Va a `features/<nombre>/`                            |
+| ------------------------------------------------------------ | ---------------------------------------------------- |
+| `DataTableComponent` (usado en users, vehicles, clients…)    | `VehicleImageManagerComponent` (solo en vehicles)    |
+| `CrudOperationsFactory` (usado por todos los servicios CRUD) | `PurchaseSaleLookupService` (solo en purchase-sales) |
+| `ThemeService` (usado globalmente)                           | `DashboardStateService` (solo en dashboard)          |
+| `*appHasPermission` (usada en todos los features)            | `permission-catalog.utils.ts` (solo en roles)        |
+
+Mover un artefacto entre `shared/` y `features/` = un solo commit `refactor:` que actualiza todos los imports.
+
+## Regla de Idioma
+
+La CLAUDE.md establece una regla clara de idioma:
+
+| Qué                                                       | Idioma                      |
+| --------------------------------------------------------- | --------------------------- |
+| Código fuente (clases, métodos, variables, archivos)      | **Inglés**                  |
+| Comentarios y documentación de código                     | **Español**                 |
+| Textos visibles en la UI (labels, mensajes, validaciones) | **Español**                 |
+| Selectores de componentes                                 | `app-` kebab-case en inglés |
+| Selectores de directivas                                  | `app` camelCase en inglés   |
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Componentes Compartidos"
+    icon="puzzle-piece"
+    href="/components/shared-components"
+  >
+    Catálogo completo de shared/components/
+  </Card>
+  <Card
+    title="Zoneless y Signals"
+    icon="bolt"
+    href="/architecture/zoneless-signals"
+  >
+    Reactividad sin Zone.js
+  </Card>
+</CardGroup>

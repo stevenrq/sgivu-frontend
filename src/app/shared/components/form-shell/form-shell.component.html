@@ -1,0 +1,40 @@
+<div class="d-flex">
+  <div class="flex-grow-1 d-flex flex-column">
+    <main class="flex-grow-1 p-4 form-shell-main" [class]="pageClass()">
+      <div class="container-fluid">
+        <div
+          class="card shadow-sm border-0 position-relative"
+          [class]="cardClass()"
+        >
+          @if (loading()) {
+            <app-loading-overlay />
+          }
+
+          <div class="card-header border-bottom-0 pt-3" [class]="headerClass()">
+            <h1
+              class="h4 mb-1 d-flex align-items-center"
+              [class]="titleClass()"
+            >
+              <i class="bi me-2" [class]="icon()"></i>
+              {{ title() }}
+            </h1>
+            <p class="mb-0" [class]="subtitleClass()">
+              {{ subtitle() }}
+            </p>
+          </div>
+
+          <div class="card-body p-4" [class]="bodyClass()">
+            <ng-content select="[form-body]"></ng-content>
+          </div>
+
+          <div
+            class="card-footer text-end border-top-0"
+            [class]="footerClass()"
+          >
+            <ng-content select="[form-actions]"></ng-content>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

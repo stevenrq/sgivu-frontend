@@ -1,0 +1,81 @@
+---
+title: "Introducción"
+description: "Descripción general de sgivu-frontend: la SPA Angular del ecosistema SGIVU"
+---
+
+# Introducción
+
+**sgivu-frontend** es la Single Page Application (SPA) del ecosistema **SGIVU** — Sistema de Gestión Inteligente de Vehículos Usados. Proporciona la interfaz de administración para concesionarios: gestión de inventario de vehículos, clientes, contratos de compraventa y un dashboard con predicción de demanda impulsada por ML.
+
+<Note>
+  El frontend vive en un repositorio independiente (`stevenrq/sgivu-frontend`) y
+  se despliega como hosting estático en la nube. Se comunica **exclusivamente**
+  con `sgivu-gateway` — nunca llama directamente a microservicios individuales.
+</Note>
+
+## Repositorios del Ecosistema
+
+| Repositorio               | Tecnología             | Rol                                   |
+| ------------------------- | ---------------------- | ------------------------------------- |
+| `stevenrq/sgivu-frontend` | Angular 21             | Esta SPA (interfaz de usuario)        |
+| `stevenrq/sgivu`          | Spring Cloud + FastAPI | Backend: microservicios, gateway y ML |
+
+## Características Principales
+
+### Gestión de Inventario
+
+Catálogo completo de vehículos (autos y motocicletas) con especificaciones detalladas, seguimiento de estado (disponible, reservado, vendido) y carga de imágenes a AWS S3 vía URLs prefirmadas.
+
+### Contratos de Compraventa
+
+Flujo asistido para crear contratos de compra y venta, con búsqueda integrada de clientes y vehículos, historial de estados y generación de reportes exportables en PDF, Excel y CSV.
+
+### Dashboard y Predicción ML
+
+KPIs en tiempo real (contratos activos, vehículos en inventario, métricas de ingresos) y un panel de predicción de demanda que consume el servicio FastAPI del backend con métricas RMSE, MAE, MAPE, WAPE y R².
+
+### Seguridad BFF
+
+Autenticación OAuth 2.1/PKCE completamente delegada al `sgivu-gateway` sin librerías OAuth en el cliente. Control de acceso basado en roles (RBAC) con permisos granulares `recurso:accion` aplicados tanto en guards de ruta como en directivas de plantilla.
+
+### Angular Moderno
+
+- **Zoneless**: `provideZonelessChangeDetection()`, sin zone.js
+- **Signals**: toda la reactividad de la aplicación
+- **Standalone Components**: sin NgModules
+- **OnPush**: en todos los componentes sin excepción
+- **Lazy Loading**: cada feature carga bajo demanda
+
+## Localización
+
+La aplicación está configurada para español colombiano (`es-CO`):
+
+- Formateo de fechas con convenciones colombianas
+- Moneda en COP con `COPCurrencyPipe` personalizado
+- Conversión de zona horaria UTC → GMT-5 con `UtcToGmtMinus5Pipe`
+- Todos los textos de interfaz en español; código fuente en inglés
+
+## Repositorio Backend
+
+La documentación de la plataforma completa — backend, microservicios, ML, API y configuración de infraestructura — está disponible en [sgivu.mintlify.app](https://sgivu.mintlify.app).
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Inicio Rápido" icon="rocket" href="/getting-started/quickstart">
+    Levanta la app en minutos
+  </Card>
+  <Card title="Arquitectura" icon="sitemap" href="/architecture">
+    Patrones zoneless, signals y BFF
+  </Card>
+  <Card title="Funcionalidades" icon="puzzle-piece" href="/features/dashboard">
+    Módulos de dominio en detalle
+  </Card>
+  <Card
+    title="Componentes"
+    icon="layer-group"
+    href="/components/shared-components"
+  >
+    Catálogo de componentes compartidos
+  </Card>
+</CardGroup>

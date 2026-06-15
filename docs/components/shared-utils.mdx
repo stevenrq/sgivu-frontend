@@ -1,0 +1,150 @@
+---
+title: "Utilidades Compartidas"
+description: "Factories, managers y helpers en shared/utils/ de sgivu-frontend"
+---
+
+# Utilidades Compartidas
+
+Las utilidades en `src/app/shared/utils/` son funciones puras y factories reutilizadas en múltiples features. Encapsulan patrones repetitivos (CRUD, paginación, alertas, filtros) para mantener los servicios de dominio delgados.
+
+## `crud-operations.factory.ts`
+
+**La utilidad más importante del proyecto.** Factory genérica que genera operaciones CRUD estándar con estado en signals para un recurso dado:
+
+```typescript
+// Cómo lo usa un servicio de dominio
+@Injectable({ providedIn: "root" })
+export class PersonService {
+  private readonly crud = CrudOperationsFactory.create<
+    Person,
+    PersonSearchFilters
+  >(`${environment.apiUrl}/v1/persons`, inject(HttpClient));
+
+  // Estado (signals de solo lectura)
+  readonly persons = this.crud.items;
+  readonly loading = this.crud.loading;
+  readonly totalElements = this.crud.totalElements;
+  readonly totalPages = this.crud.totalPages;
+
+  // Operaciones
+  loadPage = this.crud.loadPage;
+  create = this.crud.create;
+  update = this.crud.update;
+  delete = this.crud.delete;
+}
+```
+
+La factory gestiona internamente el signal de `items`, `loading`, `error` y la actualización del estado tras cada operación HTTP.
+
+## `list-page-manager.ts`
+
+Gestiona el estado de páginas de listado paginadas con filtros. Sincroniza la página actual y los filtros activos con la URL (query params) para que el usuario pueda compartir o recargar la URL:
+
+```typescript
+// En un componente de lista
+export class UserListComponent {
+  private readonly manager = inject(ListPageManager);
+  private readonly userService = inject(UserService);
+
+  readonly filters = this.manager.filters;
+  readonly activeCount = computed(
+    () => this.userService.users().filter((u) => u.enabled).length,
+  );
+}
+```
+
+## `swal-alert.utils.ts`
+
+Wrappers de SweetAlert2 que respetan el tema activo de la aplicación:
+
+```typescript
+// Diálogo de confirmación con tema adaptado
+import {
+  showConfirmDialog,
+  themedSwalOptions,
+} from "@shared/utils/swal-alert.utils";
+
+const confirmed = await showConfirmDialog({
+  title: "¿Eliminar usuario?",
+  text: "Esta acción no se puede deshacer.",
+  confirmButtonText: "Eliminar",
+});
+
+if (confirmed) {
+  this.userService.delete(id);
+}
+```
+
+## `error-handler.utils.ts`
+
+Extrae el mensaje de error de respuestas HTTP para mostrarlo en la UI (sin exponer detalles técnicos):
+
+```typescript
+import { extractErrorMessage } from "@shared/utils/error-handler.utils";
+
+this.userService.create(data).subscribe({
+  error: (err) => this.toastService.error(extractErrorMessage(err)),
+});
+```
+
+Maneja los formatos de error del gateway de Spring Boot (campo `message` en el body, mensajes de validación de `@Valid`, etc.).
+
+## `form.utils.ts`
+
+```typescript
+markFormGroupTouched(form: FormGroup): void
+// Marca todos los controles para mostrar errores de validación al intentar enviar
+
+getFormValidationErrors(form: FormGroup): ValidationError[]
+// Extrae todos los errores actuales para mostrar en un bloque de errores
+```
+
+## `currency.utils.ts`
+
+Formateo de números como Peso Colombiano (COP). Complementa el `COPCurrencyPipe` para casos donde se necesita el valor como string fuera de una plantilla.
+
+## `date.utils.ts`
+
+Transformaciones de fechas: conversión UTC → GMT-5 (zona horaria colombiana), formateo a strings localizados para la UI.
+
+## `filter-query.utils.ts`
+
+Serializa los objetos de filtros a `HttpParams` para las peticiones de búsqueda. Maneja tipos, valores nulos/undefined y parámetros especiales de paginación.
+
+## `quick-search.utils.ts`
+
+Gestiona las sugerencias de búsqueda rápida: historial de búsquedas recientes (persistido en `sessionStorage`) y consultas populares.
+
+## `address-form.utils.ts`
+
+Helpers para el sub-formulario de dirección reutilizado en usuarios y clientes:
+
+- Crea el `FormGroup` de dirección con los validators correctos
+- Parcha el formulario con datos existentes
+- Extrae el valor del formulario al modelo `Address`
+
+## `report-aggregation.utils.ts` / `report-chart.utils.ts`
+
+Específicos del feature de reportes (en `features/reports/utils/`):
+
+- Funciones de agregación pura sobre contratos de compraventa
+- Transformación de datos agregados al formato de datasets de Chart.js
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Componentes Compartidos"
+    icon="puzzle-piece"
+    href="/components/shared-components"
+  >
+    Catálogo de componentes UI
+  </Card>
+  <Card
+    title="Validators, Pipes y Directivas"
+    icon="filter"
+    href="/components/validators-pipes-directives"
+  >
+    Validators de formulario y pipes personalizados
+  </Card>
+</CardGroup>

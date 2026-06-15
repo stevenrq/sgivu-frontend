@@ -1,0 +1,136 @@
+---
+title: "Standalone y Lazy Loading"
+description: "Arquitectura de componentes standalone y carga diferida por feature en sgivu-frontend"
+---
+
+# Standalone y Lazy Loading
+
+sgivu-frontend usa **componentes standalone** (sin NgModules) con **lazy loading por feature**. Juntos permiten bundles más pequeños, dependencias explícitas y carga solo del código necesario.
+
+## Standalone Components
+
+Todos los componentes son standalone — declaran sus dependencias directamente en `imports: []`:
+
+```typescript
+@Component({
+  selector: "app-vehicle-list",
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    DataTableComponent, // Componente compartido
+    PagerComponent, // Paginación
+    RouterLink, // Directiva de routing
+    NgIf, // Directiva de control de flujo
+    FilterChipGroupComponent,
+  ],
+  templateUrl: "./vehicle-list.component.html",
+})
+export class VehicleListComponent {}
+```
+
+**Ventajas respecto a NgModules:**
+
+- Las dependencias son visibles en el propio componente, no en un módulo aparte
+- Tree-shaking más efectivo (Angular incluye solo lo que se importa)
+- Más fácil testear — no hay que configurar un `TestBed` con NgModule complejo
+
+## Lazy Loading por Feature
+
+El router raíz carga cada feature bajo demanda. Hay dos patrones según el feature:
+
+### Carga de múltiples rutas (feature con sub-rutas)
+
+```typescript
+// app.routes.ts
+{
+  path: 'vehicles',
+  canActivate: [authGuard, permissionGuard],
+  loadChildren: () =>
+    import('./features/vehicles/vehicle.routes').then(m => m.vehicleRoutes),
+  data: {
+    canActivateFn: (ps: PermissionService) => ps.hasPermission('vehicle:read'),
+  },
+},
+```
+
+```typescript
+// features/vehicles/vehicle.routes.ts
+export const vehicleRoutes: Routes = [
+  {
+    path: "cars/page/:page",
+    component: CarListComponent,
+  },
+  {
+    path: "cars/create",
+    canActivate: [permissionGuard],
+    component: CarFormComponent,
+    data: {
+      canActivateFn: (ps: PermissionService) =>
+        ps.hasPermission("vehicle:create"),
+    },
+  },
+  // …más rutas
+];
+```
+
+### Carga de un componente único
+
+```typescript
+// app.routes.ts
+{
+  path: 'dashboard',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
+},
+```
+
+## Impacto en el Bundle
+
+Gracias al lazy loading, el bundle inicial de Angular contiene solo el core + la feature `auth` (login). Cada feature genera su propio chunk:
+
+```
+main.js              ← Core Angular + app.config + app.routes
+chunk-auth.js        ← Login, callback, guards, interceptor
+chunk-dashboard.js   ← Dashboard + ML panel
+chunk-users.js       ← Usuarios
+chunk-vehicles.js    ← Vehículos + gestión imágenes
+chunk-clients.js     ← Personas y empresas
+chunk-purchase-sales.js ← Contratos
+chunk-reports.js     ← Reportes analíticos
+chunk-roles.js       ← Roles y permisos
+```
+
+El navegador descarga y parsea cada chunk solo cuando el usuario navega a esa ruta por primera vez.
+
+## Bootstrap JS por ESM
+
+Bootstrap 5 requiere JavaScript para componentes interactivos (dropdowns, modales, tooltips). En sgivu-frontend, en lugar de cargarlo con `scripts` en `angular.json`, se importa en `main.ts` selectivamente:
+
+```typescript
+// main.ts
+import Dropdown from "bootstrap/js/dist/dropdown";
+import Tab from "bootstrap/js/dist/tab";
+import Collapse from "bootstrap/js/dist/collapse";
+```
+
+Solo se importan los componentes Bootstrap JS que se usan. Si introduces un nuevo componente `data-bs-*` (modal, tooltip, popover…) **debes agregar su import en `main.ts`** o no funcionará — no hay error en consola, simplemente queda silencioso.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Estructura del Proyecto"
+    icon="folder"
+    href="/architecture/project-structure"
+  >
+    Organización de carpetas y reglas shared vs. feature
+  </Card>
+  <Card
+    title="Gestión de Estado"
+    icon="database"
+    href="/architecture/state-management"
+  >
+    Signals y factories CRUD
+  </Card>
+</CardGroup>

@@ -1,0 +1,111 @@
+---
+title: "Configuración de Entornos"
+description: "Variables de entorno de sgivu-frontend: apiUrl, authHealthCheckUrl y clientId"
+---
+
+# Configuración de Entornos
+
+sgivu-frontend usa archivos TypeScript en `src/environments/` para configurar los diferentes entornos. Los archivos reales están **gitignoreados** — solo se versionan las plantillas `.example.ts` para que el equipo pueda generarlos sin incluir valores de producción en el repositorio.
+
+## Archivos de Entorno
+
+| Archivo                              | Estado                      | Uso                              |
+| ------------------------------------ | --------------------------- | -------------------------------- |
+| `environment.ts`                     | **Gitignoreado** (generado) | Producción — usado en `ng build` |
+| `environment.development.ts`         | **Gitignoreado** (generado) | Desarrollo — usado en `ng serve` |
+| `environment.example.ts`             | Versionado (plantilla)      | Plantilla para producción        |
+| `environment.development.example.ts` | Versionado (plantilla)      | Plantilla para desarrollo local  |
+
+## Variables Disponibles
+
+```typescript
+export const environment = {
+  production: boolean, // true en prod, false en dev
+  apiUrl: string, // URL base del sgivu-gateway
+  authHealthCheckUrl: string, // URL del sgivu-auth (accesible desde el navegador)
+  clientId: string, // Identificador OAuth2 del cliente Angular
+};
+```
+
+### `apiUrl`
+
+URL base del `sgivu-gateway`. Todas las llamadas a la API van a `${apiUrl}/v1/*` y los endpoints de auth a `${apiUrl}/auth/session`, `${apiUrl}/oauth2/authorization/sgivu-gateway`, etc.
+
+### `authHealthCheckUrl`
+
+URL del servidor de autorización (`sgivu-auth`). El `AuthService` la usa para verificar la salud del servidor de auth. **Debe ser la URL accesible desde el navegador** (el puerto Docker expuesto), no el hostname interno del contenedor.
+
+### `clientId`
+
+Identificador del cliente registrado en `sgivu-auth`. En local suele ser `angular-local`; en producción, el cliente configurado en el servidor de autorización.
+
+## Configuración de Desarrollo Local
+
+```typescript
+// src/environments/environment.development.ts
+export const environment = {
+  production: false,
+  apiUrl: "http://localhost:8080", // sgivu-gateway
+  authHealthCheckUrl: "http://localhost:9000", // sgivu-auth (puerto Docker expuesto)
+  clientId: "angular-local",
+};
+```
+
+<Warning>
+  Si ves errores de "issuer mismatch" en el flujo OAuth, asegúrate de que
+  `sgivu-auth` en el `/etc/hosts` apunta a `127.0.0.1` y que
+  `authHealthCheckUrl` usa el hostname correcto que el navegador puede resolver.
+</Warning>
+
+## Configuración de Producción
+
+```typescript
+// src/environments/environment.ts
+export const environment = {
+  production: true,
+  apiUrl: "http://ec2-XX-XX-XX-XX.compute-1.amazonaws.com",
+  authHealthCheckUrl: "http://ec2-XX-XX-XX-XX.compute-1.amazonaws.com",
+  clientId: "angular-client",
+};
+```
+
+<Warning>
+  El entorno de producción actual apunta a `http://` (EC2 sin TLS). No cambiar
+  `apiUrl` ni `authHealthCheckUrl` sin coordinar con el backend — la corrección
+  correcta es habilitar TLS en el gateway, no modificar solo el frontend.
+</Warning>
+
+## Cómo Angular Selecciona el Entorno
+
+Angular CLI elige el archivo de entorno según la configuración en `angular.json`:
+
+- `ng serve` (desarrollo) → `environment.development.ts`
+- `ng build` (producción) → `environment.ts`
+
+No es necesario ningún paso extra; la selección es automática.
+
+## Generación en CI
+
+El pipeline de CI (`.github/workflows/ci.yml`) genera los archivos de entorno desde las plantillas antes de ejecutar lint, tests y build:
+
+```bash
+cp src/environments/environment.example.ts src/environments/environment.ts
+cp src/environments/environment.development.example.ts src/environments/environment.development.ts
+```
+
+Los valores usados en CI no son reales (el build solo verifica que compila y que los budgets pasan); para las pruebas e2e la red del gateway se simula con `page.route()`.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Despliegue" icon="cloud" href="/getting-started/deployment">
+    Publicar en hosting estático
+  </Card>
+  <Card
+    title="Autenticación BFF"
+    icon="shield-check"
+    href="/architecture/authentication"
+  >
+    Cómo el frontend usa estas variables en el flujo OAuth
+  </Card>
+</CardGroup>

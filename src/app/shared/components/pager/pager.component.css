@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.pagination {
+  margin-bottom: 0;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 0.25rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.page-item .page-link {
+  color: var(--text);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.75rem;
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.page-item:not(:last-child) .page-link {
+  margin-right: 0.35rem;
+}
+
+.page-item.active .page-link {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border-color: var(--accent-strong);
+  box-shadow: 0 0.35rem 1rem rgba(var(--accent-rgb), 0.25);
+  filter: brightness(1);
+}
+
+.page-item.disabled .page-link {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-muted) 90%, var(--border) 10%);
+  border-color: var(--border);
+}
+
+.page-item .page-link:hover {
+  background: var(--surface);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--border) 70%, var(--accent) 15%);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.page-item.active .page-link:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #fff;
+  border-color: var(--accent-strong);
+  box-shadow: 0 0.35rem 1rem rgba(var(--accent-rgb), 0.25);
+}
+
+.page-item.disabled .page-link:hover {
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.pagination + * {
+  margin-left: auto;
+}

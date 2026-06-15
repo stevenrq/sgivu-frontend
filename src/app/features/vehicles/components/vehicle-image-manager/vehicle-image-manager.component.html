@@ -1,0 +1,115 @@
+<fieldset class="border rounded p-3 mb-4">
+  <legend class="float-none w-auto px-2 h6 mb-0 text-muted">
+    <i class="bi bi-images me-1"></i>Fotografías del vehículo
+  </legend>
+
+  <!-- Input de subida -->
+  <div class="mb-3">
+    <label class="form-label fw-semibold" for="vehicleImage">
+      Seleccionar imágenes
+    </label>
+    <input
+      (change)="onImageSelected($event)"
+      accept="image/*"
+      multiple
+      class="form-control"
+      id="vehicleImage"
+      type="file"
+    />
+    <small class="text-muted d-block mt-1">
+      Puedes adjuntar varias a la vez. Si el vehículo no tiene imagen principal,
+      la primera que adjuntes se marcará como “Principal”.
+    </small>
+  </div>
+
+  <!-- Archivos seleccionados (lista) -->
+  @if (selectedFiles().length > 0) {
+    <div class="mb-3">
+      <div class="d-flex align-items-center mb-1">
+        <span class="badge bg-primary me-2">
+          {{ selectedFiles().length }} seleccionada(s)
+        </span>
+        <small class="text-muted">Se subirán de forma consecutiva.</small>
+      </div>
+      <ul class="list-group list-group-flush border rounded">
+        @for (f of selectedFiles(); track $index) {
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            <div class="text-truncate">
+              <span class="fw-semibold">{{ f.name }}</span>
+              <small class="text-muted ms-2"
+                >({{ f.size / 1024 | number: "1.0-1" }} KB)</small
+              >
+            </div>
+            <button
+              class="btn btn-sm btn-outline-danger"
+              type="button"
+              (click)="removeSelectedFile($index)"
+              [disabled]="uploading()"
+              aria-label="Eliminar archivo seleccionado"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <!-- Preview de imagen seleccionada -->
+  @if (previewUrl(); as preview) {
+    <div class="mb-3 text-center">
+      <p class="text-muted small mb-1">Vista previa</p>
+      <img
+        [src]="preview"
+        alt="Preview"
+        class="img-thumbnail"
+        class="image-preview"
+      />
+      <div class="mt-2">
+        <button
+          (click)="uploadSelectedImage()"
+          class="btn btn-primary btn-sm"
+          type="button"
+          [disabled]="uploading() || selectedFiles().length === 0"
+        >
+          <i class="bi bi-cloud-upload me-1"></i>Subir imagen
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Imágenes existentes -->
+  @if (vehicleImages().length > 0) {
+    <div class="mt-4">
+      <p class="text-muted small mb-2">Imágenes almacenadas</p>
+
+      <div class="d-flex flex-wrap gap-3">
+        @for (img of vehicleImages(); track $index) {
+          <div class="border rounded p-2 text-center thumbnail-card">
+            <img
+              [src]="img.url"
+              class="img-fluid rounded mb-2 thumbnail-img"
+              alt="vehiculo"
+            />
+
+            <span
+              [ngClass]="img.primary ? 'bg-success' : 'bg-secondary'"
+              class="badge"
+            >
+              {{ img.primary ? "Principal" : "Secundaria" }}
+            </span>
+            <button
+              (click)="deleteImage(img.id)"
+              class="btn btn-outline-danger btn-sm w-100 mt-2"
+              type="button"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</fieldset>

@@ -1,0 +1,149 @@
+---
+title: "Autorización RBAC"
+description: "Sistema RBAC de sgivu-frontend: permisos, permissionGuard y directiva *appHasPermission"
+---
+
+# Autorización RBAC
+
+sgivu-frontend implementa **control de acceso basado en roles** (RBAC) con permisos granulares. Los permisos se aplican en dos niveles: **guards de ruta** (impiden navegar) y **directivas de plantilla** (muestran u ocultan elementos de UI).
+
+## Formato de Permisos
+
+Los permisos siguen el formato `recurso:accion`:
+
+```
+user:read        vehicle:create     purchase_sale:update
+user:create      vehicle:update     purchase_sale:delete
+user:update      vehicle:delete     role:read
+user:delete      vehicle:manage_images  role:update
+person:read      company:read
+person:create    company:create
+```
+
+El set de permisos del usuario llega desde el endpoint `/auth/session` y `AuthService` lo almacena en un signal `rolesAndPermissions: Signal<Set<string>>`.
+
+## `PermissionService`
+
+**Ruta**: `src/app/features/auth/services/permission.service.ts`
+
+```typescript
+class PermissionService {
+  // Catálogo de todos los permisos del sistema (signal readonly)
+  readonly permissions: Signal<Permission[]>;
+
+  // Verificación — devuelven Observable<boolean>
+  hasPermission(name: string): Observable<boolean>;
+  hasAnyPermission(names: string[]): Observable<boolean>; // lógica OR
+  hasAllPermissions(names: string[]): Observable<boolean>; // lógica AND
+}
+```
+
+<Note>
+  Los métodos devuelven `Observable<boolean>`, no `boolean` síncrono. Esto permite que el `permissionGuard` espere a que los permisos estén cargados antes de evaluar.
+</Note>
+
+## `permissionGuard`
+
+**Ruta**: `src/app/features/auth/guards/permission.guard.ts`
+
+El guard recibe la función de verificación desde los `data` de la ruta:
+
+```typescript
+export const permissionGuard: CanActivateFn = (route) => {
+  const permissionService = inject(PermissionService);
+  const router = inject(Router);
+
+  const canActivateFn: (ps: PermissionService) => Observable<boolean> =
+    route.data["canActivateFn"];
+
+  // Fail-secure: si no hay función de verificación, denegar acceso
+  if (!canActivateFn) return router.parseUrl("/forbidden");
+
+  return canActivateFn(permissionService).pipe(
+    map((has) => (has ? true : router.parseUrl("/forbidden"))),
+  );
+};
+```
+
+### Configuración en Rutas
+
+```typescript
+// app.routes.ts
+{
+  path: 'users',
+  canActivate: [authGuard, permissionGuard],
+  loadChildren: () => import('./features/users/user.routes').then(m => m.userRoutes),
+  data: {
+    canActivateFn: (ps: PermissionService) => ps.hasPermission('user:read'),
+  },
+},
+
+// Con lógica OR (basta con uno de los dos permisos)
+{
+  path: 'reports',
+  data: {
+    canActivateFn: (ps: PermissionService) =>
+      ps.hasAnyPermission(['purchase_sale:read', 'vehicle:read']),
+  },
+},
+```
+
+**Fail-secure**: si `canActivateFn` no está definida en `data`, el guard redirige a `/forbidden` en lugar de dejar pasar. Esto evita que una ruta mal configurada quede sin protección.
+
+## Directiva `*appHasPermission`
+
+**Ruta**: `src/app/shared/directives/has-permission.directive.ts`
+
+Muestra u oculta elementos de la plantilla según permisos. Es una directiva estructural (como `*ngIf`):
+
+```html
+<!-- Mostrar si el usuario tiene 'user:create' -->
+<button *appHasPermission="'user:create'" (click)="createUser()">
+  Crear usuario
+</button>
+
+<!-- Lógica OR: mostrar si tiene 'vehicle:update' O 'vehicle:create' -->
+<div *appHasPermission="['vehicle:update', 'vehicle:create']">
+  Editar vehículo
+</div>
+
+<!-- Lógica AND: mostrar si tiene AMBOS permisos -->
+<div *appHasPermission="['role:read', 'role:update']; logic: 'AND'">
+  Gestionar roles
+</div>
+```
+
+La lógica por defecto es **OR**: basta con tener uno de los permisos listados.
+
+## Jerarquía de Controles
+
+```
+Ruta protegida con authGuard + permissionGuard
+  └── Contenido visible condicionalmente con *appHasPermission
+        └── Botones/acciones individuales con *appHasPermission
+```
+
+Los guards controlan el acceso a la ruta; la directiva controla la visibilidad dentro de la vista. Ambos leen del mismo `PermissionService`.
+
+## Página `/forbidden`
+
+Si el `permissionGuard` deniega el acceso, redirige a `/forbidden` que renderiza `ForbiddenComponent` — una pantalla 403 con mensaje explicativo y enlace al dashboard.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Autenticación BFF"
+    icon="shield-check"
+    href="/architecture/authentication"
+  >
+    Cómo se obtienen los permisos del usuario
+  </Card>
+  <Card
+    title="Gestión de Roles"
+    icon="users-cog"
+    href="/features/roles-permissions"
+  >
+    Administrar qué permisos tiene cada rol
+  </Card>
+</CardGroup>

@@ -1,0 +1,9 @@
+# Ignore artifacts:
+build
+coverage
+dist
+.angular
+.husky
+
+# Documentación vendoreada (referencias de skills, no se reformatea):
+.agents

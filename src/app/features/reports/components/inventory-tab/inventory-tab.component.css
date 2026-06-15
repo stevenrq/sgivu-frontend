@@ -1,0 +1,10 @@
+.chart-container {
+  min-height: 280px;
+}
+
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 250px;
+}

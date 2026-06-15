@@ -1,0 +1,46 @@
+<div class="container-fluid">
+  <app-page-header
+    title="Gestión de Clientes"
+    subtitle="Administra clientes personas naturales y empresas registradas en el sistema."
+  >
+    <div
+      page-header-actions
+      class="d-flex align-items-center gap-2 flex-wrap justify-content-end"
+    >
+      <div class="btn-group toggle-group" aria-label="Tipo de cliente">
+        <button
+          type="button"
+          class="btn btn-outline-primary me-3"
+          [class.active]="activeTab() === 'person'"
+          (click)="switchTab('person')"
+          *appHasPermission="'person:read'"
+        >
+          <i class="bi bi-person-badge me-2"></i>Personas
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [class.active]="activeTab() === 'company'"
+          (click)="switchTab('company')"
+          *appHasPermission="'company:read'"
+        >
+          <i class="bi bi-buildings me-2"></i>Empresas
+        </button>
+      </div>
+      <button
+        class="btn btn-primary ms-5"
+        type="button"
+        [routerLink]="activeCreateLink"
+        *appHasPermission="activeCreatePermission"
+      >
+        <i class="bi bi-plus-circle me-2"></i>{{ activeCreateLabel }}
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (activeTab() === "person") {
+    <app-person-list />
+  } @else {
+    <app-company-list />
+  }
+</div>

@@ -1,0 +1,108 @@
+<app-form-shell
+  [loading]="loading()"
+  [title]="title()"
+  subtitle="Selecciona los permisos del rol. Al guardar se reemplaza el conjunto completo."
+  icon="bi-shield-lock"
+>
+  <div form-body>
+    @if (role()) {
+      <div
+        class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3"
+      >
+        <div class="input-group permission-search">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input
+            type="search"
+            class="form-control"
+            placeholder="Buscar permiso..."
+            [value]="query()"
+            (input)="query.set($any($event.target).value)"
+          />
+        </div>
+        <span
+          class="badge rounded-pill bg-primary-subtle text-primary-emphasis"
+        >
+          {{ selectedCount() }} permiso(s) seleccionado(s)
+        </span>
+      </div>
+
+      @for (group of filteredGroups(); track group.resource) {
+        <fieldset class="border rounded p-3 mb-3">
+          <legend
+            class="float-none w-auto px-2 h6 mb-0 d-flex align-items-center gap-2"
+          >
+            <input
+              class="form-check-input mt-0"
+              type="checkbox"
+              [checked]="isGroupFullySelected(group)"
+              [indeterminate]="isGroupPartiallySelected(group)"
+              (change)="toggleGroup(group, $any($event.target).checked)"
+              [attr.aria-label]="'Seleccionar todo: ' + group.label"
+            />
+            {{ group.label }}
+          </legend>
+          <div class="row g-2 mt-0">
+            @for (permission of group.permissions; track permission.name) {
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [id]="'perm-' + permission.name"
+                    [checked]="isSelected(permission.name)"
+                    (change)="
+                      toggle(permission.name, $any($event.target).checked)
+                    "
+                  />
+                  <label
+                    class="form-check-label"
+                    [for]="'perm-' + permission.name"
+                  >
+                    {{ permission.actionLabel }}
+                    <span class="text-muted small d-block">{{
+                      permission.description
+                    }}</span>
+                  </label>
+                </div>
+              </div>
+            }
+          </div>
+        </fieldset>
+      }
+
+      @if (!filteredGroups().length) {
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-search display-6 d-block mb-2"></i>
+          No se encontraron permisos para "{{ query() }}".
+        </div>
+      }
+    }
+  </div>
+
+  <ng-container form-actions>
+    <button
+      type="button"
+      class="btn btn-secondary me-2"
+      (click)="onCancel()"
+      [disabled]="submitting()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="onSave()"
+      [disabled]="submitting() || !role()"
+    >
+      @if (submitting()) {
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          aria-hidden="true"
+        ></span>
+      } @else {
+        <i class="bi bi-save me-1"></i>
+      }
+      Guardar cambios
+    </button>
+  </ng-container>
+</app-form-shell>

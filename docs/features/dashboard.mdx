@@ -1,0 +1,112 @@
+---
+title: "Dashboard"
+description: "Dashboard principal de SGIVU: KPIs, gráficos analíticos y panel de predicción de demanda ML"
+---
+
+# Dashboard
+
+El dashboard es la pantalla principal de SGIVU tras el login. Centraliza las métricas operativas del concesionario y el módulo de predicción de demanda impulsada por ML.
+
+**Ubicación**: `src/app/features/dashboard/`  
+**Ruta**: `/dashboard`  
+**Permiso requerido**: autenticación (no requiere permiso específico más allá de estar autenticado)
+
+## Componentes
+
+### `DashboardComponent`
+
+Componente principal con:
+
+- **Tarjetas KPI**: contratos activos, vehículos en inventario, clientes registrados, ingresos del período
+- **Gráfico de distribución de vehículos**: doughnut chart con estados (disponible, reservado, vendido, etc.)
+- **Gráfico de tendencia de ventas**: line/bar chart con ventas por período
+- **Panel de predicción ML**: pronóstico de demanda con horizonte configurable
+
+### `DemandPredictionPanelComponent`
+
+Panel dedicado a la predicción de demanda:
+
+- Selector de horizonte de predicción (1–24 meses) y nivel de confianza (50%–99%)
+- Gráfico de línea con histórico + proyección
+- Tabla de métricas del modelo: RMSE, MAE, MAPE, WAPE, R² y comparación con baselines (naive lag-1, naive mean-3)
+- Botón de reentrenamiento asíncrono del modelo
+
+## Servicios
+
+### `DashboardStateService`
+
+**Ruta**: `src/app/features/dashboard/services/dashboard-state.service.ts`
+
+Gestiona el estado del dashboard con signals y persiste la última predicción:
+
+```typescript
+// Persistencia de la última predicción entre sesiones
+localStorage.setItem("dashboard:lastPrediction", JSON.stringify(prediction));
+```
+
+Al recargar la app, recupera la última predicción de `localStorage["dashboard:lastPrediction"]` para mostrarla instantáneamente mientras carga datos frescos.
+
+### `DemandPredictionService` (compartido)
+
+**Ruta**: `src/app/shared/services/demand-prediction.service.ts`
+
+Consume los endpoints ML del gateway:
+
+| Método             | Endpoint                           | Descripción                     |
+| ------------------ | ---------------------------------- | ------------------------------- |
+| `predict()`        | `POST /v1/ml/predict-with-history` | Genera predicción con histórico |
+| `getLatestModel()` | `GET /v1/ml/models/latest`         | Metadatos del modelo actual     |
+| `startRetrain()`   | `POST /v1/ml/retrain`              | Dispara reentrenamiento         |
+
+<Warning>
+  El reentrenamiento puede tardar hasta **30 minutos**. Si el gateway no recibe
+  respuesta antes de ese tiempo, devuelve un error 504. Este timeout está
+  alineado con el `mlRetrainCircuitBreaker` del gateway.
+</Warning>
+
+## Métricas ML
+
+El panel muestra las siguientes métricas de calidad del modelo:
+
+| Métrica  | Nombre Completo                    | Interpretación                                              |
+| -------- | ---------------------------------- | ----------------------------------------------------------- |
+| **RMSE** | Root Mean Squared Error            | Error cuadrático medio; penaliza errores grandes            |
+| **MAE**  | Mean Absolute Error                | Error absoluto promedio                                     |
+| **MAPE** | Mean Absolute Percentage Error     | Error porcentual medio                                      |
+| **WAPE** | Weighted Absolute Percentage Error | Error porcentual ponderado por volumen                      |
+| **R²**   | Coeficiente de Determinación       | Qué tan bien explica el modelo la varianza (1.0 = perfecto) |
+
+Además se muestran **baselines** de comparación:
+
+- `naive_lag1_rmse`: error del modelo ingenuo que predice igual al mes anterior
+- `naive_mean3_rmse`: error del modelo que predice el promedio de los últimos 3 meses
+
+Si el RMSE del modelo ML es mayor que los baselines, el modelo no está aportando valor respecto a estrategias simples.
+
+## Persistencia Local
+
+```typescript
+// Clave de localStorage usada por DashboardStateService
+"dashboard:lastPrediction";
+```
+
+Permite mostrar el último pronóstico inmediatamente al recargar, sin esperar la respuesta del servidor ML.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Integración ML"
+    icon="brain"
+    href="/integration/demand-prediction"
+  >
+    Detalle de la integración con el servicio FastAPI de predicción
+  </Card>
+  <Card
+    title="Componentes KPI"
+    icon="gauge"
+    href="/components/shared-components"
+  >
+    KpiCardComponent y componentes de visualización
+  </Card>
+</CardGroup>

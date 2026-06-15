@@ -1,0 +1,34 @@
+<div
+  class="table-container position-relative"
+  [class.table-responsive]="responsive()"
+  [class.flat]="flat()"
+  [style.minHeight.px]="minHeight()"
+  [style.maxHeight.px]="maxHeight()"
+  [style.overflowY]="maxHeight() !== null ? 'auto' : null"
+>
+  @if (loading()) {
+    @if (useSkeleton()) {
+      <app-skeleton-loader
+        variant="table-row"
+        [count]="skeletonRows()"
+      ></app-skeleton-loader>
+    } @else {
+      <app-loading-overlay [label]="loadingLabel()"></app-loading-overlay>
+    }
+  }
+
+  <table [class]="resolvedTableClass()">
+    @if (showHeader()) {
+      <thead class="table-light" [class.sticky-header]="stickyHeaderEnabled()">
+        <ng-content select="[table-head]"></ng-content>
+        <tr class="d-none">
+          <th></th>
+        </tr>
+      </thead>
+    }
+    <tbody>
+      <ng-content select="[table-body]"></ng-content>
+    </tbody>
+  </table>
+  <ng-content select="[table-empty]"></ng-content>
+</div>

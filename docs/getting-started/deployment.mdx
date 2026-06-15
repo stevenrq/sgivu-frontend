@@ -1,0 +1,137 @@
+---
+title: "Despliegue"
+description: "Build y publicación de sgivu-frontend en hosting estático en la nube"
+---
+
+# Despliegue
+
+sgivu-frontend se construye como un conjunto de archivos estáticos y se despliega en cualquier servicio de hosting estático: AWS S3 + CloudFront, Vercel, Netlify, AWS Amplify, Cloudflare Pages o Nginx propio.
+
+## Build de Producción
+
+```bash
+npm run build
+```
+
+Genera la salida en `dist/sgivu-frontend/`. El proceso aplica:
+
+- Compilación Ahead-of-Time (AOT)
+- Minificación y ofuscación
+- Tree-shaking (elimina código no usado)
+- Optimización y división de bundles (chunks por feature gracias al lazy loading)
+- Verificación de presupuestos de tamaño de bundle
+
+### Presupuestos de Bundle
+
+El build falla si algún chunk excede los límites configurados en `angular.json`:
+
+| Tipo                  | Advertencia | Error  |
+| --------------------- | ----------- | ------ |
+| Bundle inicial        | 1.2 MB      | 1.5 MB |
+| Estilos de componente | 8 kB        | 12 kB  |
+
+## Configuración Antes del Build
+
+Asegúrate de que `src/environments/environment.ts` apunte al gateway de producción:
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: "https://tu-gateway-de-produccion.com",
+  authHealthCheckUrl: "https://tu-auth-de-produccion.com",
+  clientId: "angular-client",
+};
+```
+
+## Opciones de Hosting
+
+<CardGroup cols={2}>
+  <Card title="AWS S3 + CloudFront" icon="cloud">
+    Sube `dist/sgivu-frontend/` a un bucket S3 con hosting estático habilitado.
+    Configura CloudFront con un comportamiento de error personalizado que sirva
+    `index.html` con status 200.
+  </Card>
+  <Card title="Vercel / Netlify / Amplify" icon="rocket">
+    Conecta el repositorio, configura el directorio de build como
+    `dist/sgivu-frontend/` y el comando como `npm run build`. El rewrite SPA se
+    configura automáticamente.
+  </Card>
+</CardGroup>
+
+## Reescritura de Rutas SPA (Obligatorio)
+
+Angular maneja el enrutamiento en el cliente. El servidor debe responder con `index.html` para todas las rutas que no sean archivos estáticos, de lo contrario la navegación directa a rutas como `/vehicles/cars` devuelve 404.
+
+### Nginx
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+### AWS S3
+
+Configura el documento de error (Error Document) como `index.html` en la configuración de hosting estático del bucket.
+
+### Vercel (`vercel.json`)
+
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+```
+
+### Netlify (`_redirects` en `public/`)
+
+```
+/*  /index.html  200
+```
+
+## Lista de Verificación Pre-Despliegue
+
+<Steps>
+  <Step title="Verificar variables de entorno">
+    `src/environments/environment.ts` apunta a las URLs de producción correctas.
+  </Step>
+  <Step title="Ejecutar el pipeline CI completo">
+    ```bash npm run lint && CI=true npm run test && npm run build ```
+  </Step>
+  <Step title="Verificar presupuestos de bundle">
+    El output de `npm run build` no debe mostrar advertencias ni errores de
+    presupuesto.
+  </Step>
+  <Step title="Configurar rewrite SPA en el hosting">
+    Todas las rutas devuelven `index.html` con status 200 (no 301/302).
+  </Step>
+  <Step title="Configurar CORS en el gateway">
+    `sgivu-gateway` debe permitir el dominio del frontend desplegado en sus
+    orígenes CORS y aceptar cookies con `withCredentials`.
+  </Step>
+</Steps>
+
+<Warning>
+  La aplicación usa `withCredentials: true` en todas las peticiones HTTP para
+  gestionar la sesión basada en cookies. El servidor debe incluir los headers
+  CORS correctos (`Access-Control-Allow-Origin` con el dominio exacto, no `*`, y
+  `Access-Control-Allow-Credentials: true`).
+</Warning>
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Referencia: Solución de Problemas"
+    icon="wrench"
+    href="/reference/troubleshooting"
+  >
+    Diagnóstico de errores 401, CORS y rutas 404 tras el despliegue
+  </Card>
+  <Card
+    title="Integración con el Gateway"
+    icon="server"
+    href="/integration/gateway"
+  >
+    Cómo el frontend se comunica con el backend en producción
+  </Card>
+</CardGroup>

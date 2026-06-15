@@ -1,0 +1,78 @@
+<div class="container-fluid">
+  <app-page-header
+    title="Roles y Permisos"
+    subtitle="Consulta los roles del sistema y gestiona los permisos de cada uno."
+    eyebrow="Administración"
+  />
+
+  <div class="card">
+    <div class="card-header bg-white py-3">
+      <h5 class="card-title mb-1">Roles del sistema</h5>
+      <p class="text-muted small mb-0">
+        Los roles se definen en el servidor. Desde aquí puedes ajustar los
+        permisos asignados a cada rol.
+      </p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-danger rounded-0 mb-0">{{ error() }}</div>
+    }
+
+    <div class="card-body p-0">
+      <app-data-table
+        [loading]="loading()"
+        [minHeight]="300"
+        loadingLabel="Cargando roles..."
+      >
+        <ng-container table-head>
+          <tr>
+            <th scope="col">Rol</th>
+            <th scope="col">Descripción</th>
+            <th scope="col" class="text-center">Permisos</th>
+            <th
+              scope="col"
+              class="text-center"
+              *appHasPermission="'user:update'"
+            >
+              Acciones
+            </th>
+          </tr>
+        </ng-container>
+        <ng-container table-body>
+          @for (role of roles(); track role.id) {
+            <tr>
+              <td>
+                <span class="fw-semibold">
+                  <i class="bi bi-shield-lock me-2 text-primary"></i
+                  >{{ role.name }}
+                </span>
+              </td>
+              <td class="text-muted">{{ role.description }}</td>
+              <td class="text-center">
+                <span
+                  class="badge rounded-pill bg-primary-subtle text-primary-emphasis"
+                >
+                  {{ role.permissions.length }}
+                </span>
+              </td>
+              <td class="text-center" *appHasPermission="'user:update'">
+                <a
+                  class="btn btn-outline-primary btn-sm"
+                  [routerLink]="['/roles-permissions', role.id, 'permissions']"
+                >
+                  <i class="bi bi-sliders me-1"></i>Gestionar permisos
+                </a>
+              </td>
+            </tr>
+          }
+        </ng-container>
+        @if (!roles().length && !loading() && !error()) {
+          <div table-empty class="text-center py-5 text-muted">
+            <i class="bi bi-shield-slash display-6 d-block mb-2"></i>
+            No hay roles registrados.
+          </div>
+        }
+      </app-data-table>
+    </div>
+  </div>
+</div>

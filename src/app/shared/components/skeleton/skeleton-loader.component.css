@@ -1,0 +1,137 @@
+:host {
+  display: block;
+}
+
+/* ── Shimmer animation ─────────────────────────── */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-muted) 25%,
+    color-mix(in srgb, var(--border) 40%, var(--surface-muted)) 37%,
+    var(--surface-muted) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ── Text lines ────────────────────────────────── */
+.skeleton-line {
+  border-radius: 8px;
+}
+
+.skeleton-line + .skeleton-line {
+  margin-top: 10px;
+}
+
+/* ── Card ──────────────────────────────────────── */
+.skeleton-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.skeleton-card + .skeleton-card {
+  margin-top: 1rem;
+}
+
+.skeleton-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.skeleton-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Table rows ────────────────────────────────── */
+.skeleton-table-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.skeleton-table-row + .skeleton-table-row {
+  border-top: 1px solid var(--border);
+}
+
+.skeleton-cell {
+  height: 14px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Chart ─────────────────────────────────────── */
+.skeleton-chart {
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1.5rem 1rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-chart__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  opacity: 0.25;
+}
+
+.skeleton-chart__bar {
+  width: 28px;
+  background: var(--muted);
+  border-radius: 6px 6px 0 0;
+}
+
+/* ── Pie / Donut chart ─────────────────────────── */
+.skeleton-pie-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton-pie-chart__ring {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton-pie-chart__hole {
+  width: 55%;
+  height: 55%;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+/* ── Circle ────────────────────────────────────── */
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-circle + .skeleton-circle {
+  margin-left: 0.5rem;
+}

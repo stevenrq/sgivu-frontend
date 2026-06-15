@@ -1,0 +1,60 @@
+<fieldset class="range-fieldset">
+  <legend class="range-label">{{ label() }}</legend>
+  <div class="d-flex gap-2">
+    @if (inputType() === "price") {
+      <!-- Input de precio mínimo con formato COP -->
+      <div class="input-group input-group-sm flex-fill">
+        <span class="input-group-text">$</span>
+        <input
+          type="text"
+          inputmode="decimal"
+          class="form-control"
+          [placeholder]="minLabel()"
+          [ngModel]="displayMin()"
+          (ngModelChange)="onPriceInput('min', $event)"
+          pattern="^[0-9.,\s$]*$"
+        />
+      </div>
+      <!-- Input de precio máximo con formato COP -->
+      <div class="input-group input-group-sm flex-fill">
+        <span class="input-group-text">$</span>
+        <input
+          type="text"
+          inputmode="decimal"
+          class="form-control"
+          [placeholder]="maxLabel()"
+          [ngModel]="displayMax()"
+          (ngModelChange)="onPriceInput('max', $event)"
+          pattern="^[0-9.,\s$]*$"
+        />
+      </div>
+    } @else {
+      <!-- Input numérico mínimo -->
+      <div class="input-group input-group-sm flex-fill">
+        <input
+          type="number"
+          class="form-control"
+          [placeholder]="minLabel()"
+          [ngModel]="minValue()"
+          (ngModelChange)="onNumberChange('min', $event)"
+        />
+        @if (unit()) {
+          <span class="input-group-text">{{ unit() }}</span>
+        }
+      </div>
+      <!-- Input numérico máximo -->
+      <div class="input-group input-group-sm flex-fill">
+        <input
+          type="number"
+          class="form-control"
+          [placeholder]="maxLabel()"
+          [ngModel]="maxValue()"
+          (ngModelChange)="onNumberChange('max', $event)"
+        />
+        @if (unit()) {
+          <span class="input-group-text">{{ unit() }}</span>
+        }
+      </div>
+    }
+  </div>
+</fieldset>

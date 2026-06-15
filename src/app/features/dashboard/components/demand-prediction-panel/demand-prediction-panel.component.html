@@ -1,0 +1,301 @@
+<div class="card h-100">
+  <div
+    class="card-header d-flex flex-wrap align-items-start align-items-md-center justify-content-between gap-2"
+  >
+    <div>
+      <h5 class="card-title mb-1">Predicción de Demanda</h5>
+      <div class="text-muted small">
+        @if (activeSegmentLabel()) {
+          <span>{{ activeSegmentLabel() }}</span>
+        } @else {
+          <span>Selecciona un segmento para pronosticar.</span>
+        }
+        @if (modelVersion()) {
+          <span class="ms-2 badge text-bg-light border"
+            >Modelo {{ modelVersion() }}</span
+          >
+        } @else if (latestModelValue()?.version) {
+          <span class="ms-2 badge text-bg-light border">
+            Modelo {{ latestModelValue()?.version }}
+          </span>
+        }
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      @if (forecastMetrics()?.wape !== undefined) {
+        <span class="badge bg-primary-subtle text-primary">
+          WAPE
+          {{ (forecastMetrics()?.wape ?? 0) * 100 | number: "1.1-1" }} %
+        </span>
+      } @else if (forecastMetrics()?.mape !== undefined) {
+        <span class="badge bg-primary-subtle text-primary">
+          MAPE {{ forecastMetrics()?.mape | number: "1.1-2" }}
+        </span>
+      }
+      @if (forecastMetrics()?.rmse !== undefined) {
+        <span
+          class="badge bg-secondary-subtle text-secondary"
+          [title]="baselinesTooltip()"
+        >
+          RMSE {{ forecastMetrics()?.rmse | number: "1.1-2" }}
+          @if (
+            forecastMetrics()?.baselines?.naive_lag1_rmse !== undefined &&
+            (forecastMetrics()?.rmse ?? 0) <
+              (forecastMetrics()?.baselines?.naive_lag1_rmse ?? 0)
+          ) {
+            <i class="bi bi-patch-check-fill ms-1"></i>
+          }
+        </span>
+      }
+      @if (salesHistoryCount() > 0 && salesHistoryCount() < 15) {
+        <span class="badge bg-warning-subtle text-warning-emphasis">
+          Historial corto: {{ salesHistoryCount() }} ventas
+        </span>
+      }
+      <button
+        type="button"
+        class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+        [disabled]="retrainLoading() || predictionLoading()"
+        (click)="onRetrain()"
+      >
+        @if (retrainLoading()) {
+          <span class="spinner-border spinner-border-sm"></span>
+        } @else {
+          <i class="bi bi-arrow-repeat"></i>
+        }
+        Reentrenar
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    @if (!loading() && noModelTrained()) {
+      <div
+        class="alert alert-warning d-flex align-items-start gap-3 mb-3"
+        role="alert"
+      >
+        <i class="bi bi-exclamation-triangle-fill fs-5 mt-1 flex-shrink-0"></i>
+        <div>
+          <div class="fw-semibold mb-1">Modelo no entrenado</div>
+          <div class="small">
+            Aún no se ha entrenado ningún modelo de predicción de demanda. Para
+            poder consultar pronósticos, primero debes hacer clic en
+            <strong>Reentrenar</strong> para generar el modelo inicial.
+          </div>
+        </div>
+      </div>
+    }
+    <form
+      [formGroup]="predictionForm"
+      (ngSubmit)="onSubmitPrediction()"
+      class="quick-search mt-3"
+    >
+      <label
+        class="form-label filter-label text-muted fw-semibold"
+        for="dashboardQuickVehicleSearch"
+      >
+        Búsqueda rápida de vehículos
+      </label>
+      <div class="quick-search-wrapper">
+        <input
+          type="search"
+          class="form-control"
+          id="dashboardQuickVehicleSearch"
+          [(ngModel)]="quickVehicleTerm"
+          (ngModelChange)="filterVehicleOptions($event)"
+          placeholder="Escribe marca, modelo, placa o línea"
+          autocomplete="off"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        @if (contractedVehicles().length > 0) {
+          <div class="quick-search-dropdown">
+            @for (
+              vehicle of contractedVehicles();
+              track vehicle.type + vehicle.id
+            ) {
+              <button
+                type="button"
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                (click)="selectQuickVehicle(vehicle)"
+              >
+                <div>
+                  <div class="fw-semibold">
+                    {{ vehicle.type === "MOTORCYCLE" ? "Moto" : "Auto" }}
+                    ·
+                    {{ vehicle.label }}
+                    @if (vehicle.line) {
+                      <span class="text-muted">({{ vehicle.line }})</span>
+                    }
+                  </div>
+                  <div class="text-muted small">
+                    @if (vehicle.line) {
+                      Línea: {{ vehicle.line }} ·
+                    }
+                    Contratos: {{ vehicle.contractsCount ?? 0 }}
+                  </div>
+                </div>
+                @if (
+                  quickVehicleLoading() && quickVehicleTerm() === vehicle.label
+                ) {
+                  <span class="spinner-border spinner-border-sm"></span>
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+      <div class="row g-2 align-items-end mt-2">
+        <div class="col-6 col-md-3">
+          <label class="form-label small" for="dashboardHorizonMonths"
+            >Horizonte (meses)</label
+          >
+          <input
+            type="number"
+            min="1"
+            max="24"
+            class="form-control"
+            id="dashboardHorizonMonths"
+            formControlName="horizonMonths"
+          />
+        </div>
+        <div class="col-12 col-md-auto">
+          <button
+            class="btn btn-primary"
+            type="submit"
+            [disabled]="predictionLoading() || quickVehicleLoading()"
+            [attr.aria-busy]="predictionLoading()"
+          >
+            @if (predictionLoading()) {
+              <output
+                class="spinner-border spinner-border-sm me-2"
+                aria-live="polite"
+              ></output>
+            }
+            Consultar
+          </button>
+        </div>
+      </div>
+    </form>
+
+    @if (predictionError()) {
+      <div
+        class="alert alert-warning d-flex align-items-center gap-2 mb-3"
+        role="alert"
+      >
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>{{ predictionError() }}</div>
+      </div>
+    }
+    @if (retrainError()) {
+      <div
+        class="alert alert-danger d-flex align-items-center gap-2 mb-3"
+        role="alert"
+      >
+        <i class="bi bi-x-circle-fill"></i>
+        <div>{{ retrainError() }}</div>
+      </div>
+    }
+    @if (retrainMessage()) {
+      <div
+        class="alert alert-success d-flex align-items-center gap-2 mb-3"
+        role="alert"
+      >
+        <i class="bi bi-check-circle-fill"></i>
+        <div>{{ retrainMessage() }}</div>
+      </div>
+    }
+
+    <div class="chart-container position-relative">
+      @if (predictionLoading()) {
+        <div class="chart-placeholder">
+          <app-skeleton-loader
+            variant="chart"
+            height="340px"
+          ></app-skeleton-loader>
+        </div>
+      } @else if (demandData()) {
+        <div
+          class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2"
+        >
+          <div class="text-muted small">
+            @if (latestModelValue()?.trainedAt) {
+              Último entrenamiento:
+              {{ latestModelValue()?.trainedAt | date: "medium" }}
+            }
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            @if (forecastMetrics()?.r2 !== undefined) {
+              <span class="badge text-bg-light border">
+                R² {{ forecastMetrics()?.r2 | number: "1.2-2" }}
+              </span>
+            }
+            @if (forecastMetrics()?.residual_std !== undefined) {
+              <span class="badge text-bg-light border">
+                σ {{ forecastMetrics()?.residual_std | number: "1.2-2" }}
+              </span>
+            }
+            @if (forecastMetrics()?.baselines?.naive_lag1_rmse !== undefined) {
+              <span
+                class="badge text-bg-light border"
+                title="RMSE del modelo vs predictores ingenuos. ✓ indica que el modelo supera al baseline."
+              >
+                vs Lag-1
+                @if (
+                  (forecastMetrics()?.rmse ?? 0) <
+                  (forecastMetrics()?.baselines?.naive_lag1_rmse ?? 0)
+                ) {
+                  <span class="text-success fw-bold">✓</span>
+                } @else {
+                  <span class="text-danger fw-bold">✗</span>
+                }
+                {{
+                  forecastMetrics()?.baselines?.naive_lag1_rmse ?? 0
+                    | number: "1.2-2"
+                }}
+              </span>
+            }
+            @if (forecastMetrics()?.baselines?.naive_mean3_rmse !== undefined) {
+              <span
+                class="badge text-bg-light border"
+                title="RMSE del modelo vs media móvil 3 meses."
+              >
+                vs Media-3
+                @if (
+                  (forecastMetrics()?.rmse ?? 0) <
+                  (forecastMetrics()?.baselines?.naive_mean3_rmse ?? 0)
+                ) {
+                  <span class="text-success fw-bold">✓</span>
+                } @else {
+                  <span class="text-danger fw-bold">✗</span>
+                }
+                {{
+                  forecastMetrics()?.baselines?.naive_mean3_rmse ?? 0
+                    | number: "1.2-2"
+                }}
+              </span>
+            }
+          </div>
+        </div>
+        @defer (on viewport) {
+          <canvas
+            baseChart
+            [data]="demandData()!"
+            [options]="demandOptions()"
+            [type]="'line'"
+            height="340"
+          >
+          </canvas>
+        } @placeholder {
+          <app-skeleton-loader
+            variant="chart"
+            height="340px"
+          ></app-skeleton-loader>
+        }
+      } @else {
+        <div class="chart-placeholder text-center text-muted">
+          Selecciona un vehículo en la búsqueda rápida y consulta para ver la
+          predicción.
+        </div>
+      }
+    </div>
+  </div>
+</div>

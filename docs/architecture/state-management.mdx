@@ -1,0 +1,130 @@
+---
+title: "Gestión de Estado"
+description: "Cómo se gestiona el estado en sgivu-frontend: signals en servicios, CrudOperationsFactory y ListPageManager"
+---
+
+# Gestión de Estado
+
+sgivu-frontend no usa NgRx ni BehaviorSubjects como estado. Toda la gestión de estado se hace con **Angular Signals en servicios**, complementados con dos factories genéricas para reducir código repetitivo en features CRUD.
+
+<Note>
+  El estado nunca vive en componentes si necesita sobrevivir entre navegaciones.
+  Los componentes solo leen signals expuestos por servicios y despachan acciones
+  llamando a métodos del servicio.
+</Note>
+
+## Patrón Base
+
+Todo servicio con estado sigue este patrón (ver [Zoneless y Signals](/architecture/zoneless-signals) para el detalle):
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class ExampleService {
+  private readonly _items = signal<Item[]>([]);
+  private readonly _loading = signal(false);
+
+  readonly items = this._items.asReadonly();
+  readonly loading = this._loading.asReadonly();
+  readonly count = computed(() => this._items().length);
+}
+```
+
+## `CrudOperationsFactory`
+
+**Ruta**: `src/app/shared/utils/crud-operations.factory.ts`
+
+Factory que genera las operaciones CRUD estándar para un recurso. Todos los servicios de dominio (UserService, CarService, PersonService, etc.) la usan para evitar repetir la misma lógica de loading/error/signal-update.
+
+Recibe la URL base del recurso y devuelve métodos tipados:
+
+```typescript
+// Ejemplo de uso en un servicio de dominio
+@Injectable({ providedIn: "root" })
+export class CarService {
+  private readonly crud = CrudOperationsFactory.create<Car>(
+    `${environment.apiUrl}/v1/cars`,
+    inject(HttpClient),
+  );
+
+  // Estado
+  readonly cars = this.crud.items;
+  readonly loading = this.crud.loading;
+
+  // Operaciones
+  loadPage = this.crud.loadPage;
+  create = this.crud.create;
+  update = this.crud.update;
+  delete = this.crud.delete;
+}
+```
+
+Internamente la factory maneja:
+
+- Signal de `items[]` con los datos paginados
+- Signal de `loading` durante peticiones HTTP
+- Signal de `error` para propagación a la UI vía `ToastService`
+- Actualización optimista del estado tras create/update/delete
+
+## `ListPageManager`
+
+**Ruta**: `src/app/shared/utils/list-page-manager.ts`
+
+Gestiona el estado de las páginas de listado: paginación, filtros activos y KPIs (total, activos, inactivos). Lo usan los componentes de lista para coordinar la URL con el estado de la página:
+
+```typescript
+// En un componente de lista
+export class UserListComponent {
+  private readonly manager = inject(ListPageManager);
+
+  // Parámetros de paginación sincronizados con la URL
+  readonly page = this.manager.page;
+  readonly filters = this.manager.filters;
+
+  // KPIs calculados sobre los datos de la página
+  readonly totalCount = this.manager.total;
+  readonly activeCount = this.manager.active;
+  readonly inactiveCount = this.manager.inactive;
+}
+```
+
+Los filtros se serializan a/desde query params de URL para que el usuario pueda compartir o recargar la URL con el estado exacto del listado.
+
+## Estado de UI en Componentes
+
+Para estado local de UI que no necesita sobrevivir a la navegación (visibilidad de un panel, tab activa, valor de un campo de búsqueda local), los componentes usan signals locales:
+
+```typescript
+export class VehicleListComponent {
+  // Estado local del componente (no persiste)
+  protected readonly activeTab = signal<"cars" | "motorcycles">("cars");
+  protected readonly showFilters = signal(false);
+
+  // Estado del servicio (persiste mientras el servicio vive en memoria)
+  protected readonly vehicles = inject(VehicleService).vehicles;
+}
+```
+
+## Sin NgRx, Sin BehaviorSubject
+
+La decisión de no usar NgRx es explícita: la app es suficientemente pequeña para que los servicios singleton con signals sean la fuente de verdad adecuada. Agregar NgRx introduciría boilerplate (actions, reducers, selectors, effects) sin aportar beneficios reales a este tamaño de aplicación.
+
+`BehaviorSubject` tampoco se usa como estado — puede aparecer en streams de RxJS internos, pero el estado expuesto al exterior siempre es un signal readonly.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Componentes y Utilidades"
+    icon="puzzle-piece"
+    href="/components/shared-utils"
+  >
+    Detalle de CrudOperationsFactory y ListPageManager
+  </Card>
+  <Card
+    title="Zoneless y Signals"
+    icon="bolt"
+    href="/architecture/zoneless-signals"
+  >
+    Fundamentos de signals y computed
+  </Card>
+</CardGroup>

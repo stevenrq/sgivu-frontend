@@ -1,0 +1,29 @@
+/* Ancho útil del buscador (antes era un estilo inline repetido en cada listado) */
+.list-toolbar-search {
+  min-width: 220px;
+  max-width: 480px;
+}
+
+.advanced-filters-panel {
+  background-color: var(--surface-muted, #f8f9fa);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 0.5rem);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .advanced-filters-panel {
+    animation: none;
+  }
+}

@@ -1,0 +1,134 @@
+---
+title: "Theming y Estilos"
+description: "Sistema de temas de sgivu-frontend: ThemeService, light/dark/system y variables CSS con Bootstrap 5.3"
+---
+
+# Theming y Estilos
+
+sgivu-frontend incluye soporte completo de tema claro/oscuro/sistema. El sistema usa signals para la reactividad, `localStorage` para persistencia y CSS custom properties para mapear el tema al sistema de diseño de Bootstrap 5.3.
+
+## `ThemeService`
+
+**Ruta**: `src/app/shared/services/theme.service.ts`
+
+Gestiona la preferencia de tema del usuario con signals:
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class ThemeService {
+  // Preferencia explícita del usuario
+  readonly preference: Signal<"light" | "dark" | "system">;
+
+  // Tema efectivo resuelto (considera preferencia del sistema si es 'system')
+  readonly activeTheme: Signal<"light" | "dark">;
+
+  initialize(): void; // Llamado en APP_INITIALIZER antes del primer render
+  setPreference(p: "light" | "dark" | "system"): void;
+  toggleTheme(): void; // Alterna light ↔ dark
+}
+```
+
+### Persistencia
+
+La preferencia se persiste en `localStorage["sgivu-theme"]`. Al recargar la app, `initialize()` (ejecutado como `APP_INITIALIZER`) lee ese valor y aplica el tema antes de que el usuario vea la UI, evitando el parpadeo de tema incorrecto.
+
+### Aplicación al DOM
+
+El servicio aplica el tema con el atributo `data-theme` en el elemento `<html>`:
+
+```typescript
+document.documentElement.dataset["theme"] = "light" | "dark";
+```
+
+Las CSS custom properties en `styles.css` usan este selector para cambiar los colores:
+
+```css
+:root,
+[data-theme="light"] {
+  --surface: #ffffff;
+  --text: #1a1a1a;
+}
+
+[data-theme="dark"] {
+  --surface: #1a1a1a;
+  --text: #f5f5f5;
+}
+```
+
+### Modo Sistema (`system`)
+
+Cuando la preferencia es `system`, el servicio usa el `matchMedia` del navegador para detectar la preferencia del SO:
+
+```typescript
+window.matchMedia("(prefers-color-scheme: dark)").matches;
+```
+
+Por eso el `test-setup.ts` hace stub de `window.matchMedia` — jsdom no lo implementa, y `ThemeService` se inicializa en cada test.
+
+## Formularios: `.floating-google`
+
+Los formularios usan **floating labels** con una clase personalizada `.floating-google` definida en `styles.css`. Esta clase extiende el componente `form-floating` de Bootstrap con el estilo visual de los campos de Google (label flota como placeholder al enfocar).
+
+```html
+<div class="floating-google">
+  <input type="text" class="form-control" id="username" placeholder="Usuario" />
+  <label for="username">Usuario</label>
+</div>
+```
+
+<Warning>
+  No migrar los formularios a otro patrón de floating label sin probar los 4
+  formularios principales visualmente (login, usuario, cliente, vehículo). El
+  comportamiento es CSS puro — un cambio puede romper varios formularios
+  silenciosamente.
+</Warning>
+
+## Bootstrap 5.3 y CSS Custom Properties
+
+Bootstrap 5.3 usa CSS custom properties internamente (`--bs-primary`, `--bs-body-bg`, etc.). `styles.css` sobreescribe estas variables según el tema activo para que todos los componentes de Bootstrap (botones, tablas, cards) respeten el tema sin necesidad de clases adicionales.
+
+## Jerarquía de Botones
+
+La UI sigue una jerarquía de variantes de Bootstrap para mantener consistencia:
+
+| Variante                | Cuándo usar                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| `btn-primary`           | CTA principal de la vista. **Solo uno por pantalla**        |
+| `btn-outline-secondary` | Acciones secundarias: Cancelar, Limpiar, Volver             |
+| `btn-outline-primary`   | Navegación secundaria o acciones de detalle en tabla        |
+| `btn-outline-danger`    | Confirmación destructiva visible antes del diálogo          |
+| `btn-outline-success`   | Acción positiva contextual (ej. toggle "Activar")           |
+| `btn-sm` / `btn-icon`   | Filas de tabla / icono sin texto (`aria-label` obligatorio) |
+
+<Warning>
+  No usar `btn-secondary`, `btn-light` ni `btn-dark` — tienen contraste ambiguo
+  en modo oscuro.
+</Warning>
+
+## Bootstrap JS
+
+Bootstrap 5 requiere JavaScript para componentes interactivos. En sgivu-frontend se importa por ESM en `main.ts` (no via `angular.json > scripts`):
+
+```typescript
+// main.ts
+import Dropdown from "bootstrap/js/dist/dropdown";
+import Tab from "bootstrap/js/dist/tab";
+import Collapse from "bootstrap/js/dist/collapse";
+```
+
+Si introduces un nuevo componente `data-bs-*` (modal, tooltip, popover, offcanvas…), **agrega su import en `main.ts`** o no funcionará.
+
+## Próximos Pasos
+
+<CardGroup cols={2}>
+  <Card title="Formularios" icon="input-text" href="/architecture/forms">
+    Reactive Forms tipados y validators
+  </Card>
+  <Card
+    title="Componentes Compartidos"
+    icon="puzzle-piece"
+    href="/components/shared-components"
+  >
+    Componentes de UI que respetan el tema
+  </Card>
+</CardGroup>
