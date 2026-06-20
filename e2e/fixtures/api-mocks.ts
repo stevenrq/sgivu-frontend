@@ -2,7 +2,7 @@ import { Page, Route } from '@playwright/test';
 
 /** URLs de environment.development.ts (y de las plantillas .example usadas en CI). */
 export const API_URL = 'http://localhost:8080';
-export const AUTH_HEALTH_URL = 'http://localhost:9000';
+export const AUTH_HEALTH_URL = 'http://sgivu-auth.127.0.0.1.nip.io:9000';
 const APP_ORIGIN = 'http://localhost:4200';
 
 // ── Datos semilla ────────────────────────────────────────────────────────────
